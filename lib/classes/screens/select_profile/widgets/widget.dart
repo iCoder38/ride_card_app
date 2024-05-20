@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 
-Widget widgetLoginHeader() {
+Widget widgetSelectProfileHeader() {
   return Positioned(
     bottom: 210,
     left: 0,
@@ -19,7 +19,7 @@ Widget widgetLoginHeader() {
   );
 }
 
-Widget widgetLoginSubHeader() {
+Widget widgetSelectProfileSubHeader() {
   return Positioned(
     bottom: 180,
     left: 0,
@@ -28,7 +28,7 @@ Widget widgetLoginSubHeader() {
       alignment: Alignment.center,
       child: textFontPOOPINS(
         //
-        TEXT_WELCOME_SUB_TITLE,
+        TEXT_SUB_TITLE,
         Colors.white,
         14.0,
         fontWeight: FontWeight.w400,
@@ -37,7 +37,7 @@ Widget widgetLoginSubHeader() {
   );
 }
 
-Widget widgetLoginLogo() {
+Widget widgetSelectProfileLogo() {
   return Align(
     alignment: Alignment.topCenter,
     child: Container(
@@ -61,7 +61,7 @@ Widget widgetLoginLogo() {
   );
 }
 
-Widget widgetLoginBG() {
+Widget widgetSelectProfileBG() {
   return Container(
     decoration: const BoxDecoration(
       image: DecorationImage(

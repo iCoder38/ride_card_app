@@ -14,6 +14,10 @@ var TEXT_SIGN_IN = 'sign in'.toUpperCase();
 var TEXT_CREATE_AN_ACCOUNT = 'create an account'.toUpperCase();
 var TEXT_WELCOME_TITLE = 'Welcome to Ride Card App';
 var TEXT_WELCOME_SUB_TITLE = 'Choose an option to continue';
+//
+var TEXT_USER = 'user'.toUpperCase();
+var TEXT_BUSINESS = 'business'.toUpperCase();
+var TEXT_SUB_TITLE = 'Continue your account as a';
 // FONT
 Text textFontPOOPINS(text, color, size, {FontWeight? fontWeight}) {
   return Text(
