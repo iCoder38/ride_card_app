@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ride_card_app/classes/common/app_bar/app_bar.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/screens/select_profile/select_profile.dart';
 import 'package:ride_card_app/classes/screens/welcome/widgets/widgets.dart';

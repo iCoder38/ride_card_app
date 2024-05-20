@@ -7,11 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 var TEXT_NAVIGATION_TITLE_WELCOME = 'welcome'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_REGISTRATION = 'register'.toUpperCase();
 //
-// COLOR
-var appNAVcolor = const Color.fromARGB(200, 0, 0, 0);
-var appBGcolor = const Color.fromARGB(200, 0, 0, 0);
-var appREDcolor = const Color.fromRGBO(218, 72, 50, 1);
-//
 var TEXT_SIGN_IN = 'sign in'.toUpperCase();
 var TEXT_CREATE_AN_ACCOUNT = 'create an account'.toUpperCase();
 var TEXT_WELCOME_TITLE = 'Welcome to Ride Card App';
@@ -25,6 +20,14 @@ var TEXT_ALREADY_ACCOUNT = 'Already have an account? -';
 //
 // ALERT TEXT
 var PLEASE_WAIT = 'Please wait...';
+var TEXT_FIELD_EMPTY_TEXT = 'Please enter value';
+var TEXT_FIELD_KYC =
+    'Please select and upload documents to complete your KYC verification process.';
+
+// COLOR
+var appNAVcolor = const Color.fromARGB(200, 0, 0, 0);
+var appBGcolor = const Color.fromARGB(200, 0, 0, 0);
+var appREDcolor = const Color.fromRGBO(218, 72, 50, 1);
 
 // FONT
 Text textFontPOOPINS(text, color, size, {FontWeight? fontWeight}) {
