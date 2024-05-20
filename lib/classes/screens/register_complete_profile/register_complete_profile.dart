@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/register_complete_profile_business/register_complete_profile_business.dart';
 
 class CompleteProfileScreen extends StatefulWidget {
   const CompleteProfileScreen({super.key});
@@ -26,7 +28,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   //
   @override
   void dispose() {
-    // Dispose the controller when the widget is disposed
     _contPlaceOfWork.dispose();
     _contSalary.dispose();
     _contAddress.dispose();
@@ -54,63 +55,58 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         color: Colors.amber,
         image: DecorationImage(
           image: AssetImage('assets/images/background.png'),
-          fit: BoxFit.cover, // Ensure the image covers the whole container
+          fit: BoxFit.cover,
         ),
       ),
-      child: _UIKitCompleteProfileAfterBG(context),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: _UIKitCompleteProfileAfterBG(context),
+      ),
     );
   }
 
-  Column _UIKitCompleteProfileAfterBG(BuildContext context) {
-    return Column(
-      children: [
-        IconButton(
-          onPressed: () {
-            //
-          },
-          icon: const Icon(
-            Icons.chevron_left,
-            color: Colors.red,
+  Widget _UIKitCompleteProfileAfterBG(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          const SizedBox(
+            height: 80.0,
           ),
-        ),
-        const SizedBox(
-          height: 80.0,
-        ),
-        _textFieldPlaceOfWork(),
-        _textFieldSalary(),
-        _textFieldAddress(),
-        _textFieldPostalCode(),
-        _textFieldPEP(),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: textFontPOOPINS(
-            //
-            TEXT_FIELD_KYC,
-            Colors.white,
-            14.0,
+          customNavigationBar(TEXT_NAVIGATION_TITLE_COMPLETE_PROFILE),
+          _textFieldPlaceOfWork(),
+          _textFieldSalary(),
+          _textFieldAddress(),
+          _textFieldPostalCode(),
+          _textFieldPEP(),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: textFontPOOPINS(
+              //
+              TEXT_FIELD_KYC,
+              Colors.white,
+              14.0,
+            ),
           ),
-        ),
-        _textFieldPassport(),
-        _textFieldPassportVerification(),
-        Padding(
-          padding: const EdgeInsets.only(
-            left: 16.0,
-            right: 16.0,
-            top: 16.0,
-          ),
-          child: GestureDetector(
-            onTap: () {
-              if (_formKey.currentState!.validate()) {
-                showLoadingUI(context, PLEASE_WAIT);
-              }
-            },
+          _textFieldPassport(),
+          _textFieldPassportVerification(),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              top: 16.0,
+            ),
             child: GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const CompleteProfileScreen()),
-                );
+                if (_formKey.currentState!.validate()) {
+                  showLoadingUI(context, PLEASE_WAIT);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const CompleteProfileBusinessScreen()),
+                  );
+                }
               },
               child: Container(
                 height: 60,
@@ -133,8 +129,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

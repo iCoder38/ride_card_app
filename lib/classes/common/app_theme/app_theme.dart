@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 // TEXT
 var TEXT_NAVIGATION_TITLE_WELCOME = 'welcome'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_REGISTRATION = 'register'.toUpperCase();
+var TEXT_NAVIGATION_TITLE_COMPLETE_PROFILE = 'complete profile'.toUpperCase();
 //
 var TEXT_SIGN_IN = 'sign in'.toUpperCase();
 var TEXT_CREATE_AN_ACCOUNT = 'create an account'.toUpperCase();
@@ -18,6 +19,8 @@ var TEXT_SUB_TITLE = 'Continue your account as a';
 //
 var TEXT_ALREADY_ACCOUNT = 'Already have an account? -';
 //
+var TEXT_ACCEPT_TERMS =
+    'I have no objection in case Ride Card App seeks to authenticate the identity information provided by me is correct.';
 // ALERT TEXT
 var PLEASE_WAIT = 'Please wait...';
 var TEXT_FIELD_EMPTY_TEXT = 'Please enter value';
