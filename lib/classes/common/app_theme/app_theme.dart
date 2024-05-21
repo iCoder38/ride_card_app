@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 var TEXT_NAVIGATION_TITLE_WELCOME = 'welcome'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_REGISTRATION = 'register'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_COMPLETE_PROFILE = 'complete profile'.toUpperCase();
+var TEXT_NAVIGATION_TITLE_DASHBOARD = 'dashboard'.toUpperCase();
 //
 var TEXT_SIGN_IN = 'sign in'.toUpperCase();
 var TEXT_CREATE_AN_ACCOUNT = 'create an account'.toUpperCase();
@@ -26,6 +27,16 @@ var PLEASE_WAIT = 'Please wait...';
 var TEXT_FIELD_EMPTY_TEXT = 'Please enter value';
 var TEXT_FIELD_KYC =
     'Please select and upload documents to complete your KYC verification process.';
+
+// IMAGE
+var BACKGROUNG_IMAGE_ASSET_URL = 'assets/images/background.png';
+
+// SCREEN: CARDS
+var TEXT_CREDIT_SCORE = 'Credit Score';
+var TEXT_MANAGE_CARDS = 'Manage cards';
+var TEXT_SEND_MONEY = 'Send money';
+var TEXT_WALLER = 'Wallet';
+var TEXT_STATEMENT = 'Statement';
 
 // COLOR
 var appNAVcolor = const Color.fromARGB(200, 0, 0, 0);
