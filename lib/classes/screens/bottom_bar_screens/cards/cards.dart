@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/widgets/widgets.dart';
 
@@ -11,9 +12,14 @@ class CardsScreen extends StatefulWidget {
 }
 
 class _CardsScreenState extends State<CardsScreen> {
+  //
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  //
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: CustomDrawer(),
       body: _UIKit(context),
     );
   }
@@ -42,7 +48,10 @@ class _CardsScreenState extends State<CardsScreen> {
         const SizedBox(
           height: 80.0,
         ),
-        customNavigationBar(TEXT_NAVIGATION_TITLE_DASHBOARD),
+        customNavigationBarForMenu(
+          TEXT_NAVIGATION_TITLE_DASHBOARD,
+          _scaffoldKey,
+        ),
         //
         widgetCardsCreditScore(context),
         //

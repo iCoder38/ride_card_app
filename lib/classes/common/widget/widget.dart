@@ -6,21 +6,72 @@ Widget customNavigationBar(title) {
     children: [
       Align(
         alignment: Alignment.centerLeft,
-        child: Container(
-          margin: const EdgeInsets.only(
-            left: 16.0,
-          ),
-          height: 40,
-          width: 40,
-          decoration: BoxDecoration(
-            color: Colors.orange,
-            borderRadius: BorderRadius.circular(
-              20.0,
+        child: GestureDetector(
+          onTap: () {},
+          child: Container(
+            margin: const EdgeInsets.only(
+              left: 16.0,
+            ),
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              color: Colors.orange,
+              borderRadius: BorderRadius.circular(
+                20.0,
+              ),
+            ),
+            child: const Icon(
+              Icons.arrow_back,
+              color: Colors.white,
             ),
           ),
-          child: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
+        ),
+      ),
+      const SizedBox(
+        width: 40.0,
+      ),
+      Container(
+        height: 40,
+        color: Colors.transparent,
+        child: Center(
+          child: textFontORBITRON(
+            //
+            title,
+            Colors.white,
+            18.0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      )
+    ],
+  );
+}
+
+Widget customNavigationBarForMenu(title, key) {
+  return Row(
+    children: [
+      Align(
+        alignment: Alignment.centerLeft,
+        child: GestureDetector(
+          onTap: () {
+            key.currentState?.openDrawer();
+          },
+          child: Container(
+            margin: const EdgeInsets.only(
+              left: 16.0,
+            ),
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              color: Colors.orange,
+              borderRadius: BorderRadius.circular(
+                20.0,
+              ),
+            ),
+            child: const Icon(
+              Icons.menu,
+              color: Colors.white,
+            ),
           ),
         ),
       ),
