@@ -9,6 +9,7 @@ var TEXT_NAVIGATION_TITLE_REGISTRATION = 'register'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_COMPLETE_PROFILE = 'complete profile'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_DASHBOARD = 'dashboard'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_MANAGE_CARDS = 'manage cards'.toUpperCase();
+var TEXT_NAVIGATION_TITLE_ALL_CARDS = 'all cards'.toUpperCase();
 //
 var TEXT_SIGN_IN = 'sign in'.toUpperCase();
 var TEXT_CREATE_AN_ACCOUNT = 'create an account'.toUpperCase();

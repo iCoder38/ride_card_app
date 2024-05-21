@@ -68,9 +68,43 @@ class _ManageCardsScreenState extends State<ManageCardsScreen> {
     return Column(
       children: [
         const SizedBox(height: 80),
-        customNavigationBar(TEXT_NAVIGATION_TITLE_MANAGE_CARDS),
+        customNavigationBar(context, TEXT_NAVIGATION_TITLE_MANAGE_CARDS),
         const SizedBox(
           height: 40.0,
+        ),
+        CreditCardWidget(
+          enableFloatingCard: useFloatingAnimation,
+          glassmorphismConfig: _getGlassmorphismConfig(),
+          cardNumber: cardNumber,
+          expiryDate: expiryDate,
+          cardHolderName: cardHolderName,
+          cvvCode: cvvCode,
+          bankName: 'ALL CARDS',
+          frontCardBorder:
+              useGlassMorphism ? null : Border.all(color: Colors.grey),
+          backCardBorder:
+              useGlassMorphism ? null : Border.all(color: Colors.grey),
+          showBackView: isCvvFocused,
+          // backgroundNetworkImage:
+          // 'https://plus.unsplash.com/premium_photo-1709033511355-d2b8d7e86797?q=80&w=3749&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          obscureCardNumber: true,
+          obscureCardCvv: true,
+          isHolderNameVisible: true,
+          cardBgColor: Colors.black,
+          // isLightTheme ? AppColors.cardBgLightColor : AppColors.cardBgColor,
+          backgroundImage: useBackgroundImage ? 'assets/card_bg.png' : null,
+          isSwipeGestureEnabled: true,
+          onCreditCardWidgetChange: (CreditCardBrand creditCardBrand) {},
+          customCardTypeIcons: <CustomCardTypeIcon>[
+            CustomCardTypeIcon(
+              cardType: CardType.mastercard,
+              cardImage: Image.asset(
+                'assets/mastercard.png',
+                height: 48,
+                width: 48,
+              ),
+            ),
+          ],
         ),
         Padding(
           padding: const EdgeInsets.only(left: 16.0),
@@ -93,13 +127,13 @@ class _ManageCardsScreenState extends State<ManageCardsScreen> {
           child: ListTile(
             title: textFontPOOPINS(
               '424242424242424242424',
-              Colors.black,
+              Colors.white,
               16.0,
               fontWeight: FontWeight.w600,
             ),
             subtitle: textFontPOOPINS(
               'Dishant rajput ( icici )',
-              Colors.black,
+              Colors.white,
               14.0,
             ),
           ),
@@ -109,49 +143,178 @@ class _ManageCardsScreenState extends State<ManageCardsScreen> {
           child: ListTile(
             title: textFontPOOPINS(
               '424242424242424242424',
-              Colors.black,
+              Colors.white,
               16.0,
               fontWeight: FontWeight.w600,
             ),
             subtitle: textFontPOOPINS(
               'Dishant rajput ( hdfc )',
-              Colors.black,
+              Colors.white,
               14.0,
             ),
           ),
         ),
-        /*CreditCardWidget(
-          enableFloatingCard: useFloatingAnimation,
-          glassmorphismConfig: _getGlassmorphismConfig(),
-          cardNumber: cardNumber,
-          expiryDate: expiryDate,
-          cardHolderName: cardHolderName,
-          cvvCode: cvvCode,
-          bankName: 'Axis Bank',
-          frontCardBorder:
-              useGlassMorphism ? null : Border.all(color: Colors.grey),
-          backCardBorder:
-              useGlassMorphism ? null : Border.all(color: Colors.grey),
-          showBackView: isCvvFocused,
-          obscureCardNumber: true,
-          obscureCardCvv: true,
-          isHolderNameVisible: true,
-          cardBgColor: Colors.black,
-          // isLightTheme ? AppColors.cardBgLightColor : AppColors.cardBgColor,
-          backgroundImage: useBackgroundImage ? 'assets/card_bg.png' : null,
-          isSwipeGestureEnabled: true,
-          onCreditCardWidgetChange: (CreditCardBrand creditCardBrand) {},
-          customCardTypeIcons: <CustomCardTypeIcon>[
-            CustomCardTypeIcon(
-              cardType: CardType.mastercard,
-              cardImage: Image.asset(
-                'assets/mastercard.png',
-                height: 48,
-                width: 48,
-              ),
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: ListTile(
+            title: textFontPOOPINS(
+              '424242424242424242424',
+              Colors.white,
+              16.0,
+              fontWeight: FontWeight.w600,
             ),
-          ],
-        ),*/
+            subtitle: textFontPOOPINS(
+              'Dishant rajput ( hdfc )',
+              Colors.white,
+              14.0,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: ListTile(
+            title: textFontPOOPINS(
+              '424242424242424242424',
+              Colors.white,
+              16.0,
+              fontWeight: FontWeight.w600,
+            ),
+            subtitle: textFontPOOPINS(
+              'Dishant rajput ( hdfc )',
+              Colors.white,
+              14.0,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: ListTile(
+            title: textFontPOOPINS(
+              '424242424242424242424',
+              Colors.white,
+              16.0,
+              fontWeight: FontWeight.w600,
+            ),
+            subtitle: textFontPOOPINS(
+              'Dishant rajput ( hdfc )',
+              Colors.white,
+              14.0,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: ListTile(
+            title: textFontPOOPINS(
+              '424242424242424242424',
+              Colors.white,
+              16.0,
+              fontWeight: FontWeight.w600,
+            ),
+            subtitle: textFontPOOPINS(
+              'Dishant rajput ( hdfc )',
+              Colors.white,
+              14.0,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: ListTile(
+            title: textFontPOOPINS(
+              '424242424242424242424',
+              Colors.white,
+              16.0,
+              fontWeight: FontWeight.w600,
+            ),
+            subtitle: textFontPOOPINS(
+              'Dishant rajput ( hdfc )',
+              Colors.white,
+              14.0,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: ListTile(
+            title: textFontPOOPINS(
+              '424242424242424242424',
+              Colors.white,
+              16.0,
+              fontWeight: FontWeight.w600,
+            ),
+            subtitle: textFontPOOPINS(
+              'Dishant rajput ( hdfc )',
+              Colors.white,
+              14.0,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: ListTile(
+            title: textFontPOOPINS(
+              '424242424242424242424',
+              Colors.white,
+              16.0,
+              fontWeight: FontWeight.w600,
+            ),
+            subtitle: textFontPOOPINS(
+              'Dishant rajput ( hdfc )',
+              Colors.white,
+              14.0,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: ListTile(
+            title: textFontPOOPINS(
+              '424242424242424242424',
+              Colors.white,
+              16.0,
+              fontWeight: FontWeight.w600,
+            ),
+            subtitle: textFontPOOPINS(
+              'Dishant rajput ( hdfc )',
+              Colors.white,
+              14.0,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: ListTile(
+            title: textFontPOOPINS(
+              '424242424242424242424',
+              Colors.white,
+              16.0,
+              fontWeight: FontWeight.w600,
+            ),
+            subtitle: textFontPOOPINS(
+              'Dishant rajput ( hdfc )',
+              Colors.white,
+              14.0,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: ListTile(
+            title: textFontPOOPINS(
+              '424242424242424242424',
+              Colors.white,
+              16.0,
+              fontWeight: FontWeight.w600,
+            ),
+            subtitle: textFontPOOPINS(
+              'Dishant rajput ( hdfc )',
+              Colors.white,
+              14.0,
+            ),
+          ),
+        ),
+        /**/
       ],
     );
   }

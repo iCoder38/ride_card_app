@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 
-Widget customNavigationBar(title) {
+Widget customNavigationBar(context, title) {
   return Row(
     children: [
       Align(
         alignment: Alignment.centerLeft,
         child: GestureDetector(
-          onTap: () {},
+          onTap: () {
+            Navigator.pop(context);
+          },
           child: Container(
             margin: const EdgeInsets.only(
               left: 16.0,

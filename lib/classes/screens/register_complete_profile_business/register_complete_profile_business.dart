@@ -74,7 +74,7 @@ class _CompleteProfileBusinessScreenState
           const SizedBox(
             height: 80.0,
           ),
-          customNavigationBar(TEXT_NAVIGATION_TITLE_COMPLETE_PROFILE),
+          customNavigationBar(context, TEXT_NAVIGATION_TITLE_COMPLETE_PROFILE),
           //
           Padding(
             padding: const EdgeInsets.only(

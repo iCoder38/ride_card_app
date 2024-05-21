@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
-import 'package:ride_card_app/classes/screens/manage_cards/manage_cards.dart';
+import 'package:ride_card_app/classes/screens/all_cards/all_cards.dart';
 
 Widget widgetCardsCreditScore(context) {
   return Padding(
@@ -63,8 +63,7 @@ Widget widgetDashboardUpperDeck(context) {
             //
             Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => const ManageCardsScreen()),
+              MaterialPageRoute(builder: (context) => const AllCardsScreen()),
             );
           },
           child: Container(

@@ -70,7 +70,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       key: _formKey,
       child: Column(
         children: [
-          customNavigationBar(TEXT_NAVIGATION_TITLE_COMPLETE_PROFILE),
+          customNavigationBar(context, TEXT_NAVIGATION_TITLE_COMPLETE_PROFILE),
           _textFieldPlaceOfWork(),
           _textFieldSalary(),
           _textFieldAddress(),
