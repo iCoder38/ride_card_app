@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
+import 'package:ride_card_app/classes/screens/wallet/wallet.dart';
 
 class BottomBar extends StatefulWidget {
   BottomBar({super.key, required this.selectedIndex});
@@ -17,14 +18,7 @@ class _BottomBarState extends State<BottomBar> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
     CardsScreen(),
-    Text(
-      'Index 1: Business',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 2: School',
-      style: optionStyle,
-    ),
+    WalletScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -69,12 +63,8 @@ class _BottomBarState extends State<BottomBar> {
               label: 'Cards',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.business),
-              label: 'Business',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.school),
-              label: 'School',
+              icon: Icon(Icons.wallet),
+              label: 'Wallet',
             ),
           ],
           currentIndex: widget.selectedIndex,
