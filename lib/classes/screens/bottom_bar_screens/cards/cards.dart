@@ -19,7 +19,7 @@ class _CardsScreenState extends State<CardsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: CustomDrawer(),
+      drawer: const CustomDrawer(),
       body: _UIKit(context),
     );
   }
@@ -55,7 +55,7 @@ class _CardsScreenState extends State<CardsScreen> {
         //
         widgetCardsCreditScore(context),
         //
-        widgetDashboardUpperDeck(),
+        widgetDashboardUpperDeck(context),
         const SizedBox(
           height: 20.0,
         ),

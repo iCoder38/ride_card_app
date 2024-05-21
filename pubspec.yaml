@@ -52,6 +52,7 @@ dependencies:
   jiffy:
   firebase_ui_firestore:
   flutter_cache_manager:
+  flutter_credit_card: ^4.0.1
 
 dev_dependencies:
   flutter_test:

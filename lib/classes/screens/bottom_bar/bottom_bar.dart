@@ -3,14 +3,16 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
 
 class BottomBar extends StatefulWidget {
-  const BottomBar({super.key});
+  BottomBar({super.key, required this.selectedIndex});
+
+  int selectedIndex;
 
   @override
   State<BottomBar> createState() => _BottomBarState();
 }
 
 class _BottomBarState extends State<BottomBar> {
-  int _selectedIndex = 0;
+  // int _selectedIndex = 0;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
@@ -27,7 +29,7 @@ class _BottomBarState extends State<BottomBar> {
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      widget.selectedIndex = index;
     });
   }
 
@@ -42,7 +44,7 @@ class _BottomBarState extends State<BottomBar> {
         ),
       ),*/
       body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+        child: _widgetOptions.elementAt(widget.selectedIndex),
       ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
@@ -75,7 +77,7 @@ class _BottomBarState extends State<BottomBar> {
               label: 'School',
             ),
           ],
-          currentIndex: _selectedIndex,
+          currentIndex: widget.selectedIndex,
           selectedItemColor: Colors.white,
           onTap: _onItemTapped,
           backgroundColor: Colors.transparent,

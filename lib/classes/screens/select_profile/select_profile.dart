@@ -36,7 +36,11 @@ class SelectProfileScreen extends StatelessWidget {
                   //
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const BottomBar()),
+                    MaterialPageRoute(
+                      builder: (context) => BottomBar(
+                        selectedIndex: 0,
+                      ),
+                    ),
                   );
                 },
                 child: Container(

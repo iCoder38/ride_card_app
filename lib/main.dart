@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
 import 'package:ride_card_app/classes/screens/splash/splash.dart';
 import 'firebase_options.dart';
 
@@ -17,10 +18,14 @@ void main() async {
   );
 
   runApp(
-    const MaterialApp(
+    MaterialApp(
       //
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: const SplashScreen(),
+      initialRoute: '/',
+      routes: {
+        '/dashboard': (context) => const CardsScreen(),
+      },
     ),
   );
 

@@ -8,6 +8,7 @@ var TEXT_NAVIGATION_TITLE_WELCOME = 'welcome'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_REGISTRATION = 'register'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_COMPLETE_PROFILE = 'complete profile'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_DASHBOARD = 'dashboard'.toUpperCase();
+var TEXT_NAVIGATION_TITLE_MANAGE_CARDS = 'manage cards'.toUpperCase();
 //
 var TEXT_SIGN_IN = 'sign in'.toUpperCase();
 var TEXT_CREATE_AN_ACCOUNT = 'create an account'.toUpperCase();
@@ -37,6 +38,18 @@ var TEXT_MANAGE_CARDS = 'Manage cards';
 var TEXT_SEND_MONEY = 'Send money';
 var TEXT_WALLER = 'Wallet';
 var TEXT_STATEMENT = 'Statement';
+
+// SCREEN: MENU
+var TEXT_MENU_DASHBOARD = 'Dashboard';
+var TEXT_MENU_MANAGE_CARDS = 'Manage cards';
+var TEXT_MENU_SENT_MONEY = 'Sent money';
+var TEXT_MENU_WALLET = 'Wallet';
+var TEXT_MENU_CREDIT_SCORE = 'Credit score';
+var TEXT_MENU_SETTINGS = 'Settings';
+var TEXT_MENU_HISTORY = 'History';
+var TEXT_MENU_CHANGE_PASSWORD = 'Change password';
+var TEXT_MENU_HELP = 'Help';
+var TEXT_MENU_LOGOUT = 'Logout';
 
 // COLOR
 var appNAVcolor = const Color.fromARGB(200, 0, 0, 0);
