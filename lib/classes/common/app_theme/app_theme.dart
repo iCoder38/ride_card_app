@@ -56,6 +56,7 @@ var TEXT_MENU_LOGOUT = 'Logout';
 var appNAVcolor = const Color.fromARGB(200, 0, 0, 0);
 var appBGcolor = const Color.fromARGB(200, 0, 0, 0);
 var appREDcolor = const Color.fromRGBO(218, 72, 50, 1);
+var appORANGEcolor = const Color.fromRGBO(233, 153, 68, 1);
 
 // FONT
 Text textFontPOOPINS(text, color, size, {FontWeight? fontWeight}) {

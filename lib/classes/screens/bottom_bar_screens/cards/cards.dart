@@ -64,13 +64,7 @@ class _CardsScreenState extends State<CardsScreen> {
         Padding(
           padding: const EdgeInsets.all(22.0),
           child: GestureDetector(
-            onTap: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //       builder: (context) => const RegisterScreen()),
-              // );
-            },
+            onTap: () {},
             child: Container(
               height: 60,
               width: MediaQuery.of(context).size.width,

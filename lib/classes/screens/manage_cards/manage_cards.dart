@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_switch/flutter_switch.dart';
+import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
-import 'package:flutter_credit_card/flutter_credit_card.dart';
+import 'package:u_credit_card/u_credit_card.dart';
 
 class ManageCardsScreen extends StatefulWidget {
   const ManageCardsScreen({super.key});
@@ -21,6 +24,7 @@ class _ManageCardsScreenState extends State<ManageCardsScreen> {
   bool useGlassMorphism = false;
   bool useBackgroundImage = false;
   bool useFloatingAnimation = true;
+  bool isChatNotificationOn = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,23 +51,6 @@ class _ManageCardsScreenState extends State<ManageCardsScreen> {
     );
   }
 
-  Glassmorphism? _getGlassmorphismConfig() {
-    if (!useGlassMorphism) {
-      return null;
-    }
-
-    final LinearGradient gradient = LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: <Color>[Colors.grey.withAlpha(50), Colors.grey.withAlpha(50)],
-      stops: const <double>[0.3, 0],
-    );
-
-    return isLightTheme
-        ? Glassmorphism(blurX: 8.0, blurY: 16.0, gradient: gradient)
-        : Glassmorphism.defaultConfig();
-  }
-
   Widget _UIKitManageCardsAfterBG(context) {
     return Column(
       children: [
@@ -72,249 +59,200 @@ class _ManageCardsScreenState extends State<ManageCardsScreen> {
         const SizedBox(
           height: 40.0,
         ),
-        CreditCardWidget(
-          enableFloatingCard: useFloatingAnimation,
-          glassmorphismConfig: _getGlassmorphismConfig(),
-          cardNumber: cardNumber,
-          expiryDate: expiryDate,
-          cardHolderName: cardHolderName,
-          cvvCode: cvvCode,
-          bankName: 'ALL CARDS',
-          frontCardBorder:
-              useGlassMorphism ? null : Border.all(color: Colors.grey),
-          backCardBorder:
-              useGlassMorphism ? null : Border.all(color: Colors.grey),
-          showBackView: isCvvFocused,
-          // backgroundNetworkImage:
-          // 'https://plus.unsplash.com/premium_photo-1709033511355-d2b8d7e86797?q=80&w=3749&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-          obscureCardNumber: true,
-          obscureCardCvv: true,
-          isHolderNameVisible: true,
-          cardBgColor: Colors.black,
-          // isLightTheme ? AppColors.cardBgLightColor : AppColors.cardBgColor,
-          backgroundImage: useBackgroundImage ? 'assets/card_bg.png' : null,
-          isSwipeGestureEnabled: true,
-          onCreditCardWidgetChange: (CreditCardBrand creditCardBrand) {},
-          customCardTypeIcons: <CustomCardTypeIcon>[
-            CustomCardTypeIcon(
-              cardType: CardType.mastercard,
-              cardImage: Image.asset(
-                'assets/mastercard.png',
-                height: 48,
-                width: 48,
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: CreditCardUi(
+              width: MediaQuery.of(context).size.width,
+              cardHolderFullName: 'John Doe',
+              cardNumber: '1234567812345678',
+              validThru: '10/24',
+              validFrom: '01/24',
+              topLeftColor: Colors.blue,
+              bottomRightColor: Colors.black,
+              placeNfcIconAtTheEnd: true,
+              enableFlipping: true,
+              cvvNumber: '123',
+              cardType: CardType.debit,
+              cardProviderLogo: Image.asset('assets/images/logo.png')),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 24.0, left: 24.0),
+          child: Container(
+            height: 60,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(
+                12.0,
+              ),
+              color: Colors.white,
+            ),
+            child: Row(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: textFontPOOPINS(
+                      'Block/unblock',
+                      Colors.black,
+                      16.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: FlutterSwitch(
+                    width: 60.0,
+                    height: 26.0,
+                    valueFontSize: 12.0,
+                    toggleSize: 22.0,
+                    value: true,
+                    borderRadius: 30.0,
+                    padding: 4,
+                    showOnOff: true,
+                    onToggle: (val) {
+                      setState(() {
+                        isChatNotificationOn = val;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 16.0, right: 24.0, left: 24.0),
+          child: Container(
+            height: 60,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(
+                12.0,
+              ),
+              color: Colors.white,
+            ),
+            child: Row(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: textFontPOOPINS(
+                      'Notifications',
+                      Colors.black,
+                      16.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: FlutterSwitch(
+                    width: 60.0,
+                    height: 26.0,
+                    valueFontSize: 12.0,
+                    toggleSize: 22.0,
+                    value: true,
+                    borderRadius: 30.0,
+                    padding: 4,
+                    showOnOff: true,
+                    onToggle: (val) {
+                      setState(() {
+                        isChatNotificationOn = val;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 16.0, right: 24.0, left: 24.0),
+          child: Container(
+            height: 60,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(
+                12.0,
+              ),
+              color: Colors.white,
+            ),
+            child: Row(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: textFontPOOPINS(
+                      'Set PIN',
+                      Colors.black,
+                      16.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: Container(
+                    height: 30,
+                    width: 60,
+                    decoration: BoxDecoration(
+                      color: appORANGEcolor,
+                      borderRadius: BorderRadius.circular(
+                        14.0,
+                      ),
+                    ),
+                    child: Center(
+                      child: textFontPOOPINS(
+                        'PIN',
+                        Colors.white,
+                        14.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(
+            left: 24.0,
+            right: 24.0,
+            top: 16.0,
+          ),
+          child: GestureDetector(
+            onTap: () {
+              showLoadingUI(context, PLEASE_WAIT);
+            },
+            child: Container(
+              height: 60,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                color: appREDcolor,
+                borderRadius: BorderRadius.circular(
+                  12.0,
+                ),
+              ),
+              child: Center(
+                child: textFontPOOPINS(
+                  //
+                  'Cancel card',
+                  Colors.white,
+                  18.0,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: ListTile(
-            title: textFontPOOPINS(
-              '424242424242424242424',
-              Colors.white,
-              16.0,
-              fontWeight: FontWeight.w600,
-            ),
-            subtitle: textFontPOOPINS(
-              'Dishant rajput ( axis )',
-              Colors.white,
-              14.0,
-            ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: ListTile(
-            title: textFontPOOPINS(
-              '424242424242424242424',
-              Colors.white,
-              16.0,
-              fontWeight: FontWeight.w600,
-            ),
-            subtitle: textFontPOOPINS(
-              'Dishant rajput ( icici )',
-              Colors.white,
-              14.0,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: ListTile(
-            title: textFontPOOPINS(
-              '424242424242424242424',
-              Colors.white,
-              16.0,
-              fontWeight: FontWeight.w600,
-            ),
-            subtitle: textFontPOOPINS(
-              'Dishant rajput ( hdfc )',
-              Colors.white,
-              14.0,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: ListTile(
-            title: textFontPOOPINS(
-              '424242424242424242424',
-              Colors.white,
-              16.0,
-              fontWeight: FontWeight.w600,
-            ),
-            subtitle: textFontPOOPINS(
-              'Dishant rajput ( hdfc )',
-              Colors.white,
-              14.0,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: ListTile(
-            title: textFontPOOPINS(
-              '424242424242424242424',
-              Colors.white,
-              16.0,
-              fontWeight: FontWeight.w600,
-            ),
-            subtitle: textFontPOOPINS(
-              'Dishant rajput ( hdfc )',
-              Colors.white,
-              14.0,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: ListTile(
-            title: textFontPOOPINS(
-              '424242424242424242424',
-              Colors.white,
-              16.0,
-              fontWeight: FontWeight.w600,
-            ),
-            subtitle: textFontPOOPINS(
-              'Dishant rajput ( hdfc )',
-              Colors.white,
-              14.0,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: ListTile(
-            title: textFontPOOPINS(
-              '424242424242424242424',
-              Colors.white,
-              16.0,
-              fontWeight: FontWeight.w600,
-            ),
-            subtitle: textFontPOOPINS(
-              'Dishant rajput ( hdfc )',
-              Colors.white,
-              14.0,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: ListTile(
-            title: textFontPOOPINS(
-              '424242424242424242424',
-              Colors.white,
-              16.0,
-              fontWeight: FontWeight.w600,
-            ),
-            subtitle: textFontPOOPINS(
-              'Dishant rajput ( hdfc )',
-              Colors.white,
-              14.0,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: ListTile(
-            title: textFontPOOPINS(
-              '424242424242424242424',
-              Colors.white,
-              16.0,
-              fontWeight: FontWeight.w600,
-            ),
-            subtitle: textFontPOOPINS(
-              'Dishant rajput ( hdfc )',
-              Colors.white,
-              14.0,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: ListTile(
-            title: textFontPOOPINS(
-              '424242424242424242424',
-              Colors.white,
-              16.0,
-              fontWeight: FontWeight.w600,
-            ),
-            subtitle: textFontPOOPINS(
-              'Dishant rajput ( hdfc )',
-              Colors.white,
-              14.0,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: ListTile(
-            title: textFontPOOPINS(
-              '424242424242424242424',
-              Colors.white,
-              16.0,
-              fontWeight: FontWeight.w600,
-            ),
-            subtitle: textFontPOOPINS(
-              'Dishant rajput ( hdfc )',
-              Colors.white,
-              14.0,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: ListTile(
-            title: textFontPOOPINS(
-              '424242424242424242424',
-              Colors.white,
-              16.0,
-              fontWeight: FontWeight.w600,
-            ),
-            subtitle: textFontPOOPINS(
-              'Dishant rajput ( hdfc )',
-              Colors.white,
-              14.0,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: ListTile(
-            title: textFontPOOPINS(
-              '424242424242424242424',
-              Colors.white,
-              16.0,
-              fontWeight: FontWeight.w600,
-            ),
-            subtitle: textFontPOOPINS(
-              'Dishant rajput ( hdfc )',
-              Colors.white,
-              14.0,
-            ),
-          ),
-        ),
-        /**/
       ],
     );
   }

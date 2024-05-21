@@ -347,6 +347,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_switch:
+    dependency: "direct main"
+    description:
+      name: flutter_switch
+      sha256: b91477f926bba135d2d203d7b24367492662d8d9c3aa6adb960b14c1087d3c41
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -706,6 +714,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.2"
+  u_credit_card:
+    dependency: "direct main"
+    description:
+      name: u_credit_card
+      sha256: c3f007188b58f5c0ce95a3761e97cfda194d13b6da6a74c936697a6dee045a40
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.0"
   uuid:
     dependency: "direct main"
     description:
