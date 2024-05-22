@@ -11,6 +11,7 @@ var TEXT_NAVIGATION_TITLE_DASHBOARD = 'dashboard'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_MANAGE_CARDS = 'manage cards'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_ALL_CARDS = 'all cards'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_WALLET = 'Wallet'.toUpperCase();
+var TEXT_NAVIGATION_TITLE_ADD_MONEY = 'add money'.toUpperCase();
 //
 var TEXT_SIGN_IN = 'sign in'.toUpperCase();
 var TEXT_CREATE_AN_ACCOUNT = 'create an account'.toUpperCase();
@@ -53,11 +54,36 @@ var TEXT_MENU_CHANGE_PASSWORD = 'Change password';
 var TEXT_MENU_HELP = 'Help';
 var TEXT_MENU_LOGOUT = 'Logout';
 
+// SCREEN: ADD MONEY
+var TEXT_CURRENT_BALANCE = 'Current balance';
+var TEXT_SELECT_AMOUNT = 'Select amount';
+var TEXT_SELECT_AMOUNT_SUB_TITLE = 'Make sure to check target amount';
+var TEXT_SELECT_CARD_TITLE = 'Select debit card';
+var TEXT_SELECT_CARD_SUB_TITLE = 'Select debit card to add form';
+var TEXT_PROCCED = 'Proceed';
+
 // COLOR
 var appNAVcolor = const Color.fromARGB(200, 0, 0, 0);
 var appBGcolor = const Color.fromARGB(200, 0, 0, 0);
 var appREDcolor = const Color.fromRGBO(218, 72, 50, 1);
+var appREDcolorHexCode = '#ed3522';
+var appORANGEcolorHexCode = '#ffa430';
 var appORANGEcolor = const Color.fromRGBO(233, 153, 68, 1);
+
+// convert
+// Utility function to convert hex color string to Color object
+Color hexToColor(String hexString) {
+  // Remove the hash symbol if present
+  hexString = hexString.replaceAll('#', '');
+
+  // If the hex code doesn't include alpha value, add 'FF' for full opacity
+  if (hexString.length == 6) {
+    hexString = 'FF$hexString';
+  }
+
+  // Convert the hex string to an integer and create a Color object
+  return Color(int.parse(hexString, radix: 16));
+}
 
 // FONT
 Text textFontPOOPINS(text, color, size, {FontWeight? fontWeight}) {

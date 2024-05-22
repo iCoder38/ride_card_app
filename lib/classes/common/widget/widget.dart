@@ -17,7 +17,7 @@ Widget customNavigationBar(context, title) {
             height: 40,
             width: 40,
             decoration: BoxDecoration(
-              color: Colors.orange,
+              color: hexToColor(appORANGEcolorHexCode),
               borderRadius: BorderRadius.circular(
                 20.0,
               ),

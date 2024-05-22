@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/screens/wallet/add_money/add_money.dart';
 
 Widget widgetWalletUpperDeckContainerLeft() {
   return Expanded(
@@ -36,7 +37,7 @@ Widget widgetWalletUpperDeckContainerLeft() {
   );
 }
 
-Widget widgetWalletUpperDeckContainerRight() {
+Widget widgetWalletUpperDeckContainerRight(context) {
   return Expanded(
     child: Container(
       height: 120,
@@ -48,7 +49,7 @@ Widget widgetWalletUpperDeckContainerRight() {
             height: 40,
             width: 130,
             decoration: BoxDecoration(
-              color: appORANGEcolor,
+              color: hexToColor(appORANGEcolorHexCode),
               borderRadius: BorderRadius.circular(
                 14.0,
               ),
@@ -65,21 +66,30 @@ Widget widgetWalletUpperDeckContainerRight() {
           const SizedBox(
             height: 6,
           ),
-          Container(
-            height: 40,
-            width: 130,
-            decoration: BoxDecoration(
-              color: appREDcolor,
-              borderRadius: BorderRadius.circular(
-                14.0,
+          GestureDetector(
+            onTap: () {
+              //
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddMoneyScreen()),
+              );
+            },
+            child: Container(
+              height: 40,
+              width: 130,
+              decoration: BoxDecoration(
+                color: hexToColor(appREDcolorHexCode),
+                borderRadius: BorderRadius.circular(
+                  14.0,
+                ),
               ),
-            ),
-            child: Center(
-              child: textFontPOOPINS(
-                'Add money',
-                Colors.white,
-                16.0,
-                fontWeight: FontWeight.w600,
+              child: Center(
+                child: textFontPOOPINS(
+                  'Add money',
+                  Colors.white,
+                  16.0,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           )

@@ -141,6 +141,13 @@ class CustomDrawer extends StatelessWidget {
                 Colors.black,
                 16.0,
               ),
+              onTap: (){
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => BottomBar(selectedIndex: 1)),
+                );
+              },
             ),
             ListTile(
               leading: const Icon(

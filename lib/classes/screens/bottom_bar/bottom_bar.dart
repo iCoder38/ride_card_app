@@ -14,8 +14,8 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> {
   static const List<Widget> _widgetOptions = <Widget>[
-    WalletScreen(),
-    CardsScreen(),
+    CardsScreen(),WalletScreen(),
+
   ];
 
   void _onItemTapped(int index) {
