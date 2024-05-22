@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/screens/wallet/add_money/add_money.dart';
+import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
 
-Widget widgetWalletUpperDeckContainerLeft() {
+Widget widgetWalletUpperDeckContainerLeft(context) {
   return Expanded(
     child: Container(
       height: 120,
@@ -45,21 +46,31 @@ Widget widgetWalletUpperDeckContainerRight(context) {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            height: 40,
-            width: 130,
-            decoration: BoxDecoration(
-              color: hexToColor(appORANGEcolorHexCode),
-              borderRadius: BorderRadius.circular(
-                14.0,
+          GestureDetector(
+            onTap: () {
+              //
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const SendMoneyScreen()),
+              );
+            },
+            child: Container(
+              height: 40,
+              width: 130,
+              decoration: BoxDecoration(
+                color: hexToColor(appORANGEcolorHexCode),
+                borderRadius: BorderRadius.circular(
+                  14.0,
+                ),
               ),
-            ),
-            child: Center(
-              child: textFontPOOPINS(
-                'Send',
-                Colors.white,
-                16.0,
-                fontWeight: FontWeight.w600,
+              child: Center(
+                child: textFontPOOPINS(
+                  'Send',
+                  Colors.white,
+                  16.0,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),

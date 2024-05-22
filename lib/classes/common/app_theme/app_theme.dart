@@ -12,6 +12,7 @@ var TEXT_NAVIGATION_TITLE_MANAGE_CARDS = 'manage cards'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_ALL_CARDS = 'all cards'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_WALLET = 'Wallet'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_ADD_MONEY = 'add money'.toUpperCase();
+var TEXT_NAVIGATION_TITLE_SEND_MONEY = 'send money'.toUpperCase();
 //
 var TEXT_SIGN_IN = 'sign in'.toUpperCase();
 var TEXT_CREATE_AN_ACCOUNT = 'create an account'.toUpperCase();

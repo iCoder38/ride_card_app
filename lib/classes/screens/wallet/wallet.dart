@@ -62,7 +62,7 @@ class _WalletScreenState extends State<WalletScreen> {
             ),
             child: Row(
               children: [
-                widgetWalletUpperDeckContainerLeft(),
+                widgetWalletUpperDeckContainerLeft(context),
                 widgetWalletUpperDeckContainerRight(context),
               ],
             ),
