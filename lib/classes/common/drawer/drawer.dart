@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
+import 'package:ride_card_app/classes/screens/request_history/request_history.dart';
+import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -128,6 +130,13 @@ class CustomDrawer extends StatelessWidget {
                 Colors.white,
                 16.0,
               ),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => BottomBar(selectedIndex: 1)),
+                );
+              },
             ),
             ListTile(
               leading: const Icon(
@@ -183,6 +192,13 @@ class CustomDrawer extends StatelessWidget {
                 Colors.white,
                 16.0,
               ),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const RequestHistoryScreen()),
+                );
+              },
             ),
             ListTile(
               leading: const Icon(

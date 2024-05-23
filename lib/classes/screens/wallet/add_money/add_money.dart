@@ -96,7 +96,9 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const SendMoneyScreen()),
+                              builder: (context) => const SendMoneyScreen(
+                                    menuBar: 'no',
+                                  )),
                         );
                       });
                     },

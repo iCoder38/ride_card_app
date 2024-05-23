@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
+import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
 import 'package:ride_card_app/classes/screens/wallet/wallet.dart';
 
 class BottomBar extends StatefulWidget {
@@ -14,8 +15,11 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> {
   static const List<Widget> _widgetOptions = <Widget>[
-    CardsScreen(),WalletScreen(),
-
+    CardsScreen(),
+    SendMoneyScreen(
+      menuBar: 'yes',
+    ),
+    WalletScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -58,6 +62,10 @@ class _BottomBarState extends State<BottomBar> {
             BottomNavigationBarItem(
               icon: Icon(Icons.credit_card),
               label: 'Cards',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.attach_money_rounded),
+              label: 'Send',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.wallet),

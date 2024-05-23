@@ -52,7 +52,9 @@ Widget widgetWalletUpperDeckContainerRight(context) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const SendMoneyScreen()),
+                    builder: (context) => const SendMoneyScreen(
+                          menuBar: 'no',
+                        )),
               );
             },
             child: Container(

@@ -15,6 +15,7 @@ var TEXT_NAVIGATION_TITLE_ADD_MONEY = 'add money'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_SEND_MONEY = 'send money'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_SUCCESS = 'success'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_REQUEST_MONEY = 'request money'.toUpperCase();
+var TEXT_NAVIGATION_TITLE_REQUEST_HISTORY = 'request history'.toUpperCase();
 //
 var TEXT_SIGN_IN = 'sign in'.toUpperCase();
 var TEXT_CREATE_AN_ACCOUNT = 'create an account'.toUpperCase();
@@ -48,7 +49,7 @@ var TEXT_STATEMENT = 'Statement';
 // SCREEN: MENU
 var TEXT_MENU_DASHBOARD = 'Dashboard';
 var TEXT_MENU_MANAGE_CARDS = 'Manage cards';
-var TEXT_MENU_SENT_MONEY = 'Sent money';
+var TEXT_MENU_SENT_MONEY = 'Send money';
 var TEXT_MENU_WALLET = 'Wallet';
 var TEXT_MENU_CREDIT_SCORE = 'Credit score';
 var TEXT_MENU_SETTINGS = 'Settings';
@@ -69,9 +70,11 @@ var TEXT_PROCCED = 'Proceed';
 var appNAVcolor = const Color.fromARGB(200, 0, 0, 0);
 var appBGcolor = const Color.fromARGB(200, 0, 0, 0);
 var appREDcolor = const Color.fromRGBO(218, 72, 50, 1);
+var appORANGEcolor = const Color.fromRGBO(233, 153, 68, 1);
+// code
 var appREDcolorHexCode = '#ed3522';
 var appORANGEcolorHexCode = '#ffa430';
-var appORANGEcolor = const Color.fromRGBO(233, 153, 68, 1);
+var appGREENcolorHexCode = '#26d874';
 
 // convert
 // Utility function to convert hex color string to Color object
