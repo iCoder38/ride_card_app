@@ -1,9 +1,13 @@
+// ignore_for_file: must_be_immutable
+
+/*
 import 'package:flutter/material.dart';
-import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
+import 'package:ride_card_app/classes/screens/request_history/request_history.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
 import 'package:ride_card_app/classes/screens/wallet/wallet.dart';
 
+// ignore: must_be_immutable
 class BottomBar extends StatefulWidget {
   BottomBar({super.key, required this.selectedIndex});
 
@@ -20,6 +24,7 @@ class _BottomBarState extends State<BottomBar> {
       menuBar: 'yes',
     ),
     WalletScreen(),
+    RequestHistoryScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -31,15 +36,20 @@ class _BottomBarState extends State<BottomBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /*appBar: AppBar(
-        title: textFontOPENSANS(
-          'Home',
-          Colors.black,
-          14.0,
-        ),
-      ),*/
-      body: Center(
-        child: _widgetOptions.elementAt(widget.selectedIndex),
+      body: Stack(
+        children: <Widget>[
+          // Background image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/background.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          // Content
+          Center(
+            child: _widgetOptions.elementAt(widget.selectedIndex),
+          ),
+        ],
       ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
@@ -71,12 +81,93 @@ class _BottomBarState extends State<BottomBar> {
               icon: Icon(Icons.wallet),
               label: 'Wallet',
             ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history),
+              label: 'History',
+            ),
           ],
           currentIndex: widget.selectedIndex,
           selectedItemColor: Colors.white,
           onTap: _onItemTapped,
           backgroundColor: Colors.transparent,
         ),
+      ),
+    );
+  }
+}
+*/
+import 'package:flutter/material.dart';
+import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
+import 'package:ride_card_app/classes/screens/request_history/request_history.dart';
+import 'package:ride_card_app/classes/screens/statement/statement.dart';
+import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
+import 'package:ride_card_app/classes/screens/wallet/wallet.dart';
+
+class BottomBar extends StatefulWidget {
+  BottomBar({super.key, required this.selectedIndex});
+
+  int selectedIndex;
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _BottomBarState createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<BottomBar> {
+  int _selectedIndex = 0;
+
+  static const List<Widget> _widgetOptions = <Widget>[
+    CardsScreen(),
+    SendMoneyScreen(
+      menuBar: 'yes',
+    ),
+    WalletScreen(),
+    RequestHistoryScreen(),
+    StatementScreen(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      /*appBar: AppBar(
+        title: Text('Bottom Navigation Bar Example'),
+      ),*/
+      body: Center(
+        child: _widgetOptions.elementAt(_selectedIndex),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.attach_money),
+            label: 'Send money',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.wallet),
+            label: 'Wallet',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            label: 'History',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            label: 'Statement',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        onTap: _onItemTapped,
       ),
     );
   }
