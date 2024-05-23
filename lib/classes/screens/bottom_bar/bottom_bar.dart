@@ -114,7 +114,7 @@ class BottomBar extends StatefulWidget {
 }
 
 class _BottomBarState extends State<BottomBar> {
-  int _selectedIndex = 0;
+  // int _selectedIndex = 0;
 
   static const List<Widget> _widgetOptions = <Widget>[
     CardsScreen(),
@@ -122,13 +122,15 @@ class _BottomBarState extends State<BottomBar> {
       menuBar: 'yes',
     ),
     WalletScreen(),
-    RequestHistoryScreen(),
+    RequestHistoryScreen(
+      menuBar: 'yes',
+    ),
     StatementScreen(),
   ];
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      widget.selectedIndex = index;
     });
   }
 
@@ -139,7 +141,7 @@ class _BottomBarState extends State<BottomBar> {
         title: Text('Bottom Navigation Bar Example'),
       ),*/
       body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+        child: _widgetOptions.elementAt(widget.selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -164,7 +166,7 @@ class _BottomBarState extends State<BottomBar> {
             label: 'Statement',
           ),
         ],
-        currentIndex: _selectedIndex,
+        currentIndex: widget.selectedIndex,
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,

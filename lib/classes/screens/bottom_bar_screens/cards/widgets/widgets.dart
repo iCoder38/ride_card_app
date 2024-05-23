@@ -158,7 +158,7 @@ Widget widgetDashboardUpperDeck(context) {
                     height: 70,
                     width: 70,
                     child: Image.asset(
-                      'assets/images/cards3.png',
+                      'assets/images/menu_cards.png',
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -203,7 +203,7 @@ Widget widgetDashboardUpperDeck(context) {
                   height: 70,
                   width: 70,
                   child: Image.asset(
-                    'assets/images/send-money.png',
+                    'assets/images/menu_send_money.png',
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -257,7 +257,7 @@ Widget widgetDashbaordLowerDeck() {
                   height: 70,
                   width: 70,
                   child: Image.asset(
-                    'assets/images/cards1.png',
+                    'assets/images/menu_wallet.png',
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -301,7 +301,7 @@ Widget widgetDashbaordLowerDeck() {
                   height: 70,
                   width: 70,
                   child: Image.asset(
-                    'assets/images/statement.png',
+                    'assets/images/menu_statement.png',
                     fit: BoxFit.cover,
                   ),
                 ),

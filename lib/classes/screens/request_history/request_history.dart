@@ -4,7 +4,9 @@ import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 
 class RequestHistoryScreen extends StatefulWidget {
-  const RequestHistoryScreen({super.key});
+  const RequestHistoryScreen({super.key, required this.menuBar});
+
+  final String menuBar;
 
   @override
   State<RequestHistoryScreen> createState() => _RequestHistoryScreenState();
