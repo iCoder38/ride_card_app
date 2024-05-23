@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
@@ -50,7 +52,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Container _UIKit(BuildContext context) {
+  Widget _UIKit(BuildContext context) {
     return Container(
       height: double.infinity,
       width: double.infinity,
@@ -91,13 +93,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     24.0,
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Image.asset(
-                    'assets/images/logo.png',
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                child: imageFile == null
+                    ? Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            24.0,
+                          ),
+                          child: Image.file(
+                            File(imageFile!.path),
+                            fit: BoxFit.cover,
+                            width: MediaQuery.of(context).size.width,
+                            // height: 200,
+                          ),
+                        ),
+                      ),
               ),
             ),
             const SizedBox(
@@ -304,11 +321,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 onTap: () {
                   if (_formKey.currentState!.validate()) {
                     showLoadingUI(context, PLEASE_WAIT);
-                    Navigator.push(
+                    /*Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => const CompleteProfileScreen()),
-                    );
+                    );*/
+                    createAnAccountInFirebaseFirst(context);
                   }
                 },
                 child: Container(
@@ -362,6 +380,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  createAnAccountInFirebaseFirst(context) async {
+    //
+    try {
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: _contEmail.text.toString(),
+            password: _contPassword.text.toString(),
+          )
+          .then((value) => {
+                //
+                // debugPrint('REGISTERED IN FIREBASE'),
+                updateUserName()
+                //
+              });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        Navigator.pop(context);
+        customToast(
+          'The password provided is too weak.',
+          Colors.redAccent,
+          ToastGravity.TOP,
+        );
+      } else if (e.code == 'email-already-in-use') {
+        Navigator.pop(context);
+        FocusScope.of(context).unfocus();
+        customToast(
+          //
+          TEXT_ALREADY_BEEN_EXIST,
+          hexToColor(appREDcolorHexCode),
+          ToastGravity.TOP,
+        );
+      } else {
+        Navigator.pop(context);
+        customToast(
+          //
+          TEXT_F_ERROR,
+          Colors.redAccent,
+          ToastGravity.TOP,
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      Navigator.pop(context);
+    }
+  }
+
+  updateUserName() async {
+    await FirebaseAuth.instance.currentUser!.updateDisplayName('').then((v) {
+      debugPrint('REGISTERED NAME ALSO');
+    });
+  }
+
+  sendRegisterDataToServer() {
+    //
+  }
+
   void openGalleryOrCamera(
     BuildContext context,
   ) async {
@@ -394,12 +470,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           imageFile = File(pickedFile.path);
                         });
                         //
-                        // str_image_processing = '1';
-                        //
-                        // uploadImageToFirebase(context);
-                        //
-
-                        //
                       }
                       //
                     },
@@ -426,10 +496,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       //
-
                       Navigator.pop(context);
+                      PickedFile? pickedFile = await ImagePicker().getImage(
+                        source: ImageSource.gallery,
+                        maxWidth: 1800,
+                        maxHeight: 1800,
+                      );
+                      if (pickedFile != null) {
+                        setState(() {
+                          // print('camera');
+                          imageFile = File(pickedFile.path);
+                        });
+                      }
                     },
                     child: Container(
                       height: 60,

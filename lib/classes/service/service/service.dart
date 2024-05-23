@@ -1,6 +1,7 @@
 // lib/api_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:ride_card_app/classes/common/utils/utils.dart';
 
 class ApiService {
   final String baseUrl;
@@ -18,7 +19,7 @@ class ApiService {
 
   Future<dynamic> post(String endpoint, Map<String, dynamic> data) async {
     final response = await http.post(
-      Uri.parse('$baseUrl$endpoint'),
+      Uri.parse(BASE_URL),
       headers: {'Content-Type': 'application/json'},
       body: json.encode(data),
     );

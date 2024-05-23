@@ -58,6 +58,7 @@ dependencies:
   flutter_secure_storage:
   image_picker: ^0.8.7+3
   flutter_svg: ^2.0.10+1
+  fluttertoast: ^8.2.5
 
 dev_dependencies:
   flutter_test:

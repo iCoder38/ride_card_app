@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 //
 // TEXT
@@ -37,6 +38,10 @@ var PLEASE_WAIT = 'Please wait...';
 var TEXT_FIELD_EMPTY_TEXT = 'Please enter value';
 var TEXT_FIELD_KYC =
     'Please select and upload documents to complete your KYC verification process.';
+var TEXT_ALREADY_BEEN_EXIST =
+    'This account is already been exist. Please enter different email id.';
+var TEXT_F_ERROR =
+    'Something went wrong. Please try again after sometime. code: F_2024';
 
 // IMAGE
 var BACKGROUNG_IMAGE_ASSET_URL = 'assets/images/background.png';
@@ -149,4 +154,16 @@ Text textFontORBITRON(text, color, size, {FontWeight? fontWeight}) {
       fontWeight: fontWeight ?? FontWeight.normal,
     ),
   );
+}
+
+// TOAST
+customToast(message, COLOR, LOCATION) {
+  Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: LOCATION,
+      timeInSecForIosWeb: 2,
+      backgroundColor: COLOR,
+      textColor: Colors.white,
+      fontSize: 14.0);
 }
