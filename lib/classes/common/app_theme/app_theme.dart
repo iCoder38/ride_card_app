@@ -1,5 +1,6 @@
 // FONTS
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 //
@@ -90,6 +91,18 @@ Color hexToColor(String hexString) {
 
   // Convert the hex string to an integer and create a Color object
   return Color(int.parse(hexString, radix: 16));
+}
+
+// SVG IMAGES
+var svgPath = 'assets/images/svg';
+var formatSVG = 'svg';
+Widget svgImage(imageName, height, width) {
+  return SvgPicture.asset(
+    '$svgPath/$imageName.$formatSVG',
+    height: height,
+    width: width,
+    // color: Colors.pink,
+  );
 }
 
 // FONT

@@ -103,7 +103,10 @@ class CustomDrawer extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => BottomBar(selectedIndex: 0)),
+                    builder: (context) => BottomBar(
+                      selectedIndex: 0,
+                    ),
+                  ),
                 );
               },
             ),
@@ -196,7 +199,10 @@ class CustomDrawer extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => BottomBar(selectedIndex: 3)),
+                    builder: (context) => BottomBar(
+                      selectedIndex: 3,
+                    ),
+                  ),
                 );
               },
             ),

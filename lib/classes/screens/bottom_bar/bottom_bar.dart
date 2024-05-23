@@ -137,6 +137,68 @@ class _BottomBarState extends State<BottomBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      body: Stack(
+        children: <Widget>[
+          // Background image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/background.png', // Make sure the path is correct
+              fit: BoxFit.cover,
+            ),
+          ),
+          // Content
+          Center(
+            child: _widgetOptions.elementAt(widget.selectedIndex),
+          ),
+        ],
+      ),
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+            /*gradient: LinearGradient(
+            colors: [
+              Color.fromRGBO(234, 160, 70, 1),
+              Color.fromRGBO(234, 150, 70, 1),
+              Color.fromRGBO(234, 140, 70, 1),
+              Color.fromRGBO(234, 130, 70, 1),
+              Color.fromRGBO(234, 120, 70, 1),
+              Color.fromRGBO(234, 110, 70, 1),
+              Color.fromRGBO(234, 100, 70, 1),
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),*/
+            ),
+        child: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.attach_money),
+              label: 'Send money',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.wallet),
+              label: 'Wallet',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history),
+              label: 'History',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.list),
+              label: 'Statement',
+            ),
+          ],
+          currentIndex: widget.selectedIndex,
+          selectedItemColor: Colors.black,
+          unselectedItemColor: Colors.grey,
+          onTap: _onItemTapped,
+          backgroundColor: Colors.transparent,
+        ),
+      ),
+    ); /*Scaffold(
       /*appBar: AppBar(
         title: Text('Bottom Navigation Bar Example'),
       ),*/
@@ -171,6 +233,6 @@ class _BottomBarState extends State<BottomBar> {
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),
-    );
+    );*/
   }
 }

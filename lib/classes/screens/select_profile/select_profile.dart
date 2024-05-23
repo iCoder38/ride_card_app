@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/register/register.dart';
+import 'package:ride_card_app/classes/screens/register_complete_profile/register_complete_profile.dart';
 import 'package:ride_card_app/classes/screens/select_profile/widgets/widget.dart';
 
 class SelectProfileScreen extends StatelessWidget {
@@ -37,9 +38,7 @@ class SelectProfileScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => BottomBar(
-                        selectedIndex: 0,
-                      ),
+                      builder: (context) => const RegisterScreen(),
                     ),
                   );
                 },

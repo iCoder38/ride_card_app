@@ -70,6 +70,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       key: _formKey,
       child: Column(
         children: [
+          const SizedBox(
+            height: 80,
+          ),
           customNavigationBar(context, TEXT_NAVIGATION_TITLE_COMPLETE_PROFILE),
           _textFieldPlaceOfWork(),
           _textFieldSalary(),
