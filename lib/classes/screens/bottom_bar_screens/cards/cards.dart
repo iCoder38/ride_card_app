@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
@@ -14,7 +16,54 @@ class CardsScreen extends StatefulWidget {
 class _CardsScreenState extends State<CardsScreen> {
   //
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String data = 'Fetching data...';
+
+  final String clientId =
+      'kcPZGZqmj4dlsuGdkQ75uBQxLEGIQhCL'; // Replace with your actual client ID
+  final String baseUrl =
+      'https://api.equifax.com/personal/consumer-data-suite/v1/creditReport'; // Replace with the actual Equifax API endpoint
+  String creditScore = 'Fetching credit score...';
   //
+  @override
+  void initState() {
+    super.initState();
+    fetchCreditScore();
+  }
+
+  Future<void> fetchCreditScore() async {
+    debugPrint('CHECK');
+    try {
+      final response = await http.post(
+        Uri.parse(baseUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Client-Id': clientId,
+        },
+        body: jsonEncode({
+          'firstName': 'Dishant', // Replace with actual first name
+          'lastName': 'Rajput', // Replace with actual last name
+          'panCardNumber': 'AYQP56608H', // Replace with actual SSN
+          'dateOfBirth': '1992-06-06', // Replace with actual DOB
+          // Add other necessary parameters
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint('success');
+        final data = jsonDecode(response.body);
+        setState(() {
+          creditScore = 'Your credit score is: ${data['creditScore']}';
+        });
+      } else {
+        throw Exception('Failed to fetch credit score');
+      }
+    } catch (error) {
+      setState(() {
+        creditScore = 'Failed to fetch credit score: $error';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,7 +113,11 @@ class _CardsScreenState extends State<CardsScreen> {
         Padding(
           padding: const EdgeInsets.all(22.0),
           child: GestureDetector(
-            onTap: () {},
+            onTap: () {
+              //
+              print('object');
+              fetchCreditScore();
+            },
             child: Container(
               height: 60,
               width: MediaQuery.of(context).size.width,
@@ -132,4 +185,32 @@ class _CardsScreenState extends State<CardsScreen> {
       ],
     );
   }
+
+  /*Future<void> fetchCreditScore() async {
+    print('object 2 ');
+    try {
+      // Call Equifax service to fetch credit score
+      double score = await equifaxService.fetchCreditScore();
+      setState(() {
+        creditScore = 'Your credit score is: $score';
+      });
+    } catch (e) {
+      setState(() {
+        creditScore = 'Failed to fetch credit score: $e';
+      });
+    }
+  }*/
+
+  /*Future<void> fetchData2() async {
+    try {
+      Map<String, dynamic> result = await equifaxService.fetchEquifaxData();
+      setState(() {
+        data = result.toString();
+      });
+    } catch (e) {
+      setState(() {
+        data = 'Error: $e';
+      });
+    }
+  }*/
 }

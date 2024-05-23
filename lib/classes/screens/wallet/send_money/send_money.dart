@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/wallet/send_money/send_money_portal/send_money_portal.dart';
 
 class SendMoneyScreen extends StatefulWidget {
   const SendMoneyScreen({super.key});
@@ -42,11 +43,20 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
           height: 80,
         ),
         customNavigationBar(context, TEXT_NAVIGATION_TITLE_SEND_MONEY),
-        textFontPOOPINS(
-          'Recents',
-          hexToColor(appREDcolorHexCode),
-          16.0,
-          fontWeight: FontWeight.w800,
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const SendMoneyPortalScreen()),
+            );
+          },
+          child: textFontPOOPINS(
+            'Recents',
+            hexToColor(appREDcolorHexCode),
+            16.0,
+            fontWeight: FontWeight.w800,
+          ),
         ),
         textFontPOOPINS(
           'Contacts',

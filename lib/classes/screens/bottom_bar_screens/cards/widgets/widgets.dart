@@ -2,6 +2,47 @@ import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/screens/all_cards/all_cards.dart';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+class SecureStorage {
+  final _storage = FlutterSecureStorage();
+
+  Future<void> write(String key, String value) async {
+    await _storage.write(key: key, value: value);
+  }
+
+  Future<String?> read(String key) async {
+    return await _storage.read(key: key);
+  }
+
+  Future<void> delete(String key) async {
+    await _storage.delete(key: key);
+  }
+}
+
+/*class EquifaxService {
+  final String clientId =
+      'kcPZGZqmj4dlsuGdkQ75uBQxLEGIQhCL'; // Replace with your actual client ID
+  final String baseUrl =
+      'https://api.equifax.com/personal/consumer-data-suite/v1/creditReport'; // Replace with the actual Equifax API sandbox endpoint
+
+  Future<Map<String, dynamic>> fetchEquifaxData() async {
+    print('hmm');
+    final response = await http.get(
+      Uri.parse('$baseUrl?client_id=$clientId'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to fetch data from Equifax');
+    }
+  }
+}*/
+
 Widget widgetCardsCreditScore(context) {
   return Padding(
     padding: const EdgeInsets.all(16.0),
@@ -39,16 +80,44 @@ Widget widgetCardsCreditScore(context) {
             padding: EdgeInsets.only(right: 24.0, left: 24.0),
             child: Divider(),
           ),
-          textFontPOOPINS(
-            'Check score now >',
-            appREDcolor,
-            14.0,
-            fontWeight: FontWeight.w800,
+          GestureDetector(
+            onTap: () {
+              checkCreditScore();
+            },
+            child: textFontPOOPINS(
+              'Check score now >',
+              appREDcolor,
+              14.0,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ],
       ),
     ),
   );
+}
+
+checkCreditScore() async {
+  // var headers = {'Content-Type': 'application/json'};
+  // var request = http.Request(
+  //     'POST',
+  //     Uri.parse(
+  //         'https://api.equifax.com/personal/consumer-data-suite/v1/creditReport'));
+  // request.body = json.encode({
+  //   "name": "Dishant Rajput",
+  //   "pan": "AYQPR6608H",
+  //   "mobile": "8929963020",
+  //   "consent": "Y"
+  // });
+  // request.headers.addAll(headers);
+
+  // http.StreamedResponse response = await request.send();
+
+  // if (response.statusCode == 200) {
+  //   print(await response.stream.bytesToString());
+  // } else {
+  //   print(response.reasonPhrase);
+  // }
 }
 
 Widget widgetDashboardUpperDeck(context) {

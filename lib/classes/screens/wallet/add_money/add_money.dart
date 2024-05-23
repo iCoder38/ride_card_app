@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
 
 class AddMoneyScreen extends StatefulWidget {
   const AddMoneyScreen({super.key});
@@ -92,6 +93,11 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                     onTap: () {
                       setState(() {
                         debugPrint('object');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SendMoneyScreen()),
+                        );
                       });
                     },
                     child: Container(

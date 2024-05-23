@@ -55,6 +55,7 @@ dependencies:
   flutter_credit_card: ^4.0.1
   u_credit_card: ^1.3.0
   flutter_switch:
+  flutter_secure_storage:
 
 dev_dependencies:
   flutter_test:

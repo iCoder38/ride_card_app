@@ -11,14 +11,14 @@ class CustomDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        // decoration: const BoxDecoration(
-        //   image: DecorationImage(
-        //     image: AssetImage(
-        //       "assets/images/background.png",
-        //     ),
-        //     fit: BoxFit.cover,
-        //   ),
-        // ),
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(
+              "assets/images/orange_gradient_horizontal.png",
+            ),
+            fit: BoxFit.cover,
+          ),
+        ),
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
@@ -40,12 +40,7 @@ class CustomDrawer extends StatelessWidget {
             Container(
               height: 100,
               width: MediaQuery.of(context).size.width,
-              color: const Color.fromRGBO(
-                229,
-                135,
-                60,
-                1,
-              ),
+              color: hexToColor(appORANGEcolorHexCode),
               child: Row(
                 children: [
                   const SizedBox(
@@ -59,7 +54,7 @@ class CustomDrawer extends StatelessWidget {
                         40.0,
                       ),
                       child: Image.asset(
-                        'assets/images/background.png',
+                        'assets/images/orange_gradient_horizontal.png',
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -94,11 +89,12 @@ class CustomDrawer extends StatelessWidget {
             ListTile(
               leading: const Icon(
                 Icons.home,
+                color: Colors.white,
               ),
               title: textFontPOOPINS(
                 //
                 TEXT_MENU_DASHBOARD,
-                Colors.black,
+                Colors.white,
                 16.0,
               ),
               onTap: () {
@@ -112,36 +108,39 @@ class CustomDrawer extends StatelessWidget {
             ListTile(
               leading: const Icon(
                 Icons.credit_card,
+                color: Colors.white,
               ),
               title: textFontPOOPINS(
                 //
                 TEXT_MENU_MANAGE_CARDS,
-                Colors.black,
+                Colors.white,
                 16.0,
               ),
             ),
             ListTile(
               leading: const Icon(
                 Icons.attach_money_outlined,
+                color: Colors.white,
               ),
               title: textFontPOOPINS(
                 //
                 TEXT_MENU_SENT_MONEY,
-                Colors.black,
+                Colors.white,
                 16.0,
               ),
             ),
             ListTile(
               leading: const Icon(
                 Icons.wallet,
+                color: Colors.white,
               ),
               title: textFontPOOPINS(
                 //
                 TEXT_MENU_WALLET,
-                Colors.black,
+                Colors.white,
                 16.0,
               ),
-              onTap: (){
+              onTap: () {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -152,66 +151,72 @@ class CustomDrawer extends StatelessWidget {
             ListTile(
               leading: const Icon(
                 Icons.score,
+                color: Colors.white,
               ),
               title: textFontPOOPINS(
                 //
                 TEXT_MENU_CREDIT_SCORE,
-                Colors.black,
+                Colors.white,
                 16.0,
               ),
             ),
             ListTile(
               leading: const Icon(
                 Icons.settings,
+                color: Colors.white,
               ),
               title: textFontPOOPINS(
                 //
                 TEXT_MENU_SETTINGS,
-                Colors.black,
+                Colors.white,
                 16.0,
               ),
             ),
             ListTile(
               leading: const Icon(
                 Icons.file_copy,
+                color: Colors.white,
               ),
               title: textFontPOOPINS(
                 //
                 TEXT_MENU_HISTORY,
-                Colors.black,
+                Colors.white,
                 16.0,
               ),
             ),
             ListTile(
               leading: const Icon(
                 Icons.lock,
+                color: Colors.white,
               ),
               title: textFontPOOPINS(
                 //
                 TEXT_MENU_CHANGE_PASSWORD,
-                Colors.black,
+                Colors.white,
                 16.0,
               ),
             ),
             ListTile(
               leading: const Icon(
                 Icons.help,
+                color: Colors.white,
               ),
               title: textFontPOOPINS(
                 //
                 TEXT_MENU_HELP,
-                Colors.black,
+                Colors.white,
                 16.0,
               ),
             ),
             ListTile(
               leading: const Icon(
                 Icons.logout,
+                color: Colors.white,
               ),
               title: textFontPOOPINS(
                 //
                 TEXT_MENU_LOGOUT,
-                Colors.black,
+                Colors.white,
                 16.0,
               ),
             )
