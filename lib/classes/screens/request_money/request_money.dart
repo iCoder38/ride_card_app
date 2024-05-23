@@ -3,17 +3,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
-import 'package:ride_card_app/classes/screens/request_money/request_money.dart';
-import 'package:ride_card_app/classes/screens/success/success.dart';
 
-class SendMoneyPortalScreen extends StatefulWidget {
-  const SendMoneyPortalScreen({super.key});
+class RequestMoneyScreen extends StatefulWidget {
+  const RequestMoneyScreen({super.key});
 
   @override
-  State<SendMoneyPortalScreen> createState() => _SendMoneyPortalScreenState();
+  State<RequestMoneyScreen> createState() => _RequestMoneyScreenState();
 }
 
-class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
+class _RequestMoneyScreenState extends State<RequestMoneyScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
@@ -37,22 +35,19 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: _UIKitCardsAfterBG(context),
+        child: _UIKitRequestMoneyAfterBG(context),
       ),
     );
   }
 
-  Widget _UIKitCardsAfterBG(BuildContext context) {
+  Widget _UIKitRequestMoneyAfterBG(context) {
     return Column(
       children: [
         const SizedBox(
           height: 80.0,
         ),
-        customNavigationBar(
-          context,
-          TEXT_NAVIGATION_TITLE_SEND_MONEY,
-        ),
-        Padding(
+        customNavigationBar(context, TEXT_NAVIGATION_TITLE_REQUEST_MONEY),
+        /*Padding(
           padding: const EdgeInsets.all(16.0),
           child: Container(
             height: 100,
@@ -130,15 +125,16 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
                       ),
                     ),
                   ),
-                ),
+                ), 
               ],
             ),
           ),
-        ),
+        ),*/
         Padding(
           padding: const EdgeInsets.only(
             left: 16.0,
             right: 16.0,
+            top: 24.0,
           ),
           child: Container(
             // height: 100,
@@ -192,7 +188,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
         ),
         textFontPOOPINS(
           //
-          'Enter amount to send',
+          'Enter amount to request',
           appORANGEcolor,
           16.0,
           fontWeight: FontWeight.w600,
@@ -239,10 +235,10 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
           padding: const EdgeInsets.all(16.0),
           child: GestureDetector(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SuccessScreen()),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => const SuccessScreen()),
+              // );
             },
             child: Container(
               color: Colors.transparent,
@@ -258,7 +254,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
                   ),
                   child: Center(
                     child: textFontPOOPINS(
-                      'Send money',
+                      'Request money',
                       Colors.white,
                       22.0,
                       fontWeight: FontWeight.w400,
