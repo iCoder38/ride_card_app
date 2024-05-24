@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,11 +7,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/common/hive/hive.dart';
+import 'package:ride_card_app/classes/common/methods/methods.dart';
+import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/register_complete_profile/register_complete_profile.dart';
+import 'package:ride_card_app/classes/service/service/service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -21,6 +27,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   //
+  final ApiService _apiService = ApiService();
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _contFirstName = TextEditingController();
   final TextEditingController _contLastName = TextEditingController();
@@ -254,6 +261,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Center(
                   child: TextFormField(
                     controller: _contPhone,
+                    keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
                       hintText: 'Phone',
                       border: InputBorder.none, // Remove the border
@@ -291,6 +299,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Center(
                   child: TextFormField(
                     controller: _contPassword,
+                    obscureText: true,
                     decoration: const InputDecoration(
                       hintText: 'Password',
                       border: InputBorder.none, // Remove the border
@@ -318,14 +327,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 top: 16.0,
               ),
               child: GestureDetector(
-                onTap: () {
+                onTap: () async {
                   if (_formKey.currentState!.validate()) {
                     showLoadingUI(context, PLEASE_WAIT);
-                    /*Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const CompleteProfileScreen()),
-                    );*/
+                    /**/
+
                     createAnAccountInFirebaseFirst(context);
                   }
                 },
@@ -391,7 +397,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           .then((value) => {
                 //
                 // debugPrint('REGISTERED IN FIREBASE'),
-                updateUserName()
+                updateUserName(context)
                 //
               });
     } on FirebaseAuthException catch (e) {
@@ -428,14 +434,110 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  updateUserName() async {
-    await FirebaseAuth.instance.currentUser!.updateDisplayName('').then((v) {
+  updateUserName(context) async {
+    var mergeName = '${_contFirstName.text} ${_contLastName.text}';
+    debugPrint(mergeName);
+    await FirebaseAuth.instance.currentUser!
+        .updateDisplayName(mergeName)
+        .then((v) {
       debugPrint('REGISTERED NAME ALSO');
+      _sendRequestToRegister(context);
     });
   }
 
-  sendRegisterDataToServer() {
+  void _sendRequestToRegister(context) async {
+    debugPrint('API ==> CREATE AN ACCOUNT');
+    String parseDevice = await deviceIs();
+    final parameters = {
+      'action': 'registration',
+      'fullName': _contFirstName.text,
+      'lastName': _contLastName.text,
+      'email': _contEmail.text,
+      'contactNumber': _contPhone.text,
+      'password': _contPassword.text,
+      'role': RESPONSE_ROLE,
+      'device': parseDevice,
+      'firebaseId': FirebaseAuth.instance.currentUser!.uid,
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+    // return;
+    try {
+      final response = await _apiService.postRequest(parameters, '');
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        successStatus.toLowerCase() == 'success'
+            ? successfullyCreatedAccount(
+                context,
+                successStatus,
+                successMessage,
+                jsonResponse,
+              )
+            : deleteAuthUser(successStatus);
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      // print(error);
+    }
+  }
+
+  Future<void> deleteAuthUser(status) async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    try {
+      // Get the current user
+      User? user = auth.currentUser;
+
+      // Delete the user
+      await user?.delete().then((v) {
+        //
+        Navigator.pop(context);
+        customToast(status, hexToColor(appREDcolorHexCode), ToastGravity.TOP);
+      });
+
+      // User deleted.
+    } catch (e) {
+      // An error occurred. Handle it accordingly.
+      if (kDebugMode) {
+        print("Error deleting user: $e");
+      }
+    }
+  }
+
+  successfullyCreatedAccount(context, status, message, data2) async {
     //
+    Map<String, dynamic> data = data2['data'];
+    String fullName = data['fullName'];
+    String userId = data['userId'].toString();
+    String role = data['role'].toString();
+    if (kDebugMode) {
+      print('OUTPUT ====> $fullName');
+      print('OUTPUT ====> $userId');
+      print('OUTPUT ====> $role');
+    }
+    // DATA SAVED LOCALLY IN HIVE
+    var box = await Hive.openBox<MyData>('myBox1');
+    var saveUserId = MyData(userId, role);
+    await box.add(saveUserId);
+    await box.close();
+
+    customToast(message, Colors.green, ToastGravity.BOTTOM);
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CompleteProfileScreen()),
+    );
   }
 
   void openGalleryOrCamera(

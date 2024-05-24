@@ -1,9 +1,20 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/common/hive/hive.dart';
+import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/register_complete_profile_business/register_complete_profile_business.dart';
+import 'package:ride_card_app/classes/service/service/service.dart';
+import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CompleteProfileScreen extends StatefulWidget {
   const CompleteProfileScreen({super.key});
@@ -14,6 +25,8 @@ class CompleteProfileScreen extends StatefulWidget {
 
 class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   //
+  final ApiService _apiService = ApiService();
+  GenerateTokenService _apiServiceGT = GenerateTokenService();
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _contPlaceOfWork = TextEditingController();
   final TextEditingController _contSalary = TextEditingController();
@@ -26,6 +39,15 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   final TextEditingController _contPassportVerification =
       TextEditingController();
   //
+
+  var _email = '';
+
+  @override
+  void initState() {
+    _email = FirebaseAuth.instance.currentUser!.email.toString();
+    super.initState();
+  }
+
   @override
   void dispose() {
     _contPlaceOfWork.dispose();
@@ -100,12 +122,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               onTap: () {
                 if (_formKey.currentState!.validate()) {
                   showLoadingUI(context, PLEASE_WAIT);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            const CompleteProfileBusinessScreen()),
-                  );
+                  //
+                  _sendRequestToCompleteProfile(context);
                 }
               },
               child: Container(
@@ -319,6 +337,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               child: Center(
                 child: TextFormField(
                   controller: _contPostalCode,
+                  keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     hintText: 'Postal code',
                     border: InputBorder.none, // Remove the border
@@ -335,6 +354,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     }
                     return null;
                   },
+                  maxLength: 6,
                 ),
               ),
             ),
@@ -474,6 +494,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         child: Center(
           child: TextFormField(
             controller: _contSalary,
+            keyboardType: TextInputType.number,
             decoration: const InputDecoration(
               hintText: 'Salary ( per month )',
               border: InputBorder.none, // Remove the border
@@ -493,6 +514,87 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  // API
+  void _sendRequestToCompleteProfile(context) async {
+    debugPrint('API ==> COMPLETE PROFILE');
+
+    var box = await Hive.openBox<MyData>('myBox1');
+    var myData = box.getAt(0);
+    await box.close();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // print(prefs.getString('key_save_token_locally'));
+    var token = prefs.getString('key_save_token_locally').toString();
+
+    final parameters = {
+      'action': 'editProfile',
+      'userId': myData!.userId,
+      'PlaceOfWork': _contPlaceOfWork.text,
+      'Salary': _contSalary.text,
+      'address': _contAddress.text,
+      'City': _contCity.text,
+      'zipcode': _contPostalCode.text,
+      'country': _contCountry.text,
+      'PEP': _contPEP.text,
+      'Passport': _contPassport.text,
+      'passport_verification': _contPassportVerification.text,
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+
+    try {
+      final response = await _apiService.postRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          _apiServiceGT
+              .generateToken(myData.userId, _email, myData.role)
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            _sendRequestToCompleteProfile(context);
+          });
+        } else {
+          //
+          /* successStatus.toLowerCase() == 'success'
+              ? successfullyCreatedAccount(successStatus, successMessage)
+              : Navigator.pop(context);
+          customToast(
+              successStatus, hexToColor(appREDcolorHexCode), ToastGravity.TOP);*/
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      // print(error);
+    }
+  }
+
+  successfullyCreatedAccount(status, message) {
+    //
+    customToast(message, Colors.green, ToastGravity.BOTTOM);
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CompleteProfileScreen()),
     );
   }
 }

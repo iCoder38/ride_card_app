@@ -4,6 +4,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+// SAVE HIVE KEY DEFAULT
+var KEY_SAVE_DEFAULT = 'key_save_data2';
 //
 // TEXT
 var TEXT_NAVIGATION_TITLE_WELCOME = 'welcome'.toUpperCase();

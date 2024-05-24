@@ -1,32 +1,34 @@
-// lib/api_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 
 class ApiService {
-  final String baseUrl;
+  final String _baseUrl = BASE_URL;
 
-  ApiService(this.baseUrl);
-
-  Future<dynamic> get(String endpoint) async {
-    final response = await http.get(Uri.parse('$baseUrl$endpoint'));
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
+  Future<http.Response> postRequest(
+      Map<String, dynamic> parameters, token) async {
+    if (token == null) {
+      token = '';
     } else {
-      throw Exception('Failed to load data');
+      token = token;
     }
-  }
-
-  Future<dynamic> post(String endpoint, Map<String, dynamic> data) async {
+    final url = Uri.parse(_baseUrl);
     final response = await http.post(
-      Uri.parse(BASE_URL),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(data),
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'token': token
+      },
+      body: jsonEncode(parameters),
     );
-    if (response.statusCode == 201) {
-      return json.decode(response.body);
+
+    if (response.statusCode == 200) {
+      // Request was successful
+      return response;
     } else {
-      throw Exception('Failed to post data');
+      // Handle error
+      throw Exception('Failed to load data');
     }
   }
 }

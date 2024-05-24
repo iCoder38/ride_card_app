@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,4 +27,14 @@ Future<void> signOut() async {
   await FirebaseAuth.instance.signOut().then((value) => {
         //
       });
+}
+
+Future<dynamic> deviceIs() async {
+  var deviceName = '';
+  if (Platform.isAndroid) {
+    deviceName = 'Android';
+  } else {
+    deviceName = 'iOS';
+  }
+  return deviceName;
 }
