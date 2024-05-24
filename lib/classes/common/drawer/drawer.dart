@@ -1,13 +1,27 @@
 // custom_drawer.dart
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
-import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
-import 'package:ride_card_app/classes/screens/request_history/request_history.dart';
-import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
 
-class CustomDrawer extends StatelessWidget {
+class CustomDrawer extends StatefulWidget {
   const CustomDrawer({super.key});
+
+  @override
+  State<CustomDrawer> createState() => _CustomDrawerState();
+}
+
+class _CustomDrawerState extends State<CustomDrawer> {
+  @override
+  void initState() {
+    // getCurrentUserDisplayName().then((value) {
+    //   setState(() {
+    //     // displayName = value;
+    //   });
+    // });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,20 +83,22 @@ class CustomDrawer extends StatelessWidget {
                     children: [
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: textFontOPENSANS(
-                          'Dishant Rajput',
-                          Colors.black,
-                          16.0,
+                        child: textFontPOOPINS(
+                          //
+                          getCurrentUserName(),
+                          Colors.white,
+                          18.0,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Align(
+                      /*Align(
                         alignment: Alignment.centerLeft,
                         child: textFontOPENSANS(
                           '@username',
                           Colors.black,
                           12.0,
                         ),
-                      )
+                      )*/
                     ],
                   )
                 ],

@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
+import 'package:ride_card_app/classes/common/methods/methods.dart';
+import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/widgets/widgets.dart';
 
@@ -27,10 +30,10 @@ class _CardsScreenState extends State<CardsScreen> {
   @override
   void initState() {
     super.initState();
-    fetchCreditScore();
+    // fetchCreditScore();
   }
 
-  Future<void> fetchCreditScore() async {
+  /*Future<void> fetchCreditScore() async {
     debugPrint('CHECK');
     try {
       final response = await http.post(
@@ -62,7 +65,7 @@ class _CardsScreenState extends State<CardsScreen> {
         creditScore = 'Failed to fetch credit score: $error';
       });
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -115,8 +118,11 @@ class _CardsScreenState extends State<CardsScreen> {
           child: GestureDetector(
             onTap: () {
               //
-              print('object');
-              fetchCreditScore();
+              if (kDebugMode) {
+                print('object');
+                fetchCreditScore();
+              }
+              // fetchCreditScore();
             },
             child: Container(
               height: 60,
@@ -213,4 +219,95 @@ class _CardsScreenState extends State<CardsScreen> {
       });
     }
   }*/
+// kcPZGZqmj4dlsuGdkQ75uBQxLEGIQhCL
+  void fetchCreditScore() async {
+    String apiUrl = CC_SCORE_BASE_URL;
+
+    try {
+      // Construct the request headers with your client ID
+      Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'client_id': CC_SCORE_CLIENT_ID,
+        'client_secret': CC_SCORE_CLIENT_SECRET,
+        'module_secret': CC_SCORE_MODULE_SECRET,
+        'provider_secret': CC_SCORE_PROVIDER_SECRET,
+      };
+
+      //
+      String randomString = generateRandomString(10);
+      //
+      // Construct the request body with the necessary parameters
+      Map<String, dynamic> requestBody = {
+        "reference_id": 'RCA_$randomString',
+        "consent": true,
+        "consent_purpose": "for bank verification only",
+        "name": "BICKY KUMAR",
+        "mobile": "9555536396",
+        "inquiry_purpose": "CC",
+        "document_type": "PAN",
+        "document_id": "AAICV0413H"
+      };
+      if (kDebugMode) {
+        print(requestBody);
+      }
+
+      // Convert the request body to JSON
+      String requestBodyJson = json.encode(requestBody);
+
+      // Convert the API URL string to a Uri object
+      Uri uri = Uri.parse(apiUrl);
+
+      // Make a POST request to the Equifax API endpoint
+      http.Response response =
+          await http.post(uri, headers: headers, body: requestBodyJson);
+
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('done');
+        }
+        // Parse the response JSON
+        Map<String, dynamic> data = json.decode(response.body);
+        if (kDebugMode) {
+          print(data);
+          List<dynamic> scoreDetails = data['data']['cCRResponse']
+              ['cIRReportDataLst'][0]['cIRReportData']['scoreDetails'];
+          print(scoreDetails);
+          // Extract the "name" parameter value from the first element of "scoreDetails"
+          String name = scoreDetails[0]['value'].toString();
+
+          // Print the value of "name"
+          print(name);
+        }
+        // Extract the credit score from the response
+        // double creditScore = data['credit_score'];
+
+        // Handle the retrieved credit score
+        // print('Credit Score: $creditScore');
+      } else {
+        // Handle errors or non-200 status codes
+        print('Error: ${response.statusCode} - ${response.reasonPhrase}');
+        print(response.body);
+      }
+    } catch (error) {
+      // Handle network errors or exceptions
+      print('Error: $error');
+    }
+  }
 }
+
+// 92B73E0AC4D94773A890FEA38AEEBE23
+
+/*
+"reference_id": "ABCDEF41234235671222",
+    "consent": true,
+    "consent_purpose": "for bank verification only",
+    "name": "BICKY KUMAR",
+    "date_of_birth": "1992-06-06",
+    "address_type": "H",
+    "address": "flat 102 plot 39",
+    "pincode": "110075",
+    "mobile": "8929963020",
+    "inquiry_purpose": "CC",
+    "document_type": "PAN",
+    "document_id": "AAICV0413H"
+*/

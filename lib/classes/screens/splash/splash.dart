@@ -8,6 +8,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
+import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
+import 'package:ride_card_app/classes/screens/select_profile/select_profile.dart';
 import 'package:ride_card_app/classes/screens/welcome/welcome.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -193,9 +195,7 @@ class _SplashScreenState extends State<SplashScreen> {
               builder: (context) => const WelcomeScreen(),
             ),
           );
-          /*(strDoneWithOnboarding == '1')
-              ? checkUserIsLoginOrNot(context, '1')
-              : checkUserIsLoginOrNot(context, '2');*/
+          checkUserIsLoginOrNot(context);
         } else {
           setState(
             () {
@@ -211,93 +211,30 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-checkUserIsLoginOrNot(context, status) {
+checkUserIsLoginOrNot(context) {
   //
-  if (kDebugMode) {
-    print(status);
-  }
+
   FirebaseAuth.instance.authStateChanges().listen((User? user) {
     if (user == null) {
       if (kDebugMode) {
         print('User is currently signed out!');
       }
-      /*Navigator.push(
+      Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(
-          builder: (context) => const OnboardingScreen(),
-        ),
-      );*/
+        MaterialPageRoute(builder: (context) => const SelectProfileScreen()),
+        (Route<dynamic> route) => false,
+      );
     } else {
       if (kDebugMode) {
         print('User is signed in!');
         print(FirebaseAuth.instance.currentUser!.uid);
       }
-      /*if (status == '1') {
-        if (FirebaseAuth.instance.currentUser!.emailVerified == false) {
-          // signOut(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              // builder: (context) => const HomeFeedScreen(),
-              builder: (context) => const LoginScreen(),
-            ),
-          );
-        } else {
-          checkUserIsAlreadyInDB(context);
-        }
-      } else {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const OnboardingScreen(),
-          ),
-        );
-      }*/
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const CardsScreen(),
+        ),
+      );
     }
   });
 }
-
-/*checkUserIsAlreadyInDB(context) {
-  //
-  if (kDebugMode) {
-    debugPrint('CHECKING USER IS NEW OR NOT');
-    debugPrint(FirebaseAuth.instance.currentUser!.uid);
-  }
-  checkUserIsAlreadyInDBfb(FirebaseAuth.instance.currentUser!.uid)
-      .then((loginUserData) {
-    if (loginUserData.length == 0) {
-      if (kDebugMode) {
-        print('========================================');
-        print('NO, USER IS NOT AVAILABLE in FIREBASE DB normal');
-        print('========================================');
-      }
-      //
-      // saveLoginUserDataInFirebase('', context);
-    } else {
-      if (kDebugMode) {
-        print(loginUserData.first['active']);
-      }
-      if (loginUserData.first['active'] == 'no') {
-        //
-        your_account_is_not_active(context).then((v) {
-          debugPrint('===============');
-          debugPrint('NOT ACTIVE USER');
-          debugPrint('===============');
-          signOut(context);
-        });
-      } else {
-        //
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            // builder: (context) => const HomeFeedScreen(),
-            builder: (context) => const BottomBarScreen(),
-          ),
-        );
-      }
-    }
-  });
-}*/
-
-// wesqod-9hyrtE-mekcaw
-

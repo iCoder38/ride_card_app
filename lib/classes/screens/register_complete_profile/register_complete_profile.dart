@@ -11,6 +11,7 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/hive/hive.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
 import 'package:ride_card_app/classes/screens/register_complete_profile_business/register_complete_profile_business.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
@@ -527,7 +528,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // print(prefs.getString('key_save_token_locally'));
-    var token = prefs.getString('key_save_token_locally').toString();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
 
     final parameters = {
       'action': 'editProfile',
@@ -573,11 +574,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           });
         } else {
           //
-          /* successStatus.toLowerCase() == 'success'
+          successStatus.toLowerCase() == 'success'
               ? successfullyCreatedAccount(successStatus, successMessage)
               : Navigator.pop(context);
           customToast(
-              successStatus, hexToColor(appREDcolorHexCode), ToastGravity.TOP);*/
+              successStatus, hexToColor(appREDcolorHexCode), ToastGravity.TOP);
         }
       } else {
         customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
@@ -594,7 +595,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     Navigator.pop(context);
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const CompleteProfileScreen()),
+      MaterialPageRoute(builder: (context) => const CardsScreen()),
     );
   }
 }
