@@ -8,6 +8,7 @@ import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/widgets/widgets.dart';
+import 'package:ride_card_app/classes/service/check_cc_score/check_cc_score.dart';
 
 class CardsScreen extends StatefulWidget {
   const CardsScreen({super.key});
@@ -221,7 +222,23 @@ class _CardsScreenState extends State<CardsScreen> {
   }*/
 // kcPZGZqmj4dlsuGdkQ75uBQxLEGIQhCL
   void fetchCreditScore() async {
-    String apiUrl = CC_SCORE_BASE_URL;
+    fetchCreditScore2(
+      apiUrl: CC_SCORE_BASE_URL,
+      clientId: CC_SCORE_CLIENT_ID,
+      clientSecret: CC_SCORE_CLIENT_SECRET,
+      moduleSecret: CC_SCORE_MODULE_SECRET,
+      providerSecret: CC_SCORE_PROVIDER_SECRET,
+      name: "BICKY KUMAR",
+      mobile: "9555536396",
+      inquiryPurpose: "CC",
+      documentType: "PAN",
+      documentId: "AAICV0413H",
+    ).then((v) {
+      //
+      print('=====> $v');
+    });
+
+    /* String apiUrl = CC_SCORE_BASE_URL;
 
     try {
       // Construct the request headers with your client ID
@@ -278,11 +295,7 @@ class _CardsScreenState extends State<CardsScreen> {
           // Print the value of "name"
           print(name);
         }
-        // Extract the credit score from the response
-        // double creditScore = data['credit_score'];
-
-        // Handle the retrieved credit score
-        // print('Credit Score: $creditScore');
+      
       } else {
         // Handle errors or non-200 status codes
         print('Error: ${response.statusCode} - ${response.reasonPhrase}');
@@ -291,7 +304,7 @@ class _CardsScreenState extends State<CardsScreen> {
     } catch (error) {
       // Handle network errors or exceptions
       print('Error: $error');
-    }
+    }*/
   }
 }
 
