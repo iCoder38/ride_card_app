@@ -42,6 +42,9 @@ Future<String> fetchCreditScore2({
       "document_type": documentType,
       "document_id": documentId,
     };
+    if (kDebugMode) {
+      print(requestBody);
+    }
 
     // Convert the request body to JSON
     String requestBodyJson = json.encode(requestBody);
@@ -65,11 +68,16 @@ Future<String> fetchCreditScore2({
       // print(name);
       return name;
     } else {
-      return 'Error';
+      if (kDebugMode) {
+        print(response.body);
+      }
+      return response.body;
     }
   } catch (error) {
     // Handle network errors or exceptions
-    print('Error: $error');
+    if (kDebugMode) {
+      print('Error: $error');
+    }
     return 'Error: $error';
   }
 }

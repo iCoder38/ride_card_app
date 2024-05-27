@@ -27,7 +27,7 @@ class CompleteProfileScreen extends StatefulWidget {
 class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   //
   final ApiService _apiService = ApiService();
-  GenerateTokenService _apiServiceGT = GenerateTokenService();
+  GenerateTokenService apiServiceGT = GenerateTokenService();
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _contPlaceOfWork = TextEditingController();
   final TextEditingController _contSalary = TextEditingController();
@@ -556,13 +556,17 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       String successStatus = jsonResponse['status'];
       String successMessage = jsonResponse['msg'];
+      if (kDebugMode) {
+        print('STATUS ==> $successStatus');
+        print(successMessage);
+      }
 
       if (response.statusCode == 200) {
         debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
         //
         if (successMessage == NOT_AUTHORIZED) {
           //
-          _apiServiceGT
+          apiServiceGT
               .generateToken(myData.userId, _email, myData.role)
               .then((v) {
             //

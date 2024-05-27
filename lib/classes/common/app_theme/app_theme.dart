@@ -37,6 +37,7 @@ var TEXT_ACCEPT_TERMS =
     'I have no objection in case Ride Card App seeks to authenticate the identity information provided by me is correct.';
 // ALERT TEXT
 var PLEASE_WAIT = 'Please wait...';
+var CHECKING_SCORE_TEXT = 'checking...';
 var TEXT_FIELD_EMPTY_TEXT = 'Please enter value';
 var TEXT_FIELD_KYC =
     'Please select and upload documents to complete your KYC verification process.';

@@ -121,7 +121,7 @@ class _CardsScreenState extends State<CardsScreen> {
               //
               if (kDebugMode) {
                 print('object');
-                fetchCreditScore();
+                // fetchCreditScore();
               }
               // fetchCreditScore();
             },
@@ -237,74 +237,6 @@ class _CardsScreenState extends State<CardsScreen> {
       //
       print('=====> $v');
     });
-
-    /* String apiUrl = CC_SCORE_BASE_URL;
-
-    try {
-      // Construct the request headers with your client ID
-      Map<String, String> headers = {
-        'Content-Type': 'application/json',
-        'client_id': CC_SCORE_CLIENT_ID,
-        'client_secret': CC_SCORE_CLIENT_SECRET,
-        'module_secret': CC_SCORE_MODULE_SECRET,
-        'provider_secret': CC_SCORE_PROVIDER_SECRET,
-      };
-
-      //
-      String randomString = generateRandomString(10);
-      //
-      // Construct the request body with the necessary parameters
-      Map<String, dynamic> requestBody = {
-        "reference_id": 'RCA_$randomString',
-        "consent": true,
-        "consent_purpose": "for bank verification only",
-        "name": "BICKY KUMAR",
-        "mobile": "9555536396",
-        "inquiry_purpose": "CC",
-        "document_type": "PAN",
-        "document_id": "AAICV0413H"
-      };
-      if (kDebugMode) {
-        print(requestBody);
-      }
-
-      // Convert the request body to JSON
-      String requestBodyJson = json.encode(requestBody);
-
-      // Convert the API URL string to a Uri object
-      Uri uri = Uri.parse(apiUrl);
-
-      // Make a POST request to the Equifax API endpoint
-      http.Response response =
-          await http.post(uri, headers: headers, body: requestBodyJson);
-
-      if (response.statusCode == 200) {
-        if (kDebugMode) {
-          print('done');
-        }
-        // Parse the response JSON
-        Map<String, dynamic> data = json.decode(response.body);
-        if (kDebugMode) {
-          print(data);
-          List<dynamic> scoreDetails = data['data']['cCRResponse']
-              ['cIRReportDataLst'][0]['cIRReportData']['scoreDetails'];
-          print(scoreDetails);
-          // Extract the "name" parameter value from the first element of "scoreDetails"
-          String name = scoreDetails[0]['value'].toString();
-
-          // Print the value of "name"
-          print(name);
-        }
-      
-      } else {
-        // Handle errors or non-200 status codes
-        print('Error: ${response.statusCode} - ${response.reasonPhrase}');
-        print(response.body);
-      }
-    } catch (error) {
-      // Handle network errors or exceptions
-      print('Error: $error');
-    }*/
   }
 }
 
