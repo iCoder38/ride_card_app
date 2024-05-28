@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
+import 'package:ride_card_app/classes/screens/edit_profile/edit_profile.dart';
 
 class CustomDrawer extends StatefulWidget {
   const CustomDrawer({super.key});
@@ -122,6 +123,26 @@ class _CustomDrawerState extends State<CustomDrawer> {
                     builder: (context) => BottomBar(
                       selectedIndex: 0,
                     ),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.edit,
+                color: Colors.white,
+              ),
+              title: textFontPOOPINS(
+                //
+                TEXT_MENU_EDIT_PROFILE,
+                Colors.white,
+                16.0,
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EditProfileScreen(),
                   ),
                 );
               },

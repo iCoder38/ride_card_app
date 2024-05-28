@@ -6,7 +6,7 @@ import 'dart:convert';
 
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 
-Future<String> fetchCreditScore2({
+Future<dynamic> fetchCreditScore2({
   required String apiUrl,
   required String clientId,
   required String clientSecret,
@@ -57,21 +57,15 @@ Future<String> fetchCreditScore2({
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
+      // print(data);
 
-      List<dynamic> scoreDetails = data['data']['cCRResponse']
-          ['cIRReportDataLst'][0]['cIRReportData']['scoreDetails'];
-      // print(scoreDetails);
-      // Extract the "name" parameter value from the first element of "scoreDetails"
-      String name = scoreDetails[0]['value'].toString();
-
-      // Print the value of "name"
-      // print(name);
-      return name;
+      return data;
     } else {
       if (kDebugMode) {
         print(response.body);
       }
-      return response.body;
+      Map<String, dynamic> data = json.decode(response.body);
+      return data;
     }
   } catch (error) {
     // Handle network errors or exceptions

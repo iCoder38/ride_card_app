@@ -58,6 +58,7 @@ var TEXT_STATEMENT = 'Statement';
 
 // SCREEN: MENU
 var TEXT_MENU_DASHBOARD = 'Dashboard';
+var TEXT_MENU_EDIT_PROFILE = 'Edit profile';
 var TEXT_MENU_MANAGE_CARDS = 'Manage cards';
 var TEXT_MENU_SENT_MONEY = 'Send money';
 var TEXT_MENU_WALLET = 'Wallet';
