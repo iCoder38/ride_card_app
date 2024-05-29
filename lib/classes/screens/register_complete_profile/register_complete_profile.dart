@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -16,9 +17,18 @@ import 'package:ride_card_app/classes/screens/register_complete_profile_business
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class CompleteProfileScreen extends StatefulWidget {
-  const CompleteProfileScreen({super.key});
+  const CompleteProfileScreen(
+      {super.key,
+      required this.getFirstName,
+      required this.getLastName,
+      required this.getContactNumber});
+
+  final String getFirstName;
+  final String getLastName;
+  final String getContactNumber;
 
   @override
   State<CompleteProfileScreen> createState() => _CompleteProfileScreenState();
@@ -29,17 +39,20 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   final ApiService _apiService = ApiService();
   GenerateTokenService apiServiceGT = GenerateTokenService();
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _contPlaceOfWork = TextEditingController();
+  final TextEditingController _contDOB = TextEditingController();
   final TextEditingController _contSalary = TextEditingController();
+  final TextEditingController _contAnnualIncome = TextEditingController();
+  final TextEditingController _contSourceOfIncome = TextEditingController();
   final TextEditingController _contAddress = TextEditingController();
+  final TextEditingController _contStreet = TextEditingController();
   final TextEditingController _contCity = TextEditingController();
+  final TextEditingController _contState = TextEditingController();
   final TextEditingController _contPostalCode = TextEditingController();
   final TextEditingController _contCountry = TextEditingController();
   final TextEditingController _contPEP = TextEditingController();
   final TextEditingController _contPassport = TextEditingController();
   final TextEditingController _contPassportVerification =
       TextEditingController();
-  //
 
   var _email = '';
 
@@ -51,7 +64,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   @override
   void dispose() {
-    _contPlaceOfWork.dispose();
+    _contDOB.dispose();
     _contSalary.dispose();
     _contAddress.dispose();
     _contCity.dispose();
@@ -60,6 +73,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     _contPEP.dispose();
     _contPassport.dispose();
     _contPassportVerification.dispose();
+    _contAnnualIncome.dispose();
+    _contSourceOfIncome.dispose();
+    _contStreet.dispose();
+    _contCity.dispose();
+
     super.dispose();
   }
 
@@ -97,12 +115,280 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
             height: 80,
           ),
           customNavigationBar(context, TEXT_NAVIGATION_TITLE_COMPLETE_PROFILE),
-          _textFieldPlaceOfWork(),
-          _textFieldSalary(),
-          _textFieldAddress(),
-          _textFieldPostalCode(),
-          _textFieldPEP(),
+          const SizedBox(
+            height: 20.0,
+          ),
           Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: Row(
+              children: [
+                textFontPOOPINS(
+                  'Date of birth',
+                  Colors.white,
+                  14.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ],
+            ),
+          ),
+          _textFieldPlaceOfWork(),
+          //
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 16.0),
+            child: Row(
+              children: [
+                textFontPOOPINS(
+                  'Annual Income',
+                  Colors.white,
+                  14.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ],
+            ),
+          ),
+          _textFieldAnnualIncome(),
+          //
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 16.0),
+            child: Row(
+              children: [
+                textFontPOOPINS(
+                  'Source of Income',
+                  Colors.white,
+                  14.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ],
+            ),
+          ),
+          _textFieldSourceOfIncome(),
+          //
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 16.0),
+            child: Row(
+              children: [
+                textFontPOOPINS(
+                  'Street',
+                  Colors.white,
+                  14.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              top: 0,
+            ),
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(
+                  12.0,
+                ),
+              ),
+              child: Center(
+                child: TextFormField(
+                  controller: _contAnnualIncome,
+                  decoration: const InputDecoration(
+                    hintText: 'Street',
+                    border: InputBorder.none, // Remove the border
+                    filled: false,
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 0,
+                      horizontal: 10.0,
+                    ),
+                  ),
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.0,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return TEXT_FIELD_EMPTY_TEXT;
+                    }
+                    return null;
+                  },
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 16.0),
+            child: Row(
+              children: [
+                textFontPOOPINS(
+                  'City',
+                  Colors.white,
+                  14.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              top: 0,
+            ),
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(
+                  12.0,
+                ),
+              ),
+              child: Center(
+                child: TextFormField(
+                  controller: _contCity,
+                  decoration: const InputDecoration(
+                    hintText: 'City',
+                    border: InputBorder.none, // Remove the border
+                    filled: false,
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 0,
+                      horizontal: 10.0,
+                    ),
+                  ),
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.0,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return TEXT_FIELD_EMPTY_TEXT;
+                    }
+                    return null;
+                  },
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 16.0),
+            child: Row(
+              children: [
+                textFontPOOPINS(
+                  'State',
+                  Colors.white,
+                  14.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              top: 0,
+            ),
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(
+                  12.0,
+                ),
+              ),
+              child: Center(
+                child: TextFormField(
+                  controller: _contState,
+                  decoration: const InputDecoration(
+                    hintText: 'State',
+                    border: InputBorder.none, // Remove the border
+                    filled: false,
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 0,
+                      horizontal: 10.0,
+                    ),
+                  ),
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.0,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return TEXT_FIELD_EMPTY_TEXT;
+                    }
+                    return null;
+                  },
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 16.0),
+            child: Row(
+              children: [
+                textFontPOOPINS(
+                  'Postal Code',
+                  Colors.white,
+                  14.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              top: 0,
+            ),
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(
+                  12.0,
+                ),
+              ),
+              child: Center(
+                child: TextFormField(
+                  controller: _contPostalCode,
+                  decoration: const InputDecoration(
+                    hintText: 'Postal code',
+                    border: InputBorder.none, // Remove the border
+                    filled: false,
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 0,
+                      horizontal: 10.0,
+                    ),
+                  ),
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.0,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return TEXT_FIELD_EMPTY_TEXT;
+                    }
+                    return null;
+                  },
+                ),
+              ),
+            ),
+          ),
+          /*Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 16.0),
+            child: Row(
+              children: [
+                textFontPOOPINS(
+                  'Country',
+                  Colors.white,
+                  14.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ],
+            ),
+          ),*/
+          // _textFieldSalary(),
+          //  _textFieldAddress(),
+          // _textFieldPostalCode(),
+          // _textFieldPEP(),
+          /*Padding(
             padding: const EdgeInsets.all(16.0),
             child: textFontPOOPINS(
               //
@@ -110,9 +396,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               Colors.white,
               14.0,
             ),
-          ),
-          _textFieldPassport(),
-          _textFieldPassportVerification(),
+          ),*/
+          //  _textFieldPassport(),
+          // _textFieldPassportVerification(),
           Padding(
             padding: const EdgeInsets.only(
               left: 16.0,
@@ -153,12 +439,12 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     );
   }
 
-  Padding _textFieldPlaceOfWork() {
+  Padding _textFieldAnnualIncome() {
     return Padding(
       padding: const EdgeInsets.only(
         left: 16.0,
         right: 16.0,
-        top: 16.0,
+        top: 0,
       ),
       child: Container(
         height: 60,
@@ -170,9 +456,93 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         ),
         child: Center(
           child: TextFormField(
-            controller: _contPlaceOfWork,
+            controller: _contAnnualIncome,
             decoration: const InputDecoration(
-              hintText: 'Place of work',
+              hintText: 'Annual Income',
+              border: InputBorder.none, // Remove the border
+              filled: false,
+              contentPadding: EdgeInsets.symmetric(
+                vertical: 0,
+                horizontal: 10.0,
+              ),
+            ),
+            style: GoogleFonts.poppins(
+              fontSize: 14.0,
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return TEXT_FIELD_EMPTY_TEXT;
+              }
+              return null;
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Padding _textFieldSourceOfIncome() {
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 16.0,
+        right: 16.0,
+        top: 0,
+      ),
+      child: Container(
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(
+            12.0,
+          ),
+        ),
+        child: Center(
+          child: TextFormField(
+            controller: _contSourceOfIncome,
+            decoration: const InputDecoration(
+              hintText: 'Source of Income',
+              border: InputBorder.none, // Remove the border
+              filled: false,
+              contentPadding: EdgeInsets.symmetric(
+                vertical: 0,
+                horizontal: 10.0,
+              ),
+            ),
+            style: GoogleFonts.poppins(
+              fontSize: 14.0,
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return TEXT_FIELD_EMPTY_TEXT;
+              }
+              return null;
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Padding _textFieldPlaceOfWork() {
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 16.0,
+        right: 16.0,
+        top: 0,
+      ),
+      child: Container(
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(
+            12.0,
+          ),
+        ),
+        child: Center(
+          child: TextFormField(
+            controller: _contDOB,
+            decoration: const InputDecoration(
+              hintText: 'DOB',
               border: InputBorder.none, // Remove the border
               filled: false,
               contentPadding:
@@ -343,8 +713,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     hintText: 'Postal code',
                     border: InputBorder.none, // Remove the border
                     filled: false,
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 0, horizontal: 10.0),
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 0,
+                      horizontal: 10.0,
+                    ),
                   ),
                   style: GoogleFonts.poppins(
                     fontSize: 14.0,
@@ -518,6 +890,28 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     );
   }
 
+  Future<void> deleteAuthUser(status) async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    try {
+      // Get the current user
+      User? user = auth.currentUser;
+
+      // Delete the user
+      await user?.delete().then((v) {
+        //
+        Navigator.pop(context);
+        customToast(status, hexToColor(appREDcolorHexCode), ToastGravity.TOP);
+      });
+
+      // User deleted.
+    } catch (e) {
+      // An error occurred. Handle it accordingly.
+      if (kDebugMode) {
+        print("Error deleting user: $e");
+      }
+    }
+  }
+
   // API
   void _sendRequestToCompleteProfile(context) async {
     debugPrint('API ==> COMPLETE PROFILE');
@@ -533,7 +927,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     final parameters = {
       'action': 'editProfile',
       'userId': myData!.userId,
-      'PlaceOfWork': _contPlaceOfWork.text,
+      'PlaceOfWork': '',
       'Salary': _contSalary.text,
       'address': _contAddress.text,
       'City': _contCity.text,
@@ -578,11 +972,15 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           });
         } else {
           //
-          successStatus.toLowerCase() == 'success'
+          createAnAccountInFirebaseFirst(context);
+          /*successStatus.toLowerCase() == 'success'
               ? successfullyCreatedAccount(successStatus, successMessage)
               : Navigator.pop(context);
           customToast(
-              successStatus, hexToColor(appREDcolorHexCode), ToastGravity.TOP);
+            successStatus,
+            hexToColor(appREDcolorHexCode),
+            ToastGravity.TOP,
+          );*/
         }
       } else {
         customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
@@ -590,6 +988,148 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       }
     } catch (error) {
       // print(error);
+    }
+  }
+
+  // REGISTER THIS USER IN FIREBASE NOW
+  createAnAccountInFirebaseFirst(context) async {
+    //
+    try {
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: widget.getFirstName.toString(),
+            password: widget.getLastName.toString(),
+          )
+          .then((value) => {
+                //
+                // debugPrint('REGISTERED IN FIREBASE'),
+                updateUserName(context)
+                //
+              });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        Navigator.pop(context);
+        customToast(
+          'The password provided is too weak.',
+          Colors.redAccent,
+          ToastGravity.TOP,
+        );
+      } else if (e.code == 'email-already-in-use') {
+        Navigator.pop(context);
+        FocusScope.of(context).unfocus();
+        customToast(
+          //
+          TEXT_ALREADY_BEEN_EXIST,
+          hexToColor(appREDcolorHexCode),
+          ToastGravity.TOP,
+        );
+      } else {
+        Navigator.pop(context);
+        customToast(
+          //
+          TEXT_F_ERROR,
+          Colors.redAccent,
+          ToastGravity.TOP,
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      Navigator.pop(context);
+    }
+  }
+
+  updateUserName(context) async {
+    var mergeName = '${widget.getFirstName} ${widget.getLastName}';
+    debugPrint(mergeName);
+    await FirebaseAuth.instance.currentUser!
+        .updateDisplayName(mergeName)
+        .then((v) {
+      debugPrint('REGISTERED NAME ALSO');
+      //  _sendRequestToRegister(context);
+    });
+  }
+
+  // CREATE ACCOUNT IN UNIT
+  Future<void> createCustomer() async {
+    //
+    const String baseUrl = 'https://api.s.unit.sh/applications';
+    final Uri url = Uri.parse(baseUrl);
+
+    // Define custom headers
+    Map<String, String> headers = {
+      'Content-Type': 'application/vnd.api+json',
+      'Authorization': 'Bearer $TESTING_TOKEN',
+    };
+
+    Map<String, dynamic> body = {
+      "data": {
+        "type": "individualApplication",
+        "attributes": {
+          "ssn": "721074426",
+          "fullName": {
+            "first": "Dishant",
+            "last": "Rajput",
+          },
+          "dateOfBirth": "1992-06-06",
+          "address": {
+            "street": "20 Ingram St",
+            "city": "Forest Hills",
+            "state": "NY",
+            "postalCode": "11375",
+            "country": "US"
+          },
+          "email": "dishantrajput2020@gmail.com",
+          "annualIncome": "Between50kAnd100k",
+          "sourceOfIncome": "EmploymentOrPayrollIncome",
+          "phone": {"countryCode": "91", "number": "8287632340"},
+          "occupation": "ArchitectOrEngineer",
+          "tags": {
+            "test": "webhook-tag",
+            "key": "another-tag",
+            "number": "111"
+          },
+          "idempotencyKey": const Uuid().v4(),
+        },
+      }
+    };
+    if (kDebugMode) {
+      print(body);
+    }
+
+    try {
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: json.encode(body),
+      );
+
+      // print(response.body);
+      if (response.statusCode == 201) {
+        // If the server returns a 200 OK response, parse the JSON
+        final jsonData = json.decode(response.body);
+        debugPrint('=================== S');
+        if (kDebugMode) {
+          print(jsonData);
+          debugPrint('===================');
+        }
+      } else {
+        final jsonData = json.decode(response.body);
+        debugPrint('=================== E');
+        if (kDebugMode) {
+          print(jsonData);
+          debugPrint('===================');
+        }
+
+        // If the server returns an error response, throw an exception
+        throw Exception('Failed to update data');
+      }
+    } catch (error) {
+      // Handle any errors that occur during the HTTP request
+      if (kDebugMode) {
+        print('Error: $error');
+      }
     }
   }
 

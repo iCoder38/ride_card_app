@@ -222,7 +222,7 @@ class _CardsScreenState extends State<CardsScreen> {
               // getParticularAccountDetails();
               // getParticularAccountDetailsViaCustomerId();
               // checkMyDepositBankAccountLimit();
-              createCustomer();
+              // createCustomer();
             },
             child: Container(
               height: 60,
@@ -1157,90 +1157,6 @@ class _CardsScreenState extends State<CardsScreen> {
   /*
 {"data":{"type":"individualApplication","attributes":{"ssn":"279254399","fullName":{"first":"Justin","last":"Hardin"},"dateOfBirth":"1962-05-03","address":{"street":"60 Canal St.","city":"La Crosse","state":"WI","postalCode":"54601","country":"US"},"email":"justin.hardin@mymail.com","phone":{"countryCode":"1","number":"6609870860"},"occupation":"Doctor","tags":{"test":"webhook-tag","key":"another-tag","number":"111"}}}}
   */
-
-  Future<void> createCustomer() async {
-    //
-    // occupation: ArchitectOrEngineer,BusinessAnalystAccountantOrFinancialAdvisor,CommunityAndSocialServicesWorker,ConstructionMechanicOrMaintenanceWorker,Doctor,Educator,EntertainmentSportsArtsOrMedia,ExecutiveOrManager,FarmerFishermanForester,FoodServiceWorker,GigWorker,HospitalityOfficeOrAdministrativeSupportWorker,HouseholdManager,JanitorHousekeeperLandscaper,Lawyer,ManufacturingOrProductionWorker,MilitaryOrPublicSafety,NurseHealthcareTechnicianOrHealthcareSupport,PersonalCareOrServiceWorker,PilotDriverOperator,SalesRepresentativeBrokerAgent,ScientistOrTechnologist,Student
-    // sourceOfIncome: EmploymentOrPayrollIncome,PartTimeOrContractorIncome,InheritancesAndGifts,PersonalInvestments,BusinessOwnershipInterests,GovernmentBenefits
-
-    const String baseUrl = 'https://api.s.unit.sh/applications';
-    final Uri url = Uri.parse(baseUrl);
-
-    // Define custom headers
-    Map<String, String> headers = {
-      'Content-Type': 'application/vnd.api+json',
-      'Authorization': 'Bearer $TESTING_TOKEN',
-    };
-
-    Map<String, dynamic> body = {
-      "data": {
-        "type": "individualApplication",
-        "attributes": {
-          "ssn": "721074426",
-          "fullName": {
-            "first": "Dishant",
-            "last": "Rajput",
-          },
-          "dateOfBirth": "1992-06-06",
-          "address": {
-            "street": "20 Ingram St",
-            "city": "Forest Hills",
-            "state": "NY",
-            "postalCode": "11375",
-            "country": "US"
-          },
-          "email": "dishantrajput2020@gmail.com",
-          "annualIncome": "Between50kAnd100k",
-          "sourceOfIncome": "EmploymentOrPayrollIncome",
-          "phone": {"countryCode": "91", "number": "8287632340"},
-          "occupation": "ArchitectOrEngineer",
-          "tags": {
-            "test": "webhook-tag",
-            "key": "another-tag",
-            "number": "111"
-          },
-          "idempotencyKey": const Uuid().v4(),
-        },
-      }
-    };
-    if (kDebugMode) {
-      print(body);
-    }
-
-    try {
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: json.encode(body),
-      );
-
-      // print(response.body);
-      if (response.statusCode == 201) {
-        // If the server returns a 200 OK response, parse the JSON
-        final jsonData = json.decode(response.body);
-        debugPrint('=================== S');
-        if (kDebugMode) {
-          print(jsonData);
-          debugPrint('===================');
-        }
-      } else {
-        final jsonData = json.decode(response.body);
-        debugPrint('=================== E');
-        if (kDebugMode) {
-          print(jsonData);
-          debugPrint('===================');
-        }
-
-        // If the server returns an error response, throw an exception
-        throw Exception('Failed to update data');
-      }
-    } catch (error) {
-      // Handle any errors that occur during the HTTP request
-      if (kDebugMode) {
-        print('Error: $error');
-      }
-    }
-  }
 
   /*void _createCustomer() async {
     Map<String, dynamic> customerData = {

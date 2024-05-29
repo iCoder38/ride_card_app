@@ -386,66 +386,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  /*createAnAccountInFirebaseFirst(context) async {
-    //
-    try {
-      await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-            email: _contEmail.text.toString(),
-            password: _contPassword.text.toString(),
-          )
-          .then((value) => {
-                //
-                // debugPrint('REGISTERED IN FIREBASE'),
-                updateUserName(context)
-                //
-              });
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        Navigator.pop(context);
-        customToast(
-          'The password provided is too weak.',
-          Colors.redAccent,
-          ToastGravity.TOP,
-        );
-      } else if (e.code == 'email-already-in-use') {
-        Navigator.pop(context);
-        FocusScope.of(context).unfocus();
-        customToast(
-          //
-          TEXT_ALREADY_BEEN_EXIST,
-          hexToColor(appREDcolorHexCode),
-          ToastGravity.TOP,
-        );
-      } else {
-        Navigator.pop(context);
-        customToast(
-          //
-          TEXT_F_ERROR,
-          Colors.redAccent,
-          ToastGravity.TOP,
-        );
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-      Navigator.pop(context);
-    }
-  }
-
-  updateUserName(context) async {
-    var mergeName = '${_contFirstName.text} ${_contLastName.text}';
-    debugPrint(mergeName);
-    await FirebaseAuth.instance.currentUser!
-        .updateDisplayName(mergeName)
-        .then((v) {
-      debugPrint('REGISTERED NAME ALSO');
-      _sendRequestToRegister(context);
-    });
-  }
-*/
-
   void _sendRequestToRegister(context) async {
     debugPrint('API ==> CREATE AN ACCOUNT');
     String parseDevice = await deviceIs();
@@ -458,7 +398,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'password': _contPassword.text,
       'role': RESPONSE_ROLE,
       'device': parseDevice,
-      'firebaseId': FirebaseAuth.instance.currentUser!.uid,
     };
     if (kDebugMode) {
       print(parameters);
@@ -477,14 +416,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (response.statusCode == 200) {
         debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
         //
-        successStatus.toLowerCase() == 'success'
+        successfullyCreatedAccount(
+          context,
+          successStatus,
+          successMessage,
+          jsonResponse,
+        );
+        /*successStatus.toLowerCase() == 'success'
             ? successfullyCreatedAccount(
                 context,
                 successStatus,
                 successMessage,
                 jsonResponse,
               )
-            : deleteAuthUser(successStatus);
+            :  deleteAuthUser(successStatus);*/
       } else {
         customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
         debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
@@ -537,7 +482,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     Navigator.pop(context);
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const CompleteProfileScreen()),
+      MaterialPageRoute(
+        builder: (context) => CompleteProfileScreen(
+          getFirstName: _contFirstName.text,
+          getLastName: _contLastName.text,
+          getContactNumber: _contPhone.text,
+        ),
+      ),
     );
   }
 
