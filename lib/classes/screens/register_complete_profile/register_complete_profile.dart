@@ -49,12 +49,39 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   final TextEditingController _contState = TextEditingController();
   final TextEditingController _contPostalCode = TextEditingController();
   final TextEditingController _contCountry = TextEditingController();
-  final TextEditingController _contPEP = TextEditingController();
-  final TextEditingController _contPassport = TextEditingController();
-  final TextEditingController _contPassportVerification =
-      TextEditingController();
+  final TextEditingController _contSSN = TextEditingController();
+  // final TextEditingController _contPEP = TextEditingController();
+  // final TextEditingController _contPassport = TextEditingController();
+  // final TextEditingController _contPassportVerification = TextEditingController()
 
+  var UUID_KEY_FOR_REGISTRATION = const Uuid().v4();
   var _email = '';
+
+  final List<String> occupations = [
+    "ArchitectOrEngineer",
+    "BusinessAnalystAccountantOrFinancialAdvisor",
+    "CommunityAndSocialServicesWorker",
+    "ConstructionMechanicOrMaintenanceWorker",
+    "Doctor",
+    "Educator",
+    "EntertainmentSportsArtsOrMedia",
+    "ExecutiveOrManager",
+    "FarmerFishermanForester",
+    "FoodServiceWorker",
+    "GigWorker",
+    "HospitalityOfficeOrAdministrativeSupportWorker",
+    "HouseholdManager",
+    "JanitorHousekeeperLandscaper",
+    "Lawyer",
+    "ManufacturingOrProductionWorker",
+    "MilitaryOrPublicSafety",
+    "NurseHealthcareTechnicianOrHealthcareSupport",
+    "PersonalCareOrServiceWorker",
+    "PilotDriverOperator",
+    "SalesRepresentativeBrokerAgent",
+    "ScientistOrTechnologist",
+    "Student",
+  ];
 
   @override
   void initState() {
@@ -70,13 +97,14 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     _contCity.dispose();
     _contPostalCode.dispose();
     _contCountry.dispose();
-    _contPEP.dispose();
-    _contPassport.dispose();
-    _contPassportVerification.dispose();
+    //  _contPEP.dispose();
+    // _contPassport.dispose();
+    // _contPassportVerification.dispose();
     _contAnnualIncome.dispose();
     _contSourceOfIncome.dispose();
     _contStreet.dispose();
     _contCity.dispose();
+    _contSSN.dispose();
 
     super.dispose();
   }
@@ -192,7 +220,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               ),
               child: Center(
                 child: TextFormField(
-                  controller: _contAnnualIncome,
+                  controller: _contAddress,
                   decoration: const InputDecoration(
                     hintText: 'Street',
                     border: InputBorder.none, // Remove the border
@@ -348,9 +376,64 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               ),
               child: Center(
                 child: TextFormField(
+                  keyboardType: TextInputType.number,
                   controller: _contPostalCode,
                   decoration: const InputDecoration(
                     hintText: 'Postal code',
+                    border: InputBorder.none, // Remove the border
+                    filled: false,
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 0,
+                      horizontal: 10.0,
+                    ),
+                  ),
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.0,
+                  ),
+                  maxLength: 5,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return TEXT_FIELD_EMPTY_TEXT;
+                    }
+                    return null;
+                  },
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 16.0),
+            child: Row(
+              children: [
+                textFontPOOPINS(
+                  'SSN ( Social Security Number )',
+                  Colors.white,
+                  14.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              top: 0,
+            ),
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(
+                  12.0,
+                ),
+              ),
+              child: Center(
+                child: TextFormField(
+                  obscureText: true,
+                  controller: _contSSN,
+                  decoration: const InputDecoration(
+                    hintText: 'Social Security Number',
                     border: InputBorder.none, // Remove the border
                     filled: false,
                     contentPadding: EdgeInsets.symmetric(
@@ -456,6 +539,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         ),
         child: Center(
           child: TextFormField(
+            readOnly: true,
             controller: _contAnnualIncome,
             decoration: const InputDecoration(
               hintText: 'Annual Income',
@@ -469,6 +553,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
             style: GoogleFonts.poppins(
               fontSize: 14.0,
             ),
+            onTap: () {
+              _showOccupationPicker(context);
+            },
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return TEXT_FIELD_EMPTY_TEXT;
@@ -478,6 +565,28 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showOccupationPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return ListView.builder(
+          itemCount: occupations.length,
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              title: Text(occupations[index]),
+              onTap: () {
+                setState(() {
+                  _contAnnualIncome.text = occupations[index];
+                });
+                Navigator.pop(context);
+              },
+            );
+          },
+        );
+      },
     );
   }
 
@@ -540,6 +649,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         ),
         child: Center(
           child: TextFormField(
+            readOnly: true,
             controller: _contDOB,
             decoration: const InputDecoration(
               hintText: 'DOB',
@@ -557,13 +667,28 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               }
               return null;
             },
+            onTap: () async {
+              DateTime? pickedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(1900),
+                lastDate: DateTime.now(),
+              );
+
+              if (pickedDate != null) {
+                setState(() {
+                  _contDOB.text = "${pickedDate.toLocal()}"
+                      .split(' ')[0]; // Format the date as you like
+                });
+              }
+            },
           ),
         ),
       ),
     );
   }
 
-  Padding _textFieldPassportVerification() {
+  /*Padding _textFieldPassportVerification() {
     return Padding(
       padding: const EdgeInsets.only(
         left: 16.0,
@@ -601,9 +726,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         ),
       ),
     );
-  }
+  }*/
 
-  Padding _textFieldPassport() {
+  /*Padding _textFieldPassport() {
     return Padding(
       padding: const EdgeInsets.only(
         left: 16.0,
@@ -646,9 +771,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         ),
       ),
     );
-  }
+  }*/
 
-  Padding _textFieldPEP() {
+  /*Padding _textFieldPEP() {
     return Padding(
       padding: const EdgeInsets.only(
         left: 16.0,
@@ -686,7 +811,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         ),
       ),
     );
-  }
+  }*/
 
   Padding _textFieldPostalCode() {
     return Padding(
@@ -924,22 +1049,30 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     // print(prefs.getString('key_save_token_locally'));
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
 
+/*
+Salary:  //annual indome
+PlaceOfWork:  //source
+ssn:
+dob:
+key:
+*/
     final parameters = {
       'action': 'editProfile',
       'userId': myData!.userId,
-      'PlaceOfWork': '',
-      'Salary': _contSalary.text,
-      'address': _contAddress.text,
-      'City': _contCity.text,
-      'zipcode': _contPostalCode.text,
-      'country': _contCountry.text,
-      'PEP': _contPEP.text,
-      'Passport': _contPassport.text,
-      'passport_verification': _contPassportVerification.text,
+      'City': _contCity.text.toString(),
+      'zipcode': _contPostalCode.text.toString(),
+      'country': _contCountry.text.toString(),
+      'ssn': _contSSN.text.toString(),
+      'dob': _contDOB.text.toString(),
+      'Salary': _contAnnualIncome.text.toString(),
+      'PlaceOfWork': _contSourceOfIncome.text.toString(),
+      'address': _contAddress.text.toString(),
+      'key': UUID_KEY_FOR_REGISTRATION,
     };
     if (kDebugMode) {
       print(parameters);
     }
+    return;
 
     try {
       final response = await _apiService.postRequest(parameters, token);
