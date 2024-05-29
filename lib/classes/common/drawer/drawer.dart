@@ -5,6 +5,7 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/edit_profile/edit_profile.dart';
+import 'package:ride_card_app/classes/screens/welcome/welcome.dart';
 
 class CustomDrawer extends StatefulWidget {
   const CustomDrawer({super.key});
@@ -278,6 +279,13 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 Colors.white,
                 16.0,
               ),
+              onTap: () {
+                //
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                );
+              },
             )
           ],
         ),

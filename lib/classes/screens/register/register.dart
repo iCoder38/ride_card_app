@@ -332,7 +332,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     showLoadingUI(context, PLEASE_WAIT);
                     /**/
 
-                    createAnAccountInFirebaseFirst(context);
+                    _sendRequestToRegister(context);
                   }
                 },
                 child: Container(
@@ -386,7 +386,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  createAnAccountInFirebaseFirst(context) async {
+  /*createAnAccountInFirebaseFirst(context) async {
     //
     try {
       await FirebaseAuth.instance
@@ -444,6 +444,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _sendRequestToRegister(context);
     });
   }
+*/
 
   void _sendRequestToRegister(context) async {
     debugPrint('API ==> CREATE AN ACCOUNT');

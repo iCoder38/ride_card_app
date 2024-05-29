@@ -18,6 +18,7 @@ import 'package:ride_card_app/classes/service/check_cc_score/check_cc_score.dart
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
 import 'package:ride_card_app/classes/service/unit_api/unit_api.dart';
+import 'package:uuid/uuid.dart';
 
 class CardsScreen extends StatefulWidget {
   const CardsScreen({super.key});
@@ -45,6 +46,8 @@ class _CardsScreenState extends State<CardsScreen> {
   //
   String TESTING_TOKEN =
       'v2.public.eyJyb2xlIjoiYWRtaW4iLCJ1c2VySWQiOiI3NTY3Iiwic3ViIjoianVzdGluYmVubmV0dEByaWRlYXBwaW5jZ2xvYmFsLmNvbSIsImV4cCI6IjIwMjQtMDgtMjZUMTI6NDM6NTguNzA1WiIsImp0aSI6IjMzMDY2NSIsIm9yZ0lkIjoiNDIxOSIsInNjb3BlIjoiYXBwbGljYXRpb25zIGFwcGxpY2F0aW9ucy13cml0ZSBjdXN0b21lcnMgY3VzdG9tZXJzLXdyaXRlIGN1c3RvbWVyLXRhZ3Mtd3JpdGUgY3VzdG9tZXItdG9rZW4td3JpdGUgYWNjb3VudHMgYWNjb3VudHMtd3JpdGUgY2FyZHMgY2FyZHMtd3JpdGUgY2FyZHMtc2Vuc2l0aXZlIHRyYW5zYWN0aW9ucyB0cmFuc2FjdGlvbnMtd3JpdGUgYXV0aG9yaXphdGlvbnMgc3RhdGVtZW50cyBwYXltZW50cyBwYXltZW50cy13cml0ZSBwYXltZW50cy13cml0ZS1jb3VudGVycGFydHkgcGF5bWVudHMtd3JpdGUtbGlua2VkLWFjY291bnQgYWNoLXBheW1lbnRzLXdyaXRlIHdpcmUtcGF5bWVudHMtd3JpdGUgcmVwYXltZW50cyByZXBheW1lbnRzLXdyaXRlIHBheW1lbnRzLXdyaXRlLWFjaC1kZWJpdCBjb3VudGVycGFydGllcyBiYXRjaC1yZWxlYXNlcyBiYXRjaC1yZWxlYXNlcy13cml0ZSBsaW5rZWQtYWNjb3VudHMgd2ViaG9va3Mgd2ViaG9va3Mtd3JpdGUgZXZlbnRzIGV2ZW50cy13cml0ZSBhdXRob3JpemF0aW9uLXJlcXVlc3RzIGF1dGhvcml6YXRpb24tcmVxdWVzdHMtd3JpdGUgY2FzaC1kZXBvc2l0cyBjYXNoLWRlcG9zaXRzLXdyaXRlIGNoZWNrLWRlcG9zaXRzIGNoZWNrLWRlcG9zaXRzLXdyaXRlIHJlY2VpdmVkLXBheW1lbnRzIHJlY2VpdmVkLXBheW1lbnRzLXdyaXRlIGRpc3B1dGVzIGNoYXJnZWJhY2tzIHJld2FyZHMgcmV3YXJkcy13cml0ZSBjaGVjay1wYXltZW50cyBjaGVjay1wYXltZW50cy13cml0ZSBjcmVkaXQtZGVjaXNpb25zIGxlbmRpbmctcHJvZ3JhbXMgY3JlZGl0LWFwcGxpY2F0aW9ucyBjcmVkaXQtYXBwbGljYXRpb25zLXdyaXRlIG1pZ3JhdGlvbnMgbWlncmF0aW9ucy13cml0ZSIsIm9yZyI6IlJpZGUgYXBwIGluYyIsInNvdXJjZUlwIjoiIiwidXNlclR5cGUiOiJvcmciLCJpc1VuaXRQaWxvdCI6ZmFsc2V9oPEe4b0t2NMYJM38ZXvYzwKpPxoQK1NbYAsnOSMI-Ut2I8YBF2gDkIaCoN7Ua6LO8WVauqrCD_LhXoRqJeqIBw';
+
+  // 'v2.public.eyJyb2xlIjoiYWRtaW4iLCJ1c2VySWQiOiI3NTY3Iiwic3ViIjoianVzdGluYmVubmV0dEByaWRlYXBwaW5jZ2xvYmFsLmNvbSIsImV4cCI6IjIwMjQtMDUtMjhUMTE6MjE6MjkuNDU3WiIsImp0aSI6IjMzMDMzMyIsIm9yZ0lkIjoiNDIxOSIsInNjb3BlIjoiYXBwbGljYXRpb25zLXdyaXRlIGFjY291bnRzLXdyaXRlIGNhcmRzLXdyaXRlIiwib3JnIjoiUmlkZSBhcHAgaW5jIiwidXNlclR5cGUiOiJvcmciLCJpc1VuaXRQaWxvdCI6ZmFsc2V9kiWoE7oOsoWIlEdFIRhA8AiM3qT2lUkalqrIxCCpIbyMP7uU5s86OIk8S4IddsvsgWqJ63E_RCOijna8JE7PCQ';
   @override
   void initState() {
     super.initState();
@@ -207,12 +210,19 @@ class _CardsScreenState extends State<CardsScreen> {
               if (kDebugMode) {
                 print('object');
               }
-              await getCustomerById();
-              updateCustomerData();
+              // await getCustomerById('1983432');
+              // checkCustomerAccounts('1983432');
               // fetchDummyData1();
               // _createCustomer();
               // getOrganizations();
               // getApplications();
+              // createAccount();
+              // await createAccount();
+              // getAllTotalAccounts();
+              // getParticularAccountDetails();
+              // getParticularAccountDetailsViaCustomerId();
+              // checkMyDepositBankAccountLimit();
+              createCustomer();
             },
             child: Container(
               height: 60,
@@ -646,7 +656,7 @@ class _CardsScreenState extends State<CardsScreen> {
     );
   }
 
-  Future<void> fetchDummyData1() async {
+  /*Future<void> fetchDummyData1() async {
     final url =
         Uri.parse('https://api.s.unit.sh/customers'); // get all customer
     // final url = Uri.parse(
@@ -675,11 +685,11 @@ class _CardsScreenState extends State<CardsScreen> {
       // Handle any errors that occur during the HTTP request
       print('Error: $error');
     }
-  }
+  }*/
 
-  Future<void> getCustomerById() async {
+  Future<void> getCustomerById(customerId) async {
     final url = Uri.parse(
-        'https://api.s.unit.sh/customers/1983432'); // get all customer
+        'https://api.s.unit.sh/customers/$customerId'); // get all customer
 
     var token =
         'v2.public.eyJyb2xlIjoiYWRtaW4iLCJ1c2VySWQiOiI3NTY3Iiwic3ViIjoianVzdGluYmVubmV0dEByaWRlYXBwaW5jZ2xvYmFsLmNvbSIsImV4cCI6IjIwMjQtMDgtMjZUMTI6NDM6NTguNzA1WiIsImp0aSI6IjMzMDY2NSIsIm9yZ0lkIjoiNDIxOSIsInNjb3BlIjoiYXBwbGljYXRpb25zIGFwcGxpY2F0aW9ucy13cml0ZSBjdXN0b21lcnMgY3VzdG9tZXJzLXdyaXRlIGN1c3RvbWVyLXRhZ3Mtd3JpdGUgY3VzdG9tZXItdG9rZW4td3JpdGUgYWNjb3VudHMgYWNjb3VudHMtd3JpdGUgY2FyZHMgY2FyZHMtd3JpdGUgY2FyZHMtc2Vuc2l0aXZlIHRyYW5zYWN0aW9ucyB0cmFuc2FjdGlvbnMtd3JpdGUgYXV0aG9yaXphdGlvbnMgc3RhdGVtZW50cyBwYXltZW50cyBwYXltZW50cy13cml0ZSBwYXltZW50cy13cml0ZS1jb3VudGVycGFydHkgcGF5bWVudHMtd3JpdGUtbGlua2VkLWFjY291bnQgYWNoLXBheW1lbnRzLXdyaXRlIHdpcmUtcGF5bWVudHMtd3JpdGUgcmVwYXltZW50cyByZXBheW1lbnRzLXdyaXRlIHBheW1lbnRzLXdyaXRlLWFjaC1kZWJpdCBjb3VudGVycGFydGllcyBiYXRjaC1yZWxlYXNlcyBiYXRjaC1yZWxlYXNlcy13cml0ZSBsaW5rZWQtYWNjb3VudHMgd2ViaG9va3Mgd2ViaG9va3Mtd3JpdGUgZXZlbnRzIGV2ZW50cy13cml0ZSBhdXRob3JpemF0aW9uLXJlcXVlc3RzIGF1dGhvcml6YXRpb24tcmVxdWVzdHMtd3JpdGUgY2FzaC1kZXBvc2l0cyBjYXNoLWRlcG9zaXRzLXdyaXRlIGNoZWNrLWRlcG9zaXRzIGNoZWNrLWRlcG9zaXRzLXdyaXRlIHJlY2VpdmVkLXBheW1lbnRzIHJlY2VpdmVkLXBheW1lbnRzLXdyaXRlIGRpc3B1dGVzIGNoYXJnZWJhY2tzIHJld2FyZHMgcmV3YXJkcy13cml0ZSBjaGVjay1wYXltZW50cyBjaGVjay1wYXltZW50cy13cml0ZSBjcmVkaXQtZGVjaXNpb25zIGxlbmRpbmctcHJvZ3JhbXMgY3JlZGl0LWFwcGxpY2F0aW9ucyBjcmVkaXQtYXBwbGljYXRpb25zLXdyaXRlIG1pZ3JhdGlvbnMgbWlncmF0aW9ucy13cml0ZSIsIm9yZyI6IlJpZGUgYXBwIGluYyIsInNvdXJjZUlwIjoiIiwidXNlclR5cGUiOiJvcmciLCJpc1VuaXRQaWxvdCI6ZmFsc2V9oPEe4b0t2NMYJM38ZXvYzwKpPxoQK1NbYAsnOSMI-Ut2I8YBF2gDkIaCoN7Ua6LO8WVauqrCD_LhXoRqJeqIBw';
@@ -695,21 +705,32 @@ class _CardsScreenState extends State<CardsScreen> {
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response, parse the JSON
         final jsonData = json.decode(response.body);
-        print(jsonData);
+        debugPrint('=========== GET CUSTOMER BY ID ========================');
+        if (kDebugMode) {
+          print(jsonData);
+          debugPrint('=======================================================');
+        }
+
+        updateCustomerData(jsonData['data']['id'].toString());
       } else {
-        // If the server returns an error response, throw an exception
+        final jsonData = json.decode(response.body);
+        if (kDebugMode) {
+          print(jsonData);
+        }
         throw Exception('Failed to load data');
       }
     } catch (error) {
       // Handle any errors that occur during the HTTP request
-      print('Error: $error');
+      if (kDebugMode) {
+        print('Error: $error');
+      }
     }
   }
 
-  void updateCustomerData() async {
+  void updateCustomerData(customerId) async {
     debugPrint('====> UPDATE CUSTOMER DATA');
 
-    const String baseUrl = 'https://api.s.unit.sh/customers/1983432';
+    String baseUrl = 'https://api.s.unit.sh/customers/$customerId';
     final Uri url = Uri.parse(baseUrl);
 
     // Define custom headers
@@ -733,17 +754,20 @@ class _CardsScreenState extends State<CardsScreen> {
           },
           "email": "david.cook@mymail.com", // Updated email
           "phone": {
-            "countryCode": "91", // Updated country code
-            "number": "7023223090" // Updated phone number
+            "countryCode": "91",
+            "number": "7023223090",
           },
           "authorizedUsers": [
             {
               "fullName": {
-                "first": "David", // Updated first name
-                "last": "Cook" // Updated last name
+                "first": "Dishant",
+                "last": "Rajput",
               },
-              "email": "david.cook@mymail.com",
-              "phone": {"countryCode": "1", "number": "7023223090"}
+              "email": "dishant.rajput@evirtualservices.com",
+              "phone": {
+                "countryCode": "91",
+                "number": "8287632340",
+              }
             }
           ]
         }
@@ -752,6 +776,83 @@ class _CardsScreenState extends State<CardsScreen> {
 
     try {
       final response = await http.patch(
+        url,
+        headers: headers,
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        // If the server returns a 200 OK response, parse the JSON
+        final jsonData = json.decode(response.body);
+        debugPrint('=========== UPDATE CUSTOMER RESPONSE ==================');
+        if (kDebugMode) {
+          print(jsonData);
+          debugPrint('=======================================================');
+        }
+
+        //  _individualDebitCard();
+      } else {
+        final jsonData = json.decode(response.body);
+        if (kDebugMode) {
+          print(jsonData);
+        }
+        // If the server returns an error response, throw an exception
+        throw Exception('Failed to update data');
+      }
+    } catch (error) {
+      // Handle any errors that occur during the HTTP request
+      if (kDebugMode) {
+        print('Error: $error');
+      }
+    }
+  }
+
+  void _individualDebitCard() async {
+    debugPrint('====> UPDATE CUSTOMER DATA');
+
+    const String baseUrl = 'https://api.s.unit.sh/cards';
+    final Uri url = Uri.parse(baseUrl);
+
+    // Define custom headers
+    Map<String, String> headers = {
+      'Content-Type': 'application/vnd.api+json',
+      'Authorization': 'Bearer $TESTING_TOKEN',
+    };
+
+    Map<String, dynamic> body = {
+      "data": {
+        "type": "individualVirtualDebitCard",
+        "attributes": {
+          /*"shippingAddress": {
+            "street": "5230 Newell Rd",
+            "street2": null,
+            "city": "Palo Alto",
+            "state": "CA",
+            "postalCode": "94303",
+            "country": "US"
+          },*/
+          "idempotencyKey": const Uuid().v4(),
+          "limits": {
+            "dailyWithdrawal": 50000,
+            "dailyPurchase": 50000,
+            "monthlyWithdrawal": 500000,
+            "monthlyPurchase": 700000
+          },
+        },
+        "relationships": {
+          "account": {
+            "data": {
+              "type": "depositAccount",
+              "id": "3386065",
+            }
+          }
+        }
+      }
+    };
+    print(body);
+
+    try {
+      final response = await http.post(
         url,
         headers: headers,
         body: json.encode(body),
@@ -772,6 +873,7 @@ class _CardsScreenState extends State<CardsScreen> {
       print('Error: $error');
     }
   }
+
   /*Future<void> fetchDummyData() async {
     print('customerToken');
     // final url = Uri.parse('https://api.s.unit.sh/customers/1983432/token');
@@ -812,40 +914,29 @@ class _CardsScreenState extends State<CardsScreen> {
     }
   }*/
 
-  /*Future<void> fetchDummyData3() async {
-    final url = Uri.parse('https://api.s.unit.sh/cards');
+  Future<void> createAccount() async {
+    debugPrint('========== ACCOUNT CREATE RESPONSE ================');
+    final url = Uri.parse('https://api.s.unit.sh/accounts');
 
     // Define custom headers
     Map<String, String> headers = {
       'Content-Type': 'application/vnd.api+json',
-      'Authorization': 'Bearer $token',
+      'Authorization': 'Bearer $TESTING_TOKEN',
     };
 
     // Define the request body
     Map<String, dynamic> requestBody = {
       "data": {
-        "type": "individualDebitCard",
+        "type": "depositAccount",
         "attributes": {
-          "shippingAddress": {
-            "street": "5230 Newell Rd",
-            "street2": null,
-            "city": "Palo Alto",
-            "state": "CA",
-            "postalCode": "94303",
-            "country": "US"
-          },
-          // "idempotencyKey": "3a1a33be-4e12-4603-9ed0-820922389fb8",
-          "limits": {
-            "dailyWithdrawal": 50000,
-            "dailyPurchase": 50000,
-            "monthlyWithdrawal": 500000,
-            "monthlyPurchase": 700000
-          }
+          "depositProduct": "checking",
+          "tags": {"purpose": "checking"},
+          "idempotencyKey": const Uuid().v4(),
         },
-        // 1983432
+        //
         "relationships": {
-          "account": {
-            "data": {"type": "depositAccount", "id": "1983432"}
+          "customer": {
+            "data": {"type": "customer", "id": "1983952"}
           }
         }
       }
@@ -857,25 +948,301 @@ class _CardsScreenState extends State<CardsScreen> {
         headers: headers,
         body: jsonEncode(requestBody),
       );
-
-      if (response.statusCode == 200) {
+      if (kDebugMode) {
+        print(response.statusCode);
+      }
+      if (response.statusCode == 201) {
         // If the server returns a 200 OK response, parse the JSON
         final jsonData = json.decode(response.body);
-        print(jsonData);
+        if (kDebugMode) {
+          debugPrint('========== ACCOUNT CREATE RESPONSE ================');
+          print(jsonData);
+          debugPrint('===================================================');
+        }
       } else {
-        // If the server returns an error response, throw an exception
-        throw Exception('Failed to create card: ${response.statusCode}');
+        final jsonData = json.decode(response.body);
+        throw jsonData;
       }
     } catch (error) {
       // Handle any errors that occur during the HTTP request
       print('Error: $error');
     }
-  }*/
+  }
+
+  Future<void> getAllTotalAccounts() async {
+    const String baseUrl = 'https://api.s.unit.sh/accounts/';
+    final Uri url = Uri.parse(baseUrl);
+
+    // Define custom headers
+    Map<String, String> headers = {
+      //'Content-Type': 'application/vnd.api+json',
+      'Authorization': 'Bearer $TESTING_TOKEN',
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        // If the server returns a 200 OK response, parse the JSON
+        final jsonData = json.decode(response.body);
+        List accounts = jsonData['data'];
+        debugPrint('===================');
+        if (kDebugMode) {
+          print(accounts.length);
+          print(accounts);
+          debugPrint('===================');
+        }
+
+        if (accounts.isEmpty) {
+          if (kDebugMode) {
+            print('THERE IS NO ACCOUNT ADDED YET');
+          }
+        } else {
+          if (kDebugMode) {
+            print('Customer has existing accounts: $accounts');
+          }
+        }
+      } else {
+        final jsonData = json.decode(response.body);
+        if (kDebugMode) {
+          print('Error fetching accounts: $jsonData');
+        }
+        throw Exception('Failed to fetch customer accounts');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error: $error');
+      }
+    }
+  }
+
+  Future<void> getParticularAccountDetails() async {
+    const String accountId = '3393356';
+    const String baseUrl = 'https://api.s.unit.sh/accounts/$accountId';
+    final Uri url = Uri.parse(baseUrl);
+
+    // Define custom headers
+    Map<String, String> headers = {
+      'Content-Type': 'application/vnd.api+json',
+      'Authorization': 'Bearer $TESTING_TOKEN',
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        // If the server returns a 200 OK response, parse the JSON
+        final jsonData = json.decode(response.body);
+
+        // Access account details from the jsonData map
+        var account = jsonData['data'];
+        if (account == null || account.isEmpty) {
+          if (kDebugMode) {
+            print('THERE IS NO ACCOUNT DATA AVAILABLE');
+          }
+        } else {
+          if (kDebugMode) {
+            debugPrint('===================');
+            print('Account details: $account');
+            debugPrint('===================');
+          }
+        }
+      } else {
+        final jsonData = json.decode(response.body);
+        if (kDebugMode) {
+          print('Error fetching account: $jsonData');
+        }
+        throw Exception('Failed to fetch account details');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error: $error');
+      }
+    }
+  }
 
   //
+  Future<void> getParticularAccountDetailsViaCustomerId() async {
+    const String customerId = '1983952';
+    const String baseUrl =
+        'https://api.s.unit.sh/accounts?filter[customerId]=$customerId';
+    final Uri url = Uri.parse(baseUrl);
+
+    // Define custom headers
+    Map<String, String> headers = {
+      'Content-Type': 'application/vnd.api+json',
+      'Authorization': 'Bearer $TESTING_TOKEN',
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        // If the server returns a 200 OK response, parse the JSON
+        final jsonData = json.decode(response.body);
+
+        // Access account details from the jsonData map
+        var account = jsonData['data'];
+        if (account == null || account.isEmpty) {
+          if (kDebugMode) {
+            print('THERE IS NO ACCOUNT DATA AVAILABLE');
+          }
+        } else {
+          if (kDebugMode) {
+            debugPrint('===================');
+            print('Account details: $account');
+            debugPrint('===================');
+          }
+        }
+      } else {
+        final jsonData = json.decode(response.body);
+        if (kDebugMode) {
+          print('Error fetching account: $jsonData');
+        }
+        throw Exception('Failed to fetch account details');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error: $error');
+      }
+    }
+  }
+
+  Future<void> checkMyDepositBankAccountLimit() async {
+    const String accountId = '3393356';
+    const String baseUrl = 'https://api.s.unit.sh/accounts/$accountId/limits';
+    final Uri url = Uri.parse(baseUrl);
+
+    // Define custom headers
+    Map<String, String> headers = {
+      'Content-Type': 'application/vnd.api+json',
+      'Authorization': 'Bearer $TESTING_TOKEN',
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        // If the server returns a 200 OK response, parse the JSON
+        final jsonData = json.decode(response.body);
+
+        // Access account details from the jsonData map
+        var account = jsonData['data'];
+        if (account == null || account.isEmpty) {
+          if (kDebugMode) {
+            print('THERE IS NO ACCOUNT DATA AVAILABLE');
+          }
+        } else {
+          if (kDebugMode) {
+            debugPrint('===================');
+            print('Account details: $account');
+            debugPrint('===================');
+          }
+        }
+      } else {
+        final jsonData = json.decode(response.body);
+        if (kDebugMode) {
+          print('Error fetching account: $jsonData');
+        }
+        throw Exception('Failed to fetch account details');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error: $error');
+      }
+    }
+  }
 
   //
-  void _createCustomer() async {
+  /*
+{"data":{"type":"individualApplication","attributes":{"ssn":"279254399","fullName":{"first":"Justin","last":"Hardin"},"dateOfBirth":"1962-05-03","address":{"street":"60 Canal St.","city":"La Crosse","state":"WI","postalCode":"54601","country":"US"},"email":"justin.hardin@mymail.com","phone":{"countryCode":"1","number":"6609870860"},"occupation":"Doctor","tags":{"test":"webhook-tag","key":"another-tag","number":"111"}}}}
+  */
+
+  Future<void> createCustomer() async {
+    //
+    // occupation: ArchitectOrEngineer,BusinessAnalystAccountantOrFinancialAdvisor,CommunityAndSocialServicesWorker,ConstructionMechanicOrMaintenanceWorker,Doctor,Educator,EntertainmentSportsArtsOrMedia,ExecutiveOrManager,FarmerFishermanForester,FoodServiceWorker,GigWorker,HospitalityOfficeOrAdministrativeSupportWorker,HouseholdManager,JanitorHousekeeperLandscaper,Lawyer,ManufacturingOrProductionWorker,MilitaryOrPublicSafety,NurseHealthcareTechnicianOrHealthcareSupport,PersonalCareOrServiceWorker,PilotDriverOperator,SalesRepresentativeBrokerAgent,ScientistOrTechnologist,Student
+    // sourceOfIncome: EmploymentOrPayrollIncome,PartTimeOrContractorIncome,InheritancesAndGifts,PersonalInvestments,BusinessOwnershipInterests,GovernmentBenefits
+
+    const String baseUrl = 'https://api.s.unit.sh/applications';
+    final Uri url = Uri.parse(baseUrl);
+
+    // Define custom headers
+    Map<String, String> headers = {
+      'Content-Type': 'application/vnd.api+json',
+      'Authorization': 'Bearer $TESTING_TOKEN',
+    };
+
+    Map<String, dynamic> body = {
+      "data": {
+        "type": "individualApplication",
+        "attributes": {
+          "ssn": "721074426",
+          "fullName": {
+            "first": "Dishant",
+            "last": "Rajput",
+          },
+          "dateOfBirth": "1992-06-06",
+          "address": {
+            "street": "20 Ingram St",
+            "city": "Forest Hills",
+            "state": "NY",
+            "postalCode": "11375",
+            "country": "US"
+          },
+          "email": "dishantrajput2020@gmail.com",
+          "annualIncome": "Between50kAnd100k",
+          "sourceOfIncome": "EmploymentOrPayrollIncome",
+          "phone": {"countryCode": "91", "number": "8287632340"},
+          "occupation": "ArchitectOrEngineer",
+          "tags": {
+            "test": "webhook-tag",
+            "key": "another-tag",
+            "number": "111"
+          },
+          "idempotencyKey": const Uuid().v4(),
+        },
+      }
+    };
+    if (kDebugMode) {
+      print(body);
+    }
+
+    try {
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: json.encode(body),
+      );
+
+      // print(response.body);
+      if (response.statusCode == 201) {
+        // If the server returns a 200 OK response, parse the JSON
+        final jsonData = json.decode(response.body);
+        debugPrint('=================== S');
+        if (kDebugMode) {
+          print(jsonData);
+          debugPrint('===================');
+        }
+      } else {
+        final jsonData = json.decode(response.body);
+        debugPrint('=================== E');
+        if (kDebugMode) {
+          print(jsonData);
+          debugPrint('===================');
+        }
+
+        // If the server returns an error response, throw an exception
+        throw Exception('Failed to update data');
+      }
+    } catch (error) {
+      // Handle any errors that occur during the HTTP request
+      if (kDebugMode) {
+        print('Error: $error');
+      }
+    }
+  }
+
+  /*void _createCustomer() async {
     Map<String, dynamic> customerData = {
       'fullName': {
         'first': 'Dishant',
@@ -915,7 +1282,7 @@ class _CardsScreenState extends State<CardsScreen> {
     } catch (e) {
       print('Error: $e');
     }
-  }
+  }*/
 
   /*Future<void> getOrganizations() async {
     final response = await http.get(
