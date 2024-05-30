@@ -281,9 +281,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
               ),
               onTap: () {
                 //
+                signOut();
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => const WelcomeScreen()),
                 );
               },
             )

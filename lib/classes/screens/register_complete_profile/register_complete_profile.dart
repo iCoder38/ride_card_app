@@ -43,6 +43,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   final TextEditingController _contSalary = TextEditingController();
   final TextEditingController _contAnnualIncome = TextEditingController();
   final TextEditingController _contSourceOfIncome = TextEditingController();
+  final TextEditingController _contOccupation = TextEditingController();
   final TextEditingController _contAddress = TextEditingController();
   final TextEditingController _contStreet = TextEditingController();
   final TextEditingController _contCity = TextEditingController();
@@ -54,7 +55,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   // final TextEditingController _contPassport = TextEditingController();
   // final TextEditingController _contPassportVerification = TextEditingController()
 
-  var UUID_KEY_FOR_REGISTRATION = const Uuid().v4();
+  var UUID_KEY_FOR_REGISTRATION;
   var _email = '';
 
   final List<String> occupations = [
@@ -82,10 +83,17 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     "ScientistOrTechnologist",
     "Student",
   ];
-
+  final List<String> _incomeSources = [
+    'EmploymentOrPayrollIncome',
+    'PartTimeOrContractorIncome',
+    'InheritancesAndGifts',
+    'PersonalInvestments',
+    'BusinessOwnershipInterests',
+    'GovernmentBenefits'
+  ];
   @override
   void initState() {
-    _email = FirebaseAuth.instance.currentUser!.email.toString();
+    // _email = FirebaseAuth.instance.currentUser!.email.toString();
     super.initState();
   }
 
@@ -105,6 +113,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     _contStreet.dispose();
     _contCity.dispose();
     _contSSN.dispose();
+    _contOccupation.dispose();
 
     super.dispose();
   }
@@ -166,6 +175,20 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
             child: Row(
               children: [
                 textFontPOOPINS(
+                  'Occupation',
+                  Colors.white,
+                  14.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ],
+            ),
+          ),
+          _textFieldOccupation(),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 16.0),
+            child: Row(
+              children: [
+                textFontPOOPINS(
                   'Annual Income',
                   Colors.white,
                   14.0,
@@ -191,6 +214,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           ),
           _textFieldSourceOfIncome(),
           //
+
           Padding(
             padding: const EdgeInsets.only(top: 10.0, left: 16.0),
             child: Row(
@@ -590,6 +614,72 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     );
   }
 
+  void _showIncomeSourceOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return ListView.builder(
+          itemCount: _incomeSources.length,
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              title: Text(_incomeSources[index]),
+              onTap: () {
+                setState(() {
+                  _contSourceOfIncome.text = _incomeSources[index];
+                });
+                Navigator.pop(context);
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Padding _textFieldOccupation() {
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 16.0,
+        right: 16.0,
+        top: 0,
+      ),
+      child: Container(
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(
+            12.0,
+          ),
+        ),
+        child: Center(
+          child: TextFormField(
+            controller: _contOccupation,
+            decoration: const InputDecoration(
+              hintText: 'Occupation',
+              border: InputBorder.none, // Remove the border
+              filled: false,
+              contentPadding: EdgeInsets.symmetric(
+                vertical: 0,
+                horizontal: 10.0,
+              ),
+            ),
+            style: GoogleFonts.poppins(
+              fontSize: 14.0,
+            ),
+            // onTap: () => _showIncomeSourceOptions(context),
+            // readOnly: true, // Make the TextFormField read-only
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return TEXT_FIELD_EMPTY_TEXT;
+              }
+              return null;
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   Padding _textFieldSourceOfIncome() {
     return Padding(
       padding: const EdgeInsets.only(
@@ -620,6 +710,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
             style: GoogleFonts.poppins(
               fontSize: 14.0,
             ),
+            onTap: () => _showIncomeSourceOptions(context),
+            readOnly: true, // Make the TextFormField read-only
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return TEXT_FIELD_EMPTY_TEXT;
@@ -1056,17 +1148,20 @@ ssn:
 dob:
 key:
 */
+    UUID_KEY_FOR_REGISTRATION = const Uuid().v4();
+
     final parameters = {
       'action': 'editProfile',
       'userId': myData!.userId,
       'City': _contCity.text.toString(),
       'zipcode': _contPostalCode.text.toString(),
-      'country': _contCountry.text.toString(),
+      'country': COUNTRY_US,
       'ssn': _contSSN.text.toString(),
       'dob': _contDOB.text.toString(),
       'Salary': _contAnnualIncome.text.toString(),
       'PlaceOfWork': _contSourceOfIncome.text.toString(),
       'address': _contAddress.text.toString(),
+      'occupation': _contOccupation.text.toString(),
       'key': UUID_KEY_FOR_REGISTRATION,
     };
     if (kDebugMode) {
