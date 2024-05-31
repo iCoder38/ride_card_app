@@ -8,6 +8,7 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
+import 'package:ride_card_app/classes/service/UNIT/all_customer_cards/all_customer_cards.dart';
 import 'package:ride_card_app/classes/service/UNIT/close_account/close_account.dart';
 import 'package:ride_card_app/classes/service/UNIT/freeze_account/freeze_account.dart';
 import 'package:ride_card_app/classes/service/UNIT/open_account/open_account.dart';
@@ -25,8 +26,11 @@ class AccountDetailsScreen extends StatefulWidget {
 class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   //
   bool accountLimitsLoader = true;
+  bool cardsLoader = true;
   var bankAccountId = '';
   var accountBalance = '0';
+  List<dynamic>? allCards;
+  //
   @override
   void initState() {
     if (kDebugMode) {
@@ -35,6 +39,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
     bankAccountId = widget.accountData['id'].toString();
     accountBalance = widget.accountData['attributes']['balance'].toString();
     // checkMyAccountDetails();
+    fetchAllCardsDetails();
     super.initState();
   }
 
@@ -388,7 +393,110 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               ],
             ),
           ),
-        ]
+        ],
+        const SizedBox(
+          height: 30.0,
+        ),
+        const Divider(
+          thickness: 0.4,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            top: 10.0,
+          ),
+          child: Row(
+            children: [
+              textFontPOOPINS(
+                'Cards',
+                hexToColor(appORANGEcolorHexCode),
+                26.0,
+                fontWeight: FontWeight.w600,
+              ),
+              IconButton(
+                onPressed: () {
+                  //
+                  addCardPopUp(context, 'message', 'content');
+                },
+                icon: Icon(
+                  Icons.add_circle_outline_sharp,
+                  color: hexToColor(appORANGEcolorHexCode),
+                ),
+              ),
+            ],
+          ),
+        ),
+        cardsLoader == true
+            ? textFontPOOPINS(
+                'fetching...',
+                Colors.white,
+                12.0,
+              )
+            : allCards!.isEmpty
+                ? Column(
+                    children: [
+                      const SizedBox(
+                        height: 80,
+                      ),
+                      textFontPOOPINS(
+                        'No card found. Click plus button to generate your card',
+                        Colors.white,
+                        12.0,
+                      ),
+                    ],
+                  )
+                : Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16.0,
+                      right: 16.0,
+                      top: 10.0,
+                    ),
+                    child: Container(
+                      // height: 100,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(
+                          16.0,
+                        ),
+                      ),
+                      child: ListTile(
+                        leading: Container(
+                          height: 26,
+                          width: 26,
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(
+                              20.0,
+                            ),
+                          ),
+                          child: svgImage(
+                            'card',
+                            14.0,
+                            14.0,
+                          ),
+                        ),
+                        title: textFontPOOPINS(
+                          //
+                          '**** **** **** 1234',
+                          Colors.black,
+                          16.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        subtitle: textFontPOOPINS(
+                          //
+                          widget.accountData['type'],
+                          Colors.grey,
+                          10.0,
+                        ),
+                        onTap: () {
+                          //
+                          // pushToAccountDetails(context, accountDetails![i]);
+                        },
+                      ),
+                    ),
+                  ),
       ],
     );
   }
@@ -925,5 +1033,187 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         print('Failed to reopen account');
       }
     }
+  }
+
+  // ALL ISSUED CARDS
+  Future<void> fetchAllCardsDetails() async {
+    allCards =
+        await GetAllCustomerIssuedCards.getParticularCustomerCardViaCustomerId(
+      bankAccountId,
+    );
+
+    setState(() {
+      cardsLoader = false;
+    });
+  }
+
+  //
+  void addCardPopUp(
+    BuildContext context,
+    String message,
+    content,
+  ) async {
+    await showDialog(
+      barrierDismissible: true,
+      context: context,
+      builder: (BuildContext context) {
+        return Material(
+          type: MaterialType.transparency,
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 60,
+                        width: MediaQuery.of(context).size.width,
+                        color: Colors.white,
+                        child: Center(
+                          child: textFontPOOPINS(
+                            //
+                            CARD_INDIVIDUAL_VIRTUAL_DEBIT_CARD,
+                            Colors.black,
+                            16.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        color: Colors.white,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                textFontPOOPINS(
+                                  'Daily Withdrawal: ',
+                                  Colors.grey,
+                                  12.0,
+                                ),
+                                textFontPOOPINS(
+                                  DOLLAR_SIGN + CARD_I_V_D_C_DAILY_WITHDRAWAL,
+                                  Colors.black,
+                                  12.0,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        color: Colors.white,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                textFontPOOPINS(
+                                  'Daily Purchase: ',
+                                  Colors.grey,
+                                  12.0,
+                                ),
+                                textFontPOOPINS(
+                                  DOLLAR_SIGN + CARD_I_V_D_C_DAILY_PURCHASE,
+                                  Colors.black,
+                                  12.0,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        color: Colors.white,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                textFontPOOPINS(
+                                  'Montly Withdrawal: ',
+                                  Colors.grey,
+                                  12.0,
+                                ),
+                                textFontPOOPINS(
+                                  DOLLAR_SIGN +
+                                      CARD_I_V_D_C_DAILY_MONTHLY_WITHDRAWAL,
+                                  Colors.black,
+                                  12.0,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        color: Colors.white,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              top: 4.0,
+                              bottom: 10.0,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                textFontPOOPINS(
+                                  'Monthly Purchase: ',
+                                  Colors.grey,
+                                  12.0,
+                                ),
+                                textFontPOOPINS(
+                                  DOLLAR_SIGN +
+                                      CARD_I_V_D_C_DAILY_MONTHLY_PURCHASE,
+                                  Colors.black,
+                                  12.0,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 2.0,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      //
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      height: 60,
+                      width: MediaQuery.of(context).size.width,
+                      color: Colors.white,
+                      child: Center(
+                        child: textFontPOOPINS(
+                          //
+                          'Dismiss',
+                          Colors.red,
+                          14.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }
