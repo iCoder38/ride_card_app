@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
@@ -45,8 +47,8 @@ class _CardsScreenState extends State<CardsScreen> {
       'https://api.equifax.com/personal/consumer-data-suite/v1/creditReport'; // Replace with the actual Equifax API endpoint
   String creditScore = 'Fetching credit score...';
   //
-  String TESTING_TOKEN =
-      'v2.public.eyJyb2xlIjoiYWRtaW4iLCJ1c2VySWQiOiI3NTY3Iiwic3ViIjoianVzdGluYmVubmV0dEByaWRlYXBwaW5jZ2xvYmFsLmNvbSIsImV4cCI6IjIwMjQtMDgtMjZUMTI6NDM6NTguNzA1WiIsImp0aSI6IjMzMDY2NSIsIm9yZ0lkIjoiNDIxOSIsInNjb3BlIjoiYXBwbGljYXRpb25zIGFwcGxpY2F0aW9ucy13cml0ZSBjdXN0b21lcnMgY3VzdG9tZXJzLXdyaXRlIGN1c3RvbWVyLXRhZ3Mtd3JpdGUgY3VzdG9tZXItdG9rZW4td3JpdGUgYWNjb3VudHMgYWNjb3VudHMtd3JpdGUgY2FyZHMgY2FyZHMtd3JpdGUgY2FyZHMtc2Vuc2l0aXZlIHRyYW5zYWN0aW9ucyB0cmFuc2FjdGlvbnMtd3JpdGUgYXV0aG9yaXphdGlvbnMgc3RhdGVtZW50cyBwYXltZW50cyBwYXltZW50cy13cml0ZSBwYXltZW50cy13cml0ZS1jb3VudGVycGFydHkgcGF5bWVudHMtd3JpdGUtbGlua2VkLWFjY291bnQgYWNoLXBheW1lbnRzLXdyaXRlIHdpcmUtcGF5bWVudHMtd3JpdGUgcmVwYXltZW50cyByZXBheW1lbnRzLXdyaXRlIHBheW1lbnRzLXdyaXRlLWFjaC1kZWJpdCBjb3VudGVycGFydGllcyBiYXRjaC1yZWxlYXNlcyBiYXRjaC1yZWxlYXNlcy13cml0ZSBsaW5rZWQtYWNjb3VudHMgd2ViaG9va3Mgd2ViaG9va3Mtd3JpdGUgZXZlbnRzIGV2ZW50cy13cml0ZSBhdXRob3JpemF0aW9uLXJlcXVlc3RzIGF1dGhvcml6YXRpb24tcmVxdWVzdHMtd3JpdGUgY2FzaC1kZXBvc2l0cyBjYXNoLWRlcG9zaXRzLXdyaXRlIGNoZWNrLWRlcG9zaXRzIGNoZWNrLWRlcG9zaXRzLXdyaXRlIHJlY2VpdmVkLXBheW1lbnRzIHJlY2VpdmVkLXBheW1lbnRzLXdyaXRlIGRpc3B1dGVzIGNoYXJnZWJhY2tzIHJld2FyZHMgcmV3YXJkcy13cml0ZSBjaGVjay1wYXltZW50cyBjaGVjay1wYXltZW50cy13cml0ZSBjcmVkaXQtZGVjaXNpb25zIGxlbmRpbmctcHJvZ3JhbXMgY3JlZGl0LWFwcGxpY2F0aW9ucyBjcmVkaXQtYXBwbGljYXRpb25zLXdyaXRlIG1pZ3JhdGlvbnMgbWlncmF0aW9ucy13cml0ZSIsIm9yZyI6IlJpZGUgYXBwIGluYyIsInNvdXJjZUlwIjoiIiwidXNlclR5cGUiOiJvcmciLCJpc1VuaXRQaWxvdCI6ZmFsc2V9oPEe4b0t2NMYJM38ZXvYzwKpPxoQK1NbYAsnOSMI-Ut2I8YBF2gDkIaCoN7Ua6LO8WVauqrCD_LhXoRqJeqIBw';
+  // String TESTING_TOKEN =
+  //     'v2.public.eyJyb2xlIjoiYWRtaW4iLCJ1c2VySWQiOiI3NTY3Iiwic3ViIjoianVzdGluYmVubmV0dEByaWRlYXBwaW5jZ2xvYmFsLmNvbSIsImV4cCI6IjIwMjQtMDgtMjZUMTI6NDM6NTguNzA1WiIsImp0aSI6IjMzMDY2NSIsIm9yZ0lkIjoiNDIxOSIsInNjb3BlIjoiYXBwbGljYXRpb25zIGFwcGxpY2F0aW9ucy13cml0ZSBjdXN0b21lcnMgY3VzdG9tZXJzLXdyaXRlIGN1c3RvbWVyLXRhZ3Mtd3JpdGUgY3VzdG9tZXItdG9rZW4td3JpdGUgYWNjb3VudHMgYWNjb3VudHMtd3JpdGUgY2FyZHMgY2FyZHMtd3JpdGUgY2FyZHMtc2Vuc2l0aXZlIHRyYW5zYWN0aW9ucyB0cmFuc2FjdGlvbnMtd3JpdGUgYXV0aG9yaXphdGlvbnMgc3RhdGVtZW50cyBwYXltZW50cyBwYXltZW50cy13cml0ZSBwYXltZW50cy13cml0ZS1jb3VudGVycGFydHkgcGF5bWVudHMtd3JpdGUtbGlua2VkLWFjY291bnQgYWNoLXBheW1lbnRzLXdyaXRlIHdpcmUtcGF5bWVudHMtd3JpdGUgcmVwYXltZW50cyByZXBheW1lbnRzLXdyaXRlIHBheW1lbnRzLXdyaXRlLWFjaC1kZWJpdCBjb3VudGVycGFydGllcyBiYXRjaC1yZWxlYXNlcyBiYXRjaC1yZWxlYXNlcy13cml0ZSBsaW5rZWQtYWNjb3VudHMgd2ViaG9va3Mgd2ViaG9va3Mtd3JpdGUgZXZlbnRzIGV2ZW50cy13cml0ZSBhdXRob3JpemF0aW9uLXJlcXVlc3RzIGF1dGhvcml6YXRpb24tcmVxdWVzdHMtd3JpdGUgY2FzaC1kZXBvc2l0cyBjYXNoLWRlcG9zaXRzLXdyaXRlIGNoZWNrLWRlcG9zaXRzIGNoZWNrLWRlcG9zaXRzLXdyaXRlIHJlY2VpdmVkLXBheW1lbnRzIHJlY2VpdmVkLXBheW1lbnRzLXdyaXRlIGRpc3B1dGVzIGNoYXJnZWJhY2tzIHJld2FyZHMgcmV3YXJkcy13cml0ZSBjaGVjay1wYXltZW50cyBjaGVjay1wYXltZW50cy13cml0ZSBjcmVkaXQtZGVjaXNpb25zIGxlbmRpbmctcHJvZ3JhbXMgY3JlZGl0LWFwcGxpY2F0aW9ucyBjcmVkaXQtYXBwbGljYXRpb25zLXdyaXRlIG1pZ3JhdGlvbnMgbWlncmF0aW9ucy13cml0ZSIsIm9yZyI6IlJpZGUgYXBwIGluYyIsInNvdXJjZUlwIjoiIiwidXNlclR5cGUiOiJvcmciLCJpc1VuaXRQaWxvdCI6ZmFsc2V9oPEe4b0t2NMYJM38ZXvYzwKpPxoQK1NbYAsnOSMI-Ut2I8YBF2gDkIaCoN7Ua6LO8WVauqrCD_LhXoRqJeqIBw';
 
   // 'v2.public.eyJyb2xlIjoiYWRtaW4iLCJ1c2VySWQiOiI3NTY3Iiwic3ViIjoianVzdGluYmVubmV0dEByaWRlYXBwaW5jZ2xvYmFsLmNvbSIsImV4cCI6IjIwMjQtMDUtMjhUMTE6MjE6MjkuNDU3WiIsImp0aSI6IjMzMDMzMyIsIm9yZ0lkIjoiNDIxOSIsInNjb3BlIjoiYXBwbGljYXRpb25zLXdyaXRlIGFjY291bnRzLXdyaXRlIGNhcmRzLXdyaXRlIiwib3JnIjoiUmlkZSBhcHAgaW5jIiwidXNlclR5cGUiOiJvcmciLCJpc1VuaXRQaWxvdCI6ZmFsc2V9kiWoE7oOsoWIlEdFIRhA8AiM3qT2lUkalqrIxCCpIbyMP7uU5s86OIk8S4IddsvsgWqJ63E_RCOijna8JE7PCQ';
   @override
@@ -928,61 +930,6 @@ class _CardsScreenState extends State<CardsScreen> {
     }
   }*/
 
-  Future<void> createAccount() async {
-    debugPrint('========== ACCOUNT CREATE RESPONSE ================');
-    final url = Uri.parse('https://api.s.unit.sh/accounts');
-
-    // Define custom headers
-    Map<String, String> headers = {
-      'Content-Type': 'application/vnd.api+json',
-      'Authorization': 'Bearer $TESTING_TOKEN',
-    };
-
-    // Define the request body
-    Map<String, dynamic> requestBody = {
-      "data": {
-        "type": "depositAccount",
-        "attributes": {
-          "depositProduct": "checking",
-          "tags": {"purpose": "checking"},
-          "idempotencyKey": const Uuid().v4(),
-        },
-        //
-        "relationships": {
-          "customer": {
-            "data": {"type": "customer", "id": "1983952"}
-          }
-        }
-      }
-    };
-
-    try {
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(requestBody),
-      );
-      if (kDebugMode) {
-        print(response.statusCode);
-      }
-      if (response.statusCode == 201) {
-        // If the server returns a 200 OK response, parse the JSON
-        final jsonData = json.decode(response.body);
-        if (kDebugMode) {
-          debugPrint('========== ACCOUNT CREATE RESPONSE ================');
-          print(jsonData);
-          debugPrint('===================================================');
-        }
-      } else {
-        final jsonData = json.decode(response.body);
-        throw jsonData;
-      }
-    } catch (error) {
-      // Handle any errors that occur during the HTTP request
-      print('Error: $error');
-    }
-  }
-
   Future<void> getAllTotalAccounts() async {
     const String baseUrl = 'https://api.s.unit.sh/accounts/';
     final Uri url = Uri.parse(baseUrl);
@@ -1076,51 +1023,6 @@ class _CardsScreenState extends State<CardsScreen> {
   }
 
   //
-  Future<void> getParticularAccountDetailsViaCustomerId() async {
-    const String customerId = '1983952';
-    const String baseUrl =
-        'https://api.s.unit.sh/accounts?filter[customerId]=$customerId';
-    final Uri url = Uri.parse(baseUrl);
-
-    // Define custom headers
-    Map<String, String> headers = {
-      'Content-Type': 'application/vnd.api+json',
-      'Authorization': 'Bearer $TESTING_TOKEN',
-    };
-
-    try {
-      final response = await http.get(url, headers: headers);
-
-      if (response.statusCode == 200) {
-        // If the server returns a 200 OK response, parse the JSON
-        final jsonData = json.decode(response.body);
-
-        // Access account details from the jsonData map
-        var account = jsonData['data'];
-        if (account == null || account.isEmpty) {
-          if (kDebugMode) {
-            print('THERE IS NO ACCOUNT DATA AVAILABLE');
-          }
-        } else {
-          if (kDebugMode) {
-            debugPrint('===================');
-            print('Account details: $account');
-            debugPrint('===================');
-          }
-        }
-      } else {
-        final jsonData = json.decode(response.body);
-        if (kDebugMode) {
-          print('Error fetching account: $jsonData');
-        }
-        throw Exception('Failed to fetch account details');
-      }
-    } catch (error) {
-      if (kDebugMode) {
-        print('Error: $error');
-      }
-    }
-  }
 
   Future<void> checkMyDepositBankAccountLimit() async {
     const String accountId = '3393356';
