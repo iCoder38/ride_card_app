@@ -21,6 +21,7 @@ var TEXT_NAVIGATION_TITLE_SUCCESS = 'success'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_REQUEST_MONEY = 'request money'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_REQUEST_HISTORY = 'request history'.toUpperCase();
 var TEXT_NAVIGATION_TITLE_STATEMENT = 'statement'.toUpperCase();
+var TEXT_NAVIGATION_TITLE_ACCOUNTS = 'accounts'.toUpperCase();
 //
 var TEXT_SIGN_IN = 'sign in'.toUpperCase();
 var TEXT_CREATE_AN_ACCOUNT = 'create an account'.toUpperCase();

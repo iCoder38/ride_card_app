@@ -24,11 +24,13 @@ class CompleteProfileScreen extends StatefulWidget {
       {super.key,
       required this.getFirstName,
       required this.getLastName,
-      required this.getContactNumber});
+      required this.getContactNumber,
+      required this.getEmail});
 
   final String getFirstName;
   final String getLastName;
   final String getContactNumber;
+  final String getEmail;
 
   @override
   State<CompleteProfileScreen> createState() => _CompleteProfileScreenState();
@@ -91,9 +93,17 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     'BusinessOwnershipInterests',
     'GovernmentBenefits'
   ];
+  final List<String> _annualIncome = [
+    'UpTo10k',
+    'Between10kAnd25k',
+    'Between25kAnd50k',
+    'Between50kAnd100k',
+    'Between100kAnd250k',
+    'Over250k'
+  ];
   @override
   void initState() {
-    // _email = FirebaseAuth.instance.currentUser!.email.toString();
+    // createAnAccountInFirebaseFirst(context);
     super.initState();
   }
 
@@ -517,7 +527,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 if (_formKey.currentState!.validate()) {
                   showLoadingUI(context, PLEASE_WAIT);
                   //
-                  _sendRequestToCompleteProfile(context);
+                  // _sendRequestToCompleteProfile(context);
+                  createCustomerInUnit();
                 }
               },
               child: Container(
@@ -578,7 +589,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               fontSize: 14.0,
             ),
             onTap: () {
-              _showOccupationPicker(context);
+              _showAnnualIncomePicker(context);
             },
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -589,6 +600,28 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showAnnualIncomePicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return ListView.builder(
+          itemCount: _annualIncome.length,
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              title: Text(_annualIncome[index]),
+              onTap: () {
+                setState(() {
+                  _contAnnualIncome.text = _annualIncome[index];
+                });
+                Navigator.pop(context);
+              },
+            );
+          },
+        );
+      },
     );
   }
 
@@ -603,7 +636,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               title: Text(occupations[index]),
               onTap: () {
                 setState(() {
-                  _contAnnualIncome.text = occupations[index];
+                  _contOccupation.text = occupations[index];
                 });
                 Navigator.pop(context);
               },
@@ -666,8 +699,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
             style: GoogleFonts.poppins(
               fontSize: 14.0,
             ),
-            // onTap: () => _showIncomeSourceOptions(context),
-            // readOnly: true, // Make the TextFormField read-only
+            onTap: () {
+              _showOccupationPicker(context);
+            },
+            readOnly: true, // Make the TextFormField read-only
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return TEXT_FIELD_EMPTY_TEXT;
@@ -1129,104 +1164,110 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     }
   }
 
-  // API
-  void _sendRequestToCompleteProfile(context) async {
-    debugPrint('API ==> COMPLETE PROFILE');
+//
 
-    var box = await Hive.openBox<MyData>('myBox1');
-    var myData = box.getAt(0);
-    await box.close();
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    // print(prefs.getString('key_save_token_locally'));
-    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
-
-/*
-Salary:  //annual indome
-PlaceOfWork:  //source
-ssn:
-dob:
-key:
-*/
+  // CREATE ACCOUNT IN UNIT
+  Future<void> createCustomerInUnit() async {
+    //
+    debugPrint('==============================================');
+    debugPrint('============= UNIT ===========================');
     UUID_KEY_FOR_REGISTRATION = const Uuid().v4();
+    //
+    const String baseUrl = 'https://api.s.unit.sh/applications';
+    final Uri url = Uri.parse(baseUrl);
 
-    final parameters = {
-      'action': 'editProfile',
-      'userId': myData!.userId,
-      'City': _contCity.text.toString(),
-      'zipcode': _contPostalCode.text.toString(),
-      'country': COUNTRY_US,
-      'ssn': _contSSN.text.toString(),
-      'dob': _contDOB.text.toString(),
-      'Salary': _contAnnualIncome.text.toString(),
-      'PlaceOfWork': _contSourceOfIncome.text.toString(),
-      'address': _contAddress.text.toString(),
-      'occupation': _contOccupation.text.toString(),
-      'key': UUID_KEY_FOR_REGISTRATION,
+    // Define custom headers
+    Map<String, String> headers = {
+      'Content-Type': 'application/vnd.api+json',
+      'Authorization': 'Bearer $TESTING_TOKEN',
+    };
+
+    Map<String, dynamic> body = {
+      "data": {
+        "type": "individualApplication",
+        "attributes": {
+          "ssn": _contSSN.text.toString(),
+          "fullName": {
+            "first": widget.getFirstName.toString(),
+            "last": widget.getLastName.toString(),
+          },
+          "dateOfBirth": _contDOB.text.toString(),
+          "address": {
+            "street": _contAddress.text.toString(),
+            "city": _contCity.text.toString(),
+            "state": _contState.text.toString(),
+            "postalCode": _contPostalCode.text.toString(),
+            "country": COUNTRY_US,
+          },
+          "email": widget.getEmail.toString(),
+          "annualIncome": _contAnnualIncome.text,
+          "sourceOfIncome": _contSourceOfIncome.text,
+          "phone": {
+            "countryCode": COUNTRY_US_PHONE_CODE,
+            "number": widget.getContactNumber.toString(),
+          },
+          "occupation": _contOccupation.text.toString(),
+          "tags": {
+            "test": "webhook-tag",
+            "key": "another-tag",
+            "number": "111"
+          },
+          "idempotencyKey": UUID_KEY_FOR_REGISTRATION,
+        },
+      }
     };
     if (kDebugMode) {
-      print(parameters);
+      print(body);
     }
-    return;
 
     try {
-      final response = await _apiService.postRequest(parameters, token);
-      if (kDebugMode) {
-        print(response.body);
-      }
-      //
-      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-      String successStatus = jsonResponse['status'];
-      String successMessage = jsonResponse['msg'];
-      if (kDebugMode) {
-        print('STATUS ==> $successStatus');
-        print(successMessage);
-      }
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: json.encode(body),
+      );
 
-      if (response.statusCode == 200) {
-        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
-        //
-        if (successMessage == NOT_AUTHORIZED) {
-          //
-          apiServiceGT
-              .generateToken(myData.userId, _email, myData.role)
-              .then((v) {
-            //
-            if (kDebugMode) {
-              print('TOKEN ==> $v');
-            }
-            // again click
-            _sendRequestToCompleteProfile(context);
-          });
-        } else {
-          //
-          createAnAccountInFirebaseFirst(context);
-          /*successStatus.toLowerCase() == 'success'
-              ? successfullyCreatedAccount(successStatus, successMessage)
-              : Navigator.pop(context);
-          customToast(
-            successStatus,
-            hexToColor(appREDcolorHexCode),
-            ToastGravity.TOP,
-          );*/
+      // print(response.body);
+      if (response.statusCode == 201) {
+        // If the server returns a 200 OK response, parse the JSON
+        final jsonData = json.decode(response.body);
+        debugPrint('=================== S');
+        if (kDebugMode) {
+          print(jsonData);
+          debugPrint('===================');
         }
+        //
+        createAnAccountInFirebase();
       } else {
-        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
-        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+        final jsonData = json.decode(response.body);
+        debugPrint('=================== E');
+        if (kDebugMode) {
+          print(jsonData);
+          debugPrint('===================');
+        }
+
+        // If the server returns an error response, throw an exception
+        throw Exception('Failed to update data');
       }
     } catch (error) {
-      // print(error);
+      // Handle any errors that occur during the HTTP request
+      if (kDebugMode) {
+        print('Error: $error');
+      }
     }
   }
 
-  // REGISTER THIS USER IN FIREBASE NOW
-  createAnAccountInFirebaseFirst(context) async {
+// REGISTER THIS USER IN FIREBASE NOW
+  createAnAccountInFirebase() async {
     //
+    debugPrint('==================================================');
+    debugPrint('============= FIREBASE ===========================');
+    // showLoadingUI(context, PLEASE_WAIT);
     try {
       await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
-            email: widget.getFirstName.toString(),
-            password: widget.getLastName.toString(),
+            email: widget.getEmail.toString(),
+            password: 'firebase_password_rca_!',
           )
           .then((value) => {
                 //
@@ -1252,13 +1293,14 @@ key:
           ToastGravity.TOP,
         );
       } else {
-        Navigator.pop(context);
+        debugPrint('Error');
+        /*Navigator.pop(context);
         customToast(
           //
           TEXT_F_ERROR,
           Colors.redAccent,
           ToastGravity.TOP,
-        );
+        );*/
       }
     } catch (e) {
       if (kDebugMode) {
@@ -1275,89 +1317,104 @@ key:
         .updateDisplayName(mergeName)
         .then((v) {
       debugPrint('REGISTERED NAME ALSO');
-      //  _sendRequestToRegister(context);
+      _sendRequestToCompleteProfile(context);
     });
   }
 
-  // CREATE ACCOUNT IN UNIT
-  Future<void> createCustomer() async {
-    //
-    const String baseUrl = 'https://api.s.unit.sh/applications';
-    final Uri url = Uri.parse(baseUrl);
+  // API
+  void _sendRequestToCompleteProfile(context) async {
+    debugPrint(
+        '===============================================================');
+    debugPrint(
+        '============= API: COMPLETE PROFILE ===========================');
 
-    // Define custom headers
-    Map<String, String> headers = {
-      'Content-Type': 'application/vnd.api+json',
-      'Authorization': 'Bearer $TESTING_TOKEN',
-    };
+    var box = await Hive.openBox<MyData>('myBox1');
+    var myData = box.getAt(0);
+    await box.close();
 
-    Map<String, dynamic> body = {
-      "data": {
-        "type": "individualApplication",
-        "attributes": {
-          "ssn": "721074426",
-          "fullName": {
-            "first": "Dishant",
-            "last": "Rajput",
-          },
-          "dateOfBirth": "1992-06-06",
-          "address": {
-            "street": "20 Ingram St",
-            "city": "Forest Hills",
-            "state": "NY",
-            "postalCode": "11375",
-            "country": "US"
-          },
-          "email": "dishantrajput2020@gmail.com",
-          "annualIncome": "Between50kAnd100k",
-          "sourceOfIncome": "EmploymentOrPayrollIncome",
-          "phone": {"countryCode": "91", "number": "8287632340"},
-          "occupation": "ArchitectOrEngineer",
-          "tags": {
-            "test": "webhook-tag",
-            "key": "another-tag",
-            "number": "111"
-          },
-          "idempotencyKey": const Uuid().v4(),
-        },
-      }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // print(prefs.getString('key_save_token_locally'));
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+
+/*
+Salary:  //annual indome
+PlaceOfWork:  //source
+ssn:
+dob:
+key:
+*/
+
+    final parameters = {
+      'action': 'editProfile',
+      'userId': myData!.userId,
+      'City': _contCity.text.toString(),
+      'zipcode': _contPostalCode.text.toString(),
+      'country': COUNTRY_US,
+      'ssn': _contSSN.text.toString(),
+      'dob': _contDOB.text.toString(),
+      'Salary': _contAnnualIncome.text.toString(),
+      'PlaceOfWork': _contSourceOfIncome.text.toString(),
+      'address': _contAddress.text.toString(),
+      'occupation': _contOccupation.text.toString(),
+      'key': UUID_KEY_FOR_REGISTRATION,
+      'firebaseId': FirebaseAuth.instance.currentUser!.uid.toString(),
     };
     if (kDebugMode) {
-      print(body);
+      print(parameters);
     }
 
     try {
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: json.encode(body),
-      );
+      final response = await _apiService.postRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+      if (kDebugMode) {
+        print('STATUS ==> $successStatus');
+        print(successMessage);
+      }
 
-      // print(response.body);
-      if (response.statusCode == 201) {
-        // If the server returns a 200 OK response, parse the JSON
-        final jsonData = json.decode(response.body);
-        debugPrint('=================== S');
-        if (kDebugMode) {
-          print(jsonData);
-          debugPrint('===================');
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          debugPrint('NOT AUTHORIZE');
+          apiServiceGT
+              .generateToken(
+            myData.userId,
+            widget.getEmail.toString(),
+            myData.role,
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            _sendRequestToCompleteProfile(context);
+          });
+        } else {
+          //
+          // createAnAccountInFirebaseFirst(context);
+          successStatus.toLowerCase() == 'success'
+              ? successfullyCreatedAccount(successStatus, successMessage)
+              : Navigator.pop(context);
+          customToast(
+            successStatus,
+            hexToColor(appREDcolorHexCode),
+            ToastGravity.TOP,
+          );
         }
       } else {
-        final jsonData = json.decode(response.body);
-        debugPrint('=================== E');
-        if (kDebugMode) {
-          print(jsonData);
-          debugPrint('===================');
-        }
-
-        // If the server returns an error response, throw an exception
-        throw Exception('Failed to update data');
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
       }
     } catch (error) {
-      // Handle any errors that occur during the HTTP request
-      if (kDebugMode) {
-        print('Error: $error');
-      }
+      // print(error);
     }
   }
 

@@ -487,6 +487,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           getFirstName: _contFirstName.text,
           getLastName: _contLastName.text,
           getContactNumber: _contPhone.text,
+          getEmail: _contEmail.text,
         ),
       ),
     );

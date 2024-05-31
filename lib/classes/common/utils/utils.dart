@@ -2,6 +2,8 @@ var BASE_URL = 'https://demo4.evirtualservices.net/ridewallet/services/index';
 
 //
 var COUNTRY_US = 'US';
+var COUNTRY_US_PHONE_CODE = '1';
+//
 var HIVE_BOX_KEY = 'myBox1';
 var RESPONSE_ROLE = 'Member';
 //

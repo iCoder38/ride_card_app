@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/screens/all_accounts/all_accounts.dart';
 
 import 'package:ride_card_app/classes/screens/all_cards/all_cards.dart';
 
@@ -16,7 +17,8 @@ Widget widgetDashboardUpperDeck(context) {
             //
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const AllCardsScreen()),
+              MaterialPageRoute(
+                  builder: (context) => const AllAccountsScreen()),
             );
           },
           child: Container(
@@ -50,9 +52,9 @@ Widget widgetDashboardUpperDeck(context) {
                 const SizedBox(height: 10.0),
                 textFontPOOPINS(
                   //
-                  TEXT_MANAGE_CARDS,
+                  'Manage accounts',
                   Colors.white,
-                  18.0,
+                  16.0,
                   fontWeight: FontWeight.w600,
                 ),
               ],

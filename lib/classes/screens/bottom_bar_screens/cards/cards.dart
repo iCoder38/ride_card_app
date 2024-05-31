@@ -34,6 +34,7 @@ class _CardsScreenState extends State<CardsScreen> {
 
   final ApiService _apiService = ApiService();
   final GenerateTokenService _apiServiceGT = GenerateTokenService();
+  GenerateTokenService apiServiceGT = GenerateTokenService();
 
   final TextEditingController _contPanSnn = TextEditingController();
   String yourScore = '';
@@ -223,6 +224,19 @@ class _CardsScreenState extends State<CardsScreen> {
               // getParticularAccountDetailsViaCustomerId();
               // checkMyDepositBankAccountLimit();
               // createCustomer();
+              apiServiceGT
+                  .generateToken(
+                '52',
+                'test03@gmail.com',
+                'Member',
+              )
+                  .then((v) {
+                //
+                if (kDebugMode) {
+                  print('TOKEN ==> $v');
+                }
+                // again click
+              });
             },
             child: Container(
               height: 60,
