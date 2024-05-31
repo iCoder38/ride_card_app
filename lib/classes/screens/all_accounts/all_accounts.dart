@@ -7,6 +7,7 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
+import 'package:ride_card_app/classes/screens/all_accounts/account_details/account_details.dart';
 import 'package:ride_card_app/classes/service/UNIT/create_account/create_account.dart';
 import 'package:ride_card_app/classes/service/UNIT/get_customer_accounts_list/get_customer_account_list.dart';
 import 'package:uuid/uuid.dart';
@@ -337,6 +338,10 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
                           ]
                         ],
                       ),
+                      onTap: () {
+                        //
+                        pushToAccountDetails(context, accountDetails![i]);
+                      },
                     ),
                   ),
                 ),
@@ -347,5 +352,26 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
             ],
           );
     //
+  }
+
+  Future<void> pushToAccountDetails(BuildContext context, data) async {
+    //
+    final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AccountDetailsScreen(
+            accountData: data,
+          ),
+        ));
+
+    if (!mounted) return;
+    //
+    if (result == 'reload_screen') {
+      if (kDebugMode) {
+        print(result);
+      }
+      fetchAccountDetails();
+      // funcGetLocalDBdata();
+    }
   }
 }
