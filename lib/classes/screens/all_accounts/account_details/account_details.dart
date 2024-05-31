@@ -11,6 +11,7 @@ import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
 import 'package:ride_card_app/classes/service/UNIT/all_customer_cards/all_customer_cards.dart';
 import 'package:ride_card_app/classes/service/UNIT/close_account/close_account.dart';
 import 'package:ride_card_app/classes/service/UNIT/freeze_account/freeze_account.dart';
+import 'package:ride_card_app/classes/service/UNIT/issue_card/issue_card.dart';
 import 'package:ride_card_app/classes/service/UNIT/open_account/open_account.dart';
 import 'package:ride_card_app/classes/service/UNIT/un_freeze/unfreeze_account.dart';
 
@@ -29,6 +30,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   bool cardsLoader = true;
   var bankAccountId = '';
   var accountBalance = '0';
+
+  bool? cardCreated;
   List<dynamic>? allCards;
   //
   @override
@@ -446,57 +449,70 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                       ),
                     ],
                   )
-                : Padding(
-                    padding: const EdgeInsets.only(
-                      left: 16.0,
-                      right: 16.0,
-                      top: 10.0,
-                    ),
-                    child: Container(
-                      // height: 100,
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(
-                          16.0,
-                        ),
-                      ),
-                      child: ListTile(
-                        leading: Container(
-                          height: 26,
-                          width: 26,
-                          decoration: BoxDecoration(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(
-                              20.0,
-                            ),
-                          ),
-                          child: svgImage(
-                            'card',
-                            14.0,
-                            14.0,
-                          ),
-                        ),
-                        title: textFontPOOPINS(
-                          //
-                          '**** **** **** 1234',
-                          Colors.black,
-                          16.0,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        subtitle: textFontPOOPINS(
-                          //
-                          widget.accountData['type'],
-                          Colors.grey,
-                          10.0,
-                        ),
-                        onTap: () {
-                          //
-                          // pushToAccountDetails(context, accountDetails![i]);
-                        },
-                      ),
+                : _listOfAllIssuedCardsUIKit(context),
+      ],
+    );
+  }
+
+  Widget _listOfAllIssuedCardsUIKit(context) {
+    return Column(
+      children: [
+        for (int i = 0; i < allCards!.length; i++) ...[
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              top: 10.0,
+            ),
+            child: Container(
+              // height: 100,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(
+                  16.0,
+                ),
+              ),
+              child: ListTile(
+                leading: Container(
+                  height: 26,
+                  width: 26,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(
+                      20.0,
                     ),
                   ),
+                  child: svgImage(
+                    'card',
+                    14.0,
+                    14.0,
+                  ),
+                ),
+                title: textFontPOOPINS(
+                  //
+                  '**** **** **** ${allCards![i]['attributes']['last4Digits'].toString()}',
+                  Colors.black,
+                  16.0,
+                  fontWeight: FontWeight.w600,
+                ),
+                subtitle: textFontPOOPINS(
+                  //
+                  'Exp. date: ${allCards![i]['attributes']['expirationDate']}',
+                  Colors.grey,
+                  10.0,
+                ),
+                trailing: const Icon(
+                  Icons.chevron_right_outlined,
+                ),
+                onTap: () {
+                  //
+                  // pushToAccountDetails(context, accountDetails![i]);
+                },
+              ),
+            ),
+          )
+        ],
       ],
     );
   }
@@ -1041,6 +1057,11 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         await GetAllCustomerIssuedCards.getParticularCustomerCardViaCustomerId(
       bankAccountId,
     );
+    if (kDebugMode) {
+      print('========= ALL CARDS ========');
+      print(allCards);
+      print('=============================');
+    }
 
     setState(() {
       cardsLoader = false;
@@ -1069,17 +1090,22 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        height: 60,
-                        width: MediaQuery.of(context).size.width,
-                        color: Colors.white,
-                        child: Center(
-                          child: textFontPOOPINS(
-                            //
-                            CARD_INDIVIDUAL_VIRTUAL_DEBIT_CARD,
-                            Colors.black,
-                            16.0,
-                            fontWeight: FontWeight.w500,
+                      GestureDetector(
+                        onTap: () {
+                          _issueCard();
+                        },
+                        child: Container(
+                          height: 60,
+                          width: MediaQuery.of(context).size.width,
+                          color: Colors.white,
+                          child: Center(
+                            child: textFontPOOPINS(
+                              //
+                              CARD_INDIVIDUAL_VIRTUAL_DEBIT_CARD,
+                              Colors.black,
+                              16.0,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ),
@@ -1098,7 +1124,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                                   12.0,
                                 ),
                                 textFontPOOPINS(
-                                  DOLLAR_SIGN + CARD_I_V_D_C_DAILY_WITHDRAWAL,
+                                  DOLLAR_SIGN +
+                                      CARD_I_V_D_C_DAILY_WITHDRAWAL.toString(),
                                   Colors.black,
                                   12.0,
                                 ),
@@ -1122,7 +1149,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                                   12.0,
                                 ),
                                 textFontPOOPINS(
-                                  DOLLAR_SIGN + CARD_I_V_D_C_DAILY_PURCHASE,
+                                  DOLLAR_SIGN +
+                                      CARD_I_V_D_C_DAILY_PURCHASE.toString(),
                                   Colors.black,
                                   12.0,
                                 ),
@@ -1147,7 +1175,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                                 ),
                                 textFontPOOPINS(
                                   DOLLAR_SIGN +
-                                      CARD_I_V_D_C_DAILY_MONTHLY_WITHDRAWAL,
+                                      CARD_I_V_D_C_MONTHLY_WITHDRAWAL
+                                          .toString(),
                                   Colors.black,
                                   12.0,
                                 ),
@@ -1175,7 +1204,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                                 ),
                                 textFontPOOPINS(
                                   DOLLAR_SIGN +
-                                      CARD_I_V_D_C_DAILY_MONTHLY_PURCHASE,
+                                      CARD_I_V_D_C_MONTHLY_PURCHASE.toString(),
                                   Colors.black,
                                   12.0,
                                 ),
@@ -1215,5 +1244,21 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         );
       },
     );
+  }
+
+  void _issueCard() async {
+    Navigator.pop(context);
+    bool result = await IssueCardService.issueCard(bankAccountId);
+    setState(() {
+      cardCreated = result;
+    });
+
+    // Print the result to check it
+    if (result) {
+      debugPrint('Card issued successfully.');
+      fetchAllCardsDetails();
+    } else {
+      debugPrint('Failed to issue Card.');
+    }
   }
 }
