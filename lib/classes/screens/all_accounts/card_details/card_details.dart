@@ -13,6 +13,8 @@ import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
 import 'package:ride_card_app/classes/service/UNIT/CARD/pin_status/pin_status.dart';
 import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/customer_token/customer_token.dart';
 import 'package:uuid/uuid.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class CardDetailsScreen extends StatefulWidget {
   const CardDetailsScreen({super.key, this.cardData});
@@ -27,6 +29,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
   //
   var strPinStatus = '';
   bool pinStatusLoader = true;
+
   @override
   void initState() {
     if (kDebugMode) {
@@ -35,11 +38,67 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
       print(widget.cardData['id']);
       print('=================================');
     }
+
     // test
     fetchCustomerToken();
     // FETCH AND CHECK PIN STATUS
-    fetchCardPinStatus(widget.cardData['id']); // card id
+    // fetchCardPinStatus(widget.cardData['id']); // card id
     super.initState();
+  }
+
+  String generateHtml() {
+    return '''
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <meta charset="utf-8">
+          <title>Sensitive Data</title>
+          <style>
+              iframe {
+                  height: 20px;
+              }
+          </style>
+      </head>
+      <body>
+      <h2>Sensitive Data example</h2>
+      <label>Card Number:</label>
+      <div id="cardNumber"></div>
+      <label>CVV2:</label>
+      <div id="cvv2"></div>
+
+      <script type="text/javascript" src="https://js.verygoodvault.com/vgs-show/1.5/ACh8JJTM42LYxwe2wfGQxwj5.js"></script>
+      <script type="text/javascript">
+          const show = VGSShow.create('tntazhyknp1');
+          const customerToken = "";
+          const cardId = "";
+
+          const cvv2iframe = show.request({
+                  name: 'data-text',
+                  method: 'GET',
+                  path: '/cards/' + cardId + '/secure-data/cvv2',
+                  headers: {
+                      "Authorization": "Bearer " + customerToken
+                  },
+                  htmlWrapper: 'text',
+                  jsonPathSelector: 'data.attributes.cvv2'
+              });
+          cvv2iframe.render('#cvv2');
+
+          const cardNumberIframe = show.request({
+                  name: 'data-text',
+                  method: 'GET',
+                  path: '/cards/' + cardId + '/secure-data/pan',
+                  headers: {
+                      "Authorization": "Bearer " + customerToken
+                  },
+                  htmlWrapper: 'text',
+                  jsonPathSelector: 'data.attributes.pan'
+              });
+          cardNumberIframe.render('#cardNumber');
+      </script>
+      </body>
+      </html>
+    ''';
   }
 
   Future<void> fetchCustomerToken() async {
@@ -54,14 +113,23 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
     // _submitFormToSetPin(token, widget.cardData['id']);
     // dummy(token, widget.cardData['id']);
     // _submitForm(widget.cardData['id'], token);
-    getCustomerToken(token, customerID);
+    // getCustomerToken(token, customerID);
     // Handle the token as needed
+    fetchSensitiveData(token, widget.cardData['id']);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _UIKit(context),
+      body: /* WebViewWidget(
+       initialUrl:'',
+        javascriptMode: JavaScriptMode.unrestricted,
+        onWebViewCreated: (WebViewController webViewController) {
+          // _controller = webViewController;
+        },
+      ),*/
+
+          _UIKit(context),
     );
   }
 
@@ -95,6 +163,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         const SizedBox(
           height: 40.0,
         ),
+
         Padding(
           padding: const EdgeInsets.only(
             left: 16.0,
@@ -406,7 +475,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
       "data": {
         "type": 'customerToken',
         "attributes": {
-          "scope": "cards-sensitive-write",
+          "scope": "cards-sensitive",
           "verificationToken": token,
           "verificationCode": "203130",
           // "scope": "cards-sensitive-write",
@@ -444,5 +513,27 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
       print('Error: $error');
       return null;
     }
+  }
+
+  Future<void> fetchSensitiveData(token, cardID) async {
+    // Replace <CUSTOMER TOKEN> and <CARD ID> with your actual customer token and card ID
+    final customerToken = token;
+    final cardId = cardID;
+    print(cardId);
+
+    final cardNumberResponse = await http.get(
+        Uri.parse('https://js.verygoodvault.com/cards/$cardId/secure-data/pan'),
+        headers: {'Authorization': 'Bearer $customerToken'});
+
+    final cvv2Response = await http.get(
+        Uri.parse(
+            'https://js.verygoodvault.com/cards/$cardId/secure-data/cvv2'),
+        headers: {'Authorization': 'Bearer $customerToken'});
+    print(cardNumberResponse.body);
+    print(cvv2Response.body);
+    setState(() {
+      // cardNumber = cardNumberResponse.body;
+      // cvv2 = cvv2Response.body;
+    });
   }
 }

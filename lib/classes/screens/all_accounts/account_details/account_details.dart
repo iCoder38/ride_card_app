@@ -41,10 +41,18 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       print(widget.accountData);
     }
     bankAccountId = widget.accountData['id'].toString();
-    accountBalance = widget.accountData['attributes']['balance'].toString();
+    // cents to dollar
+    convertCentsToDollar();
     // checkMyAccountDetails();
     fetchAllCardsDetails();
     super.initState();
+  }
+
+  // cents to dollar
+  convertCentsToDollar() {
+    int cents = widget.accountData['attributes']['balance'];
+    double dollars = cents / 100;
+    accountBalance = dollars.toString();
   }
 
   @override

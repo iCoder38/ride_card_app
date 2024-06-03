@@ -4,6 +4,7 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/screens/all_accounts/all_accounts.dart';
 
 import 'package:ride_card_app/classes/screens/all_cards/all_cards.dart';
+import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
 
 Widget widgetDashboardUpperDeck(context) {
   return Row(
@@ -66,43 +67,56 @@ Widget widgetDashboardUpperDeck(context) {
         width: 20.0,
       ),
       Expanded(
-        child: Container(
-          height: 180,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [
-                Color(0xFF1E1E1E), // Darker color
-                Color(0xFF3C3C3C), // Slightly lighter color
-              ],
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-            ),
-            borderRadius: BorderRadius.circular(
-              14.0,
-            ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Center(
-                child: SizedBox(
-                  height: 70,
-                  width: 70,
-                  child: Image.asset(
-                    'assets/images/menu_send_money.png',
-                    fit: BoxFit.cover,
-                  ),
+        child: GestureDetector(
+          onTap: () {
+            //
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SendMoneyScreen(
+                  menuBar: 'no',
                 ),
               ),
-              const SizedBox(height: 10.0),
-              textFontPOOPINS(
-                //
-                TEXT_SEND_MONEY,
-                Colors.white,
-                18.0,
-                fontWeight: FontWeight.w600,
+            );
+          },
+          child: Container(
+            height: 180,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF1E1E1E), // Darker color
+                  Color(0xFF3C3C3C), // Slightly lighter color
+                ],
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
               ),
-            ],
+              borderRadius: BorderRadius.circular(
+                14.0,
+              ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Center(
+                  child: SizedBox(
+                    height: 70,
+                    width: 70,
+                    child: Image.asset(
+                      'assets/images/menu_send_money.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10.0),
+                textFontPOOPINS(
+                  //
+                  TEXT_SEND_MONEY,
+                  Colors.white,
+                  18.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ],
+            ),
           ),
         ),
       ),

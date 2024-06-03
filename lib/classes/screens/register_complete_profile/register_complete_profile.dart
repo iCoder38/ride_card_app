@@ -25,12 +25,14 @@ class CompleteProfileScreen extends StatefulWidget {
       required this.getFirstName,
       required this.getLastName,
       required this.getContactNumber,
-      required this.getEmail});
+      required this.getEmail,
+      required this.userId});
 
   final String getFirstName;
   final String getLastName;
   final String getContactNumber;
   final String getEmail;
+  final String userId;
 
   @override
   State<CompleteProfileScreen> createState() => _CompleteProfileScreenState();
@@ -56,6 +58,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   // final TextEditingController _contPEP = TextEditingController();
   // final TextEditingController _contPassport = TextEditingController();
   // final TextEditingController _contPassportVerification = TextEditingController()
+
+  var createdCustomerId = '';
 
   var UUID_KEY_FOR_REGISTRATION;
   var _email = '';
@@ -1237,6 +1241,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           debugPrint('===================');
         }
         //
+        createdCustomerId = jsonData['data']['id'].toString();
         createAnAccountInFirebase();
       } else {
         final jsonData = json.decode(response.body);
@@ -1245,6 +1250,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           print(jsonData);
           debugPrint('===================');
         }
+        Navigator.pop(context);
+        customToast('Something wrong. Please check you data and try again.',
+            Colors.redAccent, ToastGravity.TOP);
 
         // If the server returns an error response, throw an exception
         throw Exception('Failed to update data');
@@ -1330,23 +1338,16 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
     var box = await Hive.openBox<MyData>('myBox1');
     var myData = box.getAt(0);
-    await box.close();
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // print(prefs.getString('key_save_token_locally'));
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
-
-/*
-Salary:  //annual indome
-PlaceOfWork:  //source
-ssn:
-dob:
-key:
-*/
+    SharedPreferences prefs2 = await SharedPreferences.getInstance();
+    prefs2.setString('Key_save_login_user_id', widget.userId);
 
     final parameters = {
       'action': 'editProfile',
-      'userId': myData!.userId,
+      'userId': widget.userId,
       'City': _contCity.text.toString(),
       'zipcode': _contPostalCode.text.toString(),
       'country': COUNTRY_US,
@@ -1358,10 +1359,12 @@ key:
       'occupation': _contOccupation.text.toString(),
       'key': UUID_KEY_FOR_REGISTRATION,
       'firebaseId': FirebaseAuth.instance.currentUser!.uid.toString(),
+      'curtomerId': createdCustomerId,
     };
     if (kDebugMode) {
       print(parameters);
     }
+    await box.close();
 
     try {
       final response = await _apiService.postRequest(parameters, token);
@@ -1385,9 +1388,9 @@ key:
           debugPrint('NOT AUTHORIZE');
           apiServiceGT
               .generateToken(
-            myData.userId,
+            widget.userId,
             widget.getEmail.toString(),
-            myData.role,
+            'Member',
           )
               .then((v) {
             //

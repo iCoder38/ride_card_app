@@ -44,7 +44,7 @@ class GetAllUnitAccountsService {
         if (kDebugMode) {
           print('Error fetching account: $jsonData');
         }
-        throw Exception('Failed to fetch account details');
+        throw Exception('0');
       }
     } catch (error) {
       if (kDebugMode) {

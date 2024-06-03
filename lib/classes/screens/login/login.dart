@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
+import 'package:ride_card_app/classes/screens/register/register.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -21,6 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     _sendToLogin(context);
+
     super.initState();
   }
 
@@ -71,7 +73,13 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
         //
-        _loginViaFirebase();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const RegisterScreen(),
+          ),
+        );
+        // _loginViaFirebase();
       } else {
         customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
         debugPrint('REGISTRATION: RESPONSE ==> FAILURE');

@@ -64,6 +64,8 @@ dependencies:
   hive_flutter: ^1.1.0
   path_provider: ^2.0.2
   build_runner:
+  webview_flutter:
+  flutter_inappwebview:
 
 dev_dependencies:
   flutter_test:

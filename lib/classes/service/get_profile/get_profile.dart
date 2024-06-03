@@ -8,6 +8,7 @@ import 'package:ride_card_app/classes/common/hive/hive.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final ApiService _apiService = ApiService();
 GenerateTokenService _apiServiceGT = GenerateTokenService();
@@ -18,12 +19,13 @@ Future<dynamic> sendRequestToProfileDynamic() async {
 
   var box = await Hive.openBox<MyData>(HIVE_BOX_KEY);
   var myData = box.getAt(0);
-  await box.close();
-
+  SharedPreferences prefs2 = await SharedPreferences.getInstance();
+  var userID = prefs2.getString('Key_save_login_user_id').toString();
   final parameters = {
     'action': 'profile',
-    'userId': myData!.userId,
+    'userId': userID.toString(),
   };
+  await box.close();
   if (kDebugMode) {
     print(parameters);
   }
@@ -40,11 +42,8 @@ Future<dynamic> sendRequestToProfileDynamic() async {
       String successMessage = jsonResponse['msg'];
 
       if (successMessage == NOT_AUTHORIZED) {
-        await _apiServiceGT.generateToken(
-          myData.userId,
-          FirebaseAuth.instance.currentUser!.email,
-          myData.role,
-        );
+        await _apiServiceGT.generateToken(userID.toString(),
+            FirebaseAuth.instance.currentUser!.email, 'Member');
         return await sendRequestToProfileDynamic();
       } else {
         debugPrint('PROFILE: RESPONSE ==> SUCCESS');

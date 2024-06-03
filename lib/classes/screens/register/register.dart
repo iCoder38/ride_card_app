@@ -479,15 +479,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     await box.close();
 
     customToast(message, Colors.green, ToastGravity.BOTTOM);
-    Navigator.pop(context);
-    Navigator.push(
-      context,
+    // Navigator.pop(context);
+    debugPrint('here');
+    Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => CompleteProfileScreen(
           getFirstName: _contFirstName.text,
           getLastName: _contLastName.text,
           getContactNumber: _contPhone.text,
           getEmail: _contEmail.text,
+          userId: userId.toString(),
         ),
       ),
     );
