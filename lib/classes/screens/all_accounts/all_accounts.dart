@@ -8,8 +8,8 @@ import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
 import 'package:ride_card_app/classes/screens/all_accounts/account_details/account_details.dart';
-import 'package:ride_card_app/classes/service/UNIT/create_account/create_account.dart';
-import 'package:ride_card_app/classes/service/UNIT/get_customer_accounts_list/get_customer_account_list.dart';
+import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/create_account/create_account.dart';
+import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/get_customer_accounts_list/get_customer_account_list.dart';
 import 'package:uuid/uuid.dart';
 
 class AllAccountsScreen extends StatefulWidget {

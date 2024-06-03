@@ -8,12 +8,13 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
-import 'package:ride_card_app/classes/service/UNIT/all_customer_cards/all_customer_cards.dart';
-import 'package:ride_card_app/classes/service/UNIT/close_account/close_account.dart';
-import 'package:ride_card_app/classes/service/UNIT/freeze_account/freeze_account.dart';
-import 'package:ride_card_app/classes/service/UNIT/issue_card/issue_card.dart';
-import 'package:ride_card_app/classes/service/UNIT/open_account/open_account.dart';
-import 'package:ride_card_app/classes/service/UNIT/un_freeze/unfreeze_account.dart';
+import 'package:ride_card_app/classes/screens/all_accounts/card_details/card_details.dart';
+import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/all_customer_cards/all_customer_cards.dart';
+import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/close_account/close_account.dart';
+import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/freeze_account/freeze_account.dart';
+import 'package:ride_card_app/classes/service/UNIT/CARD/issue_card/issue_card.dart';
+import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/open_account/open_account.dart';
+import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/un_freeze/unfreeze_account.dart';
 
 class AccountDetailsScreen extends StatefulWidget {
   const AccountDetailsScreen({super.key, this.accountData});
@@ -420,7 +421,15 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               IconButton(
                 onPressed: () {
                   //
-                  addCardPopUp(context, 'message', 'content');
+                  if (widget.accountData['attributes']['status'] == 'Open') {
+                    addCardPopUp(context, 'message', 'content');
+                  } else {
+                    customToast(
+                      'Your account is not in Open status',
+                      Colors.redAccent,
+                      ToastGravity.BOTTOM,
+                    );
+                  }
                 },
                 icon: Icon(
                   Icons.add_circle_outline_sharp,
@@ -502,12 +511,39 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                   Colors.grey,
                   10.0,
                 ),
-                trailing: const Icon(
-                  Icons.chevron_right_outlined,
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.chevron_right_outlined,
+                    ),
+                    allCards![i]['attributes']['status'].toString() == 'Active'
+                        ? textFontPOOPINS(
+                            //
+                            allCards![i]['attributes']['status'].toString(),
+                            Colors.green,
+                            10.0,
+                            fontWeight: FontWeight.w700,
+                          )
+                        : textFontPOOPINS(
+                            //
+                            'Closed',
+                            Colors.redAccent,
+                            10.0,
+                            fontWeight: FontWeight.w700,
+                          ),
+                  ],
                 ),
                 onTap: () {
                   //
-                  // pushToAccountDetails(context, accountDetails![i]);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CardDetailsScreen(
+                        cardData: allCards![i],
+                      ),
+                    ),
+                  );
                 },
               ),
             ),
@@ -1246,6 +1282,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
     );
   }
 
+  // ISSUE CARD FROM UNIT
   void _issueCard() async {
     Navigator.pop(context);
     bool result = await IssueCardService.issueCard(bankAccountId);

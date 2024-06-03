@@ -8,11 +8,12 @@ import 'package:uuid/uuid.dart';
 //
 class IssueCardService {
   static Future<bool> issueCard(String bankAccountId) async {
-    debugPrint('========== ISSUE CARD RESPONSE ================');
+    debugPrint('========== ISSUE CARD URL ================');
     final url = Uri.parse(ISSUE_CARD_URL);
     if (kDebugMode) {
       print(url);
     }
+    debugPrint('==========================================');
 
     // Define custom headers
     Map<String, String> headers = {

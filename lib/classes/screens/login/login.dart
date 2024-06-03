@@ -97,7 +97,9 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       });
     } catch (e) {
-      print(e); // Handle errors here
+      if (kDebugMode) {
+        print(e);
+      } // Handle errors here
     }
   }
 }
