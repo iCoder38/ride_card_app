@@ -1,16 +1,15 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
-import 'package:uuid/uuid.dart';
 
-//
-class IssueCardService {
-  static Future<bool> issueCard(String bankAccountId) async {
-    debugPrint('========== ISSUE CARD URL ================');
-    final url = Uri.parse(ISSUE_CARD_URL);
+class CreateCustomerTokenService {
+  static final String _baseUrl = '$SANDBOX_LIVE_URL/customers/';
+
+  Future<String?> getCustomerToken(String customerID) async {
+    debugPrint('========== CUSTOMER TOKEN URL ================');
+    final url = Uri.parse('$_baseUrl$customerID/token');
     if (kDebugMode) {
       print(url);
     }
@@ -25,24 +24,11 @@ class IssueCardService {
     // Define the request body
     Map<String, dynamic> requestBody = {
       "data": {
-        "type": CARD_INDIVIDUAL_V_D_C_TYPE,
+        "type": 'customerToken',
         "attributes": {
-          "idempotencyKey": const Uuid().v4(),
-          "limits": {
-            "dailyWithdrawal": CARD_I_V_D_C_DAILY_WITHDRAWAL,
-            "dailyPurchase": CARD_I_V_D_C_DAILY_PURCHASE,
-            "monthlyWithdrawal": CARD_I_V_D_C_MONTHLY_WITHDRAWAL,
-            "monthlyPurchase": CARD_I_V_D_C_MONTHLY_PURCHASE
-          }
+          "scope": "customers accounts",
+          // "scope": "cards-sensitive-write",
         },
-        "relationships": {
-          "account": {
-            "data": {
-              "type": "depositAccount",
-              "id": bankAccountId,
-            }
-          }
-        }
       }
     };
 
@@ -58,22 +44,23 @@ class IssueCardService {
       if (response.statusCode == 201) {
         // If the server returns a 201 Created response
         if (kDebugMode) {
-          debugPrint('========== CARD ISSUED RESPONSE ================');
+          debugPrint('========== CUSTOMER TOKEN ================');
           print(json.decode(response.body));
           debugPrint('===================================================');
         }
-        return true;
+        final responseData = json.decode(response.body);
+        return responseData['data']['attributes']['token'];
       } else {
         if (kDebugMode) {
           final jsonData = json.decode(response.body);
-          print('Error creating account: $jsonData');
+          print('Error creating customer token: $jsonData');
         }
-        return false;
+        return null;
       }
     } catch (error) {
       // Handle any errors that occur during the HTTP request
       print('Error: $error');
-      return false;
+      return null;
     }
   }
 }

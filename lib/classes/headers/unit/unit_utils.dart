@@ -4,6 +4,7 @@ var CUSTOMER_CARDS_URL = '$SANDBOX_LIVE_URL/cards?filter[accountId]=';
 var CREATE_AN_ACCOUNT_URL = '$SANDBOX_LIVE_URL/accounts';
 var FREEZE_AN_ACCOUNT_URL = '$SANDBOX_LIVE_URL/accounts';
 var ISSUE_CARD_URL = '$SANDBOX_LIVE_URL/cards';
+var GET_CUSTOMER_URL = '$SANDBOX_LIVE_URL/customers';
 
 // attributes
 var ACCOUNT_FREEZE = 'accountFreeze';
