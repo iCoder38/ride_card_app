@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/screens/login/login.dart';
 import 'package:ride_card_app/classes/screens/register/register.dart';
 import 'package:ride_card_app/classes/screens/select_profile/select_profile.dart';
 import 'package:ride_card_app/classes/screens/welcome/widgets/widgets.dart';
@@ -34,6 +35,12 @@ class WelcomeScreen extends StatelessWidget {
               child: GestureDetector(
                 onTap: () {
                   debugPrint('==> SIGN IN <==');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
                 },
                 child: Container(
                   height: 60,

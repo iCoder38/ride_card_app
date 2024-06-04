@@ -66,6 +66,8 @@ dependencies:
   build_runner:
   webview_flutter:
   flutter_inappwebview:
+  page_view_dot_indicator: ^2.3.0
+  
 
 dev_dependencies:
   flutter_test:

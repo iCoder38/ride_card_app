@@ -14,18 +14,18 @@ final ApiService _apiService = ApiService();
 GenerateTokenService _apiServiceGT = GenerateTokenService();
 Future<dynamic> sendRequestToProfileDynamic() async {
   debugPrint('API ==> PROFILE');
-  var name = '';
-  var contactNumber = '';
+  // var name = '';
+  // var contactNumber = '';
 
-  var box = await Hive.openBox<MyData>(HIVE_BOX_KEY);
-  var myData = box.getAt(0);
+  // var box = await Hive.openBox<MyData>(HIVE_BOX_KEY);
+  // var myData = box.getAt(0);
   SharedPreferences prefs2 = await SharedPreferences.getInstance();
   var userID = prefs2.getString('Key_save_login_user_id').toString();
   final parameters = {
     'action': 'profile',
     'userId': userID.toString(),
   };
-  await box.close();
+  // await box.close();
   if (kDebugMode) {
     print(parameters);
   }

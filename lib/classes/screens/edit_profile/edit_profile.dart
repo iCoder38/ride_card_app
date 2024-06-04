@@ -415,9 +415,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     // print(prefs.getString('key_save_token_locally'));
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
 
+    // print(prefs.getString('key_save_token_locally'));
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+
     final parameters = {
       'action': 'editProfile',
-      'userId': myData!.userId,
+      'userId': userId,
       'fullName': _contFirstName.text,
       'lastName': _contLastName.text,
       'email': _contEmail.text,
@@ -450,10 +453,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           //
           apiServiceGT
               .generateToken(
-            myData.userId,
-            FirebaseAuth.instance.currentUser!.email,
-            myData.role,
-          )
+                  userId, FirebaseAuth.instance.currentUser!.email, 'Member')
               .then((v) {
             //
             if (kDebugMode) {

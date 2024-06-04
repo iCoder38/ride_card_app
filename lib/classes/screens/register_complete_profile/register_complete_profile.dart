@@ -1244,7 +1244,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           debugPrint('===================');
         }
         //
-        createdCustomerId = jsonData['data']['id'].toString();
+        createdCustomerId = jsonData['included'][0]['id'].toString();
         createAnAccountInFirebase();
       } else {
         final jsonData = json.decode(response.body);

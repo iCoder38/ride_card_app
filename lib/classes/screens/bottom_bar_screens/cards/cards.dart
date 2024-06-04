@@ -20,6 +20,7 @@ import 'package:ride_card_app/classes/service/check_cc_score/check_cc_score.dart
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
 import 'package:ride_card_app/classes/service/unit_api/unit_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class CardsScreen extends StatefulWidget {
@@ -350,7 +351,9 @@ class _CardsScreenState extends State<CardsScreen> {
       documentId: "AAICV0413H",
     ).then((v) {
       //
-      print('=====> $v');
+      if (kDebugMode) {
+        print('=====> $v');
+      }
     });
   }
 
@@ -358,14 +361,18 @@ class _CardsScreenState extends State<CardsScreen> {
     debugPrint('API ==> PROFILE');
     var name = '';
     var contactNumner = '';
-    var box = await Hive.openBox<MyData>(HIVE_BOX_KEY);
-    var myData = box.getAt(0);
-    await box.close();
+    // var box = await Hive.openBox<MyData>(HIVE_BOX_KEY);
+    // var myData = box.getAt(0);
+    // await box.close();
 
-    final parameters = {
-      'action': 'profile',
-      'userId': myData!.userId,
-    };
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // print(prefs.getString('key_save_token_locally'));
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+
+    // print(prefs.getString('key_save_token_locally'));
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+
+    final parameters = {'action': 'profile', 'userId': userId};
     if (kDebugMode) {
       print(parameters);
     }
@@ -387,9 +394,9 @@ class _CardsScreenState extends State<CardsScreen> {
           //
           _apiServiceGT
               .generateToken(
-            myData.userId,
+            userId,
             FirebaseAuth.instance.currentUser!.email,
-            myData.role,
+            'Member',
           )
               .then((v) {
             //
@@ -612,22 +619,32 @@ class _CardsScreenState extends State<CardsScreen> {
                           Navigator.pop(context);
                           Navigator.of(context).pop();
                         } else {
-                          debugPrint('SUCCESSFULLY GET');
-                          List<dynamic> scoreDetails = v['data']['cCRResponse']
-                                  ['cIRReportDataLst'][0]['cIRReportData']
-                              ['scoreDetails'];
-                          String name = scoreDetails[0]['value'].toString();
-                          Navigator.pop(context);
-                          Navigator.of(context).pop();
-                          //
-                          customToast(
-                            'Success',
-                            Colors.green,
-                            ToastGravity.BOTTOM,
-                          );
-                          setState(() {
-                            yourScore = name;
-                          });
+                          String errorDesc = v['data']['cCRResponse']
+                              ['cIRReportDataLst'][0]['error']['errorDesc'];
+                          print(errorDesc);
+                          if (errorDesc == 'Consumer not found in bureau') {
+                            customToast('Consumer not found.', Colors.redAccent,
+                                ToastGravity.BOTTOM);
+                            Navigator.pop(context);
+                          } else {
+                            debugPrint('SUCCESSFULLY GET');
+                            List<dynamic> scoreDetails = v['data']
+                                    ['cCRResponse']['cIRReportDataLst'][0]
+                                ['cIRReportData']['scoreDetails'];
+                            print(scoreDetails.length);
+                            String name = scoreDetails[0]['value'].toString();
+                            Navigator.pop(context);
+                            Navigator.of(context).pop();
+                            //
+                            customToast(
+                              'Success',
+                              Colors.green,
+                              ToastGravity.BOTTOM,
+                            );
+                            setState(() {
+                              yourScore = name;
+                            });
+                          }
                         }
                       });
                       //

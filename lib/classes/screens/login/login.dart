@@ -9,6 +9,7 @@ import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
 import 'package:ride_card_app/classes/screens/register/register.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -53,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final parameters = {
       'action': 'login',
-      'email': 'dishantrajput2021@gmail.com',
+      'email': 'purnimaevs@gmail.com',
       'password': '123456',
     };
     if (kDebugMode) {
@@ -73,8 +74,10 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
         //
-
-        // _loginViaFirebase();
+        SharedPreferences prefs2 = await SharedPreferences.getInstance();
+        prefs2.setString('Key_save_login_user_id',
+            jsonResponse['data']['userId'].toString());
+        _loginViaFirebase();
       } else {
         customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
         debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
@@ -89,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await _auth
           .signInWithEmailAndPassword(
-              email: 'dishantrajput2021@gmail.com',
+              email: 'purnimaevs@gmail.com',
               password: 'firebase_password_rca_!')
           .then((v) {
         Navigator.push(

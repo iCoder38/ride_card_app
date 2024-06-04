@@ -367,6 +367,7 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
     //
   }
 
+  // EVS: API => GET USER PROFILE DATA
   Future<void> fetchProfileData() async {
     await sendRequestToProfileDynamic().then((v) {
       myFullData = v;
