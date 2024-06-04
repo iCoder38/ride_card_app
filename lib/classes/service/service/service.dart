@@ -28,6 +28,7 @@ class ApiService {
       return response;
     } else {
       // Handle error
+      print(response);
       throw Exception('Failed to load data');
     }
   }

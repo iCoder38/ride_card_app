@@ -6,9 +6,16 @@ import 'package:ride_card_app/classes/screens/register/register.dart';
 import 'package:ride_card_app/classes/screens/register_complete_profile/register_complete_profile.dart';
 import 'package:ride_card_app/classes/screens/select_profile/widgets/widget.dart';
 
-class SelectProfileScreen extends StatelessWidget {
-  const SelectProfileScreen({super.key});
+class SelectProfileScreen extends StatefulWidget {
+  const SelectProfileScreen({super.key, required this.strProfileSelect});
 
+  final String strProfileSelect;
+
+  @override
+  State<SelectProfileScreen> createState() => _SelectProfileScreenState();
+}
+
+class _SelectProfileScreenState extends State<SelectProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,12 +43,16 @@ class SelectProfileScreen extends StatelessWidget {
               child: GestureDetector(
                 onTap: () {
                   //
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
-                  );
+                  if (widget.strProfileSelect == '2') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RegisterScreen(
+                          strProfileIs: widget.strProfileSelect,
+                        ),
+                      ),
+                    );
+                  }
                 },
                 child: Container(
                   height: 60,
@@ -73,11 +84,11 @@ class SelectProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(
+                  /*Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => const LoginScreen()),
-                  );
+                  );*/
                 },
                 child: Container(
                   height: 60,

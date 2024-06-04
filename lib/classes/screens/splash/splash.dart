@@ -221,7 +221,7 @@ checkUserIsLoginOrNot(context) {
       }
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const SelectProfileScreen()),
+        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
         (Route<dynamic> route) => false,
       );
     } else {

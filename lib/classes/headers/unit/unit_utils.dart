@@ -1,4 +1,5 @@
 var SANDBOX_LIVE_URL = 'https://api.s.unit.sh';
+var CREATE_APPLICATION_URL = '$SANDBOX_LIVE_URL/applications';
 var CUSTOMER_ACCOUNTS_URL = '$SANDBOX_LIVE_URL/accounts?filter[customerId]=';
 var CUSTOMER_CARDS_URL = '$SANDBOX_LIVE_URL/cards?filter[accountId]=';
 var CREATE_AN_ACCOUNT_URL = '$SANDBOX_LIVE_URL/accounts';

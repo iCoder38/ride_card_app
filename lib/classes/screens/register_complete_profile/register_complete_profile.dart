@@ -12,6 +12,7 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/hive/hive.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
 import 'package:ride_card_app/classes/screens/register_complete_profile_business/register_complete_profile_business.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
@@ -1177,7 +1178,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     debugPrint('============= UNIT ===========================');
     UUID_KEY_FOR_REGISTRATION = const Uuid().v4();
     //
-    const String baseUrl = 'https://api.s.unit.sh/applications';
+    String baseUrl = CREATE_APPLICATION_URL;
+
     final Uri url = Uri.parse(baseUrl);
 
     // Define custom headers
@@ -1190,6 +1192,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       "data": {
         "type": "individualApplication",
         "attributes": {
+          // "passport":"U156243",
           "ssn": _contSSN.text.toString(),
           "fullName": {
             "first": widget.getFirstName.toString(),
@@ -1357,9 +1360,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       'PlaceOfWork': _contSourceOfIncome.text.toString(),
       'address': _contAddress.text.toString(),
       'occupation': _contOccupation.text.toString(),
-      'key': UUID_KEY_FOR_REGISTRATION,
+      'key_data': UUID_KEY_FOR_REGISTRATION,
       'firebaseId': FirebaseAuth.instance.currentUser!.uid.toString(),
-      'curtomerId': createdCustomerId,
+      'customerId': createdCustomerId,
     };
     if (kDebugMode) {
       print(parameters);
@@ -1417,7 +1420,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
       }
     } catch (error) {
-      // print(error);
+      print(error);
     }
   }
 

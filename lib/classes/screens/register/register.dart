@@ -17,9 +17,12 @@ import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/register_complete_profile/register_complete_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  const RegisterScreen({super.key, required this.strProfileIs});
+
+  final String strProfileIs;
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -85,7 +88,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(
               height: 80.0,
             ),
-            customNavigationBar(context, 'Register'),
+            widget.strProfileIs == '2'
+                ? customNavigationBar(context, 'Register (User)')
+                : customNavigationBar(context, 'Register (Business)'),
             GestureDetector(
               onTap: () {
                 openGalleryOrCamera(context);
@@ -262,13 +267,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: TextFormField(
                     controller: _contPhone,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Phone',
-                      border: InputBorder.none, // Remove the border
+                      border: InputBorder.none,
                       filled: false,
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 0, horizontal: 10.0),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 0,
+                        horizontal: 10.0,
+                      ).copyWith(
+                        // Adjust the top padding to center the hint text vertically
+                        top: 14.0,
+                      ),
                     ),
+                    maxLength: 10,
                     style: GoogleFonts.poppins(
                       fontSize: 14.0,
                     ),
@@ -416,6 +427,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (response.statusCode == 200) {
         debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
         //
+        // Map<String, dynamic> data = jsonResponse['data'];
+        // SharedPreferences prefs2 = await SharedPreferences.getInstance();
+        // prefs2.setString('Key_save_login_user_id', data['userId'].toString());
+        //
+        //
         successfullyCreatedAccount(
           context,
           successStatus,
@@ -479,7 +495,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     await box.close();
 
     customToast(message, Colors.green, ToastGravity.BOTTOM);
-    // Navigator.pop(context);
+    Navigator.pop(context);
     debugPrint('here');
     Navigator.of(context).push(
       MaterialPageRoute(

@@ -29,49 +29,13 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
   bool floatingVisibility = false;
   bool? accountCreated;
   var myFullData;
+  var accountStatusMessage = 'No account added yet. Click plus to add.';
   //
   @override
   void initState() {
     fetchProfileData();
 
     super.initState();
-  }
-
-  Future<void> fetchProfileData() async {
-    await sendRequestToProfileDynamic().then((v) {
-      myFullData = v;
-      //
-      // print(myFullData);
-      //  customerID = '1992974';
-      customerID = myFullData['data']['curtomerId'].toString();
-      debugPrint('CUSTOM ID ==> $customerID');
-      if (customerID == '') {
-        setState(() {
-          screenLoader = false;
-          floatingVisibility = false;
-          accountDetails = [];
-        });
-      } else if (customerID == '0') {
-        setState(() {
-          screenLoader = false;
-          floatingVisibility = false;
-          accountDetails = [];
-        });
-      } else {
-        fetchAccountDetails();
-      }
-    });
-    // print(responseBody);
-  }
-
-  Future<void> fetchAccountDetails() async {
-    accountDetails = await GetAllUnitAccountsService
-        .getParticularAccountDetailsViaCustomerId(customerID);
-
-    setState(() {
-      screenLoader = false;
-      floatingVisibility = true;
-    });
   }
 
   @override
@@ -220,7 +184,13 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
         ),
       ),
       child: accountDetails == null
-          ? const SizedBox()
+          ? Center(
+              child: textFontPOOPINS(
+                'please wait...',
+                Colors.white,
+                14.0,
+              ),
+            )
           : accountDetails!.isEmpty
               ? _dataNotInListUIKit(context)
               : SingleChildScrollView(
@@ -267,7 +237,7 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
                   ? Expanded(
                       child: Center(
                         child: textFontPOOPINS(
-                          ' Something went wrong. Please go back and try  again',
+                          ' Something went wrong. Please go back and try again',
                           Colors.redAccent,
                           12.0,
                         ),
@@ -276,7 +246,7 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
                   : Expanded(
                       child: Center(
                         child: textFontPOOPINS(
-                          'No account added yet. Click plus to add.',
+                          accountStatusMessage,
                           Colors.white,
                           14.0,
                         ),
@@ -395,6 +365,91 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
             ],
           );
     //
+  }
+
+  Future<void> fetchProfileData() async {
+    await sendRequestToProfileDynamic().then((v) {
+      myFullData = v;
+      //
+      // print(myFullData);
+      //  customerID = '1992974';
+      customerID = myFullData['data']['customerId'].toString();
+      debugPrint('CUSTOM ID ==> $customerID');
+      if (customerID == '') {
+        setState(() {
+          screenLoader = false;
+          floatingVisibility = false;
+          accountDetails = [];
+        });
+      } else if (customerID == '0') {
+        setState(() {
+          screenLoader = false;
+          floatingVisibility = false;
+          accountDetails = [];
+        });
+      } else {
+        fetchAccountDetails();
+      }
+    });
+    // print(responseBody);
+  }
+
+  Future<void> fetchAccountDetails() async {
+    accountDetails = await GetAllUnitAccountsService
+        .getParticularAccountDetailsViaCustomerId(customerID);
+
+    //
+    getCustomerById();
+  }
+
+  Future<void> getCustomerById() async {
+    final url = Uri.parse('$SANDBOX_LIVE_URL/customers/$customerID');
+    if (kDebugMode) {
+      print(url);
+    }
+    var token = TESTING_TOKEN;
+
+    // Define custom headers
+    Map<String, String> headers = {
+      'Content-Type': 'application/vnd.api+json',
+      'Authorization': 'Bearer $token',
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        // If the server returns a 200 OK response, parse the JSON
+        final jsonData = json.decode(response.body);
+        debugPrint('=========== GET CUSTOMER BY ID ========================');
+        if (kDebugMode) {
+          print(jsonData);
+          debugPrint('=======================================================');
+        }
+        setState(() {
+          screenLoader = false;
+          floatingVisibility = true;
+        });
+        // updateCustomerData(jsonData['data']['id'].toString());
+      } else {
+        final jsonData = json.decode(response.body);
+        if (kDebugMode) {
+          print(jsonData);
+        }
+        setState(() {
+          accountStatusMessage =
+              'You account is not active yet. Please contact support. \n\nCustomer Id: $customerID';
+          screenLoader = false;
+          floatingVisibility = false;
+        });
+        throw Exception('Failed to load data');
+      }
+    } catch (error) {
+      // Handle any errors that occur during the HTTP request
+      if (kDebugMode) {
+        print('Error: $error');
+      }
+    }
   }
 
   Future<void> pushToAccountDetails(BuildContext context, data) async {

@@ -73,12 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
         //
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const RegisterScreen(),
-          ),
-        );
+
         // _loginViaFirebase();
       } else {
         customToast(successStatus, Colors.redAccent, ToastGravity.TOP);

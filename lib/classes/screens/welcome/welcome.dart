@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/screens/register/register.dart';
 import 'package:ride_card_app/classes/screens/select_profile/select_profile.dart';
 import 'package:ride_card_app/classes/screens/welcome/widgets/widgets.dart';
 
@@ -30,22 +31,27 @@ class WelcomeScreen extends StatelessWidget {
             right: 0,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Container(
-                height: 60,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: appREDcolor,
-                  borderRadius: BorderRadius.circular(
-                    14.0,
-                  ),
-                ), // 218 71 50
-                child: Center(
-                  child: textFontPOOPINS(
-                    //
-                    TEXT_SIGN_IN,
-                    Colors.white,
-                    18.0,
-                    fontWeight: FontWeight.w700,
+              child: GestureDetector(
+                onTap: () {
+                  debugPrint('==> SIGN IN <==');
+                },
+                child: Container(
+                  height: 60,
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    color: appREDcolor,
+                    borderRadius: BorderRadius.circular(
+                      14.0,
+                    ),
+                  ), // 218 71 50
+                  child: Center(
+                    child: textFontPOOPINS(
+                      //
+                      TEXT_SIGN_IN,
+                      Colors.white,
+                      18.0,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ),
@@ -59,10 +65,14 @@ class WelcomeScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: GestureDetector(
                 onTap: () {
+                  debugPrint('==> CREATE AN ACCOUNT <==');
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const SelectProfileScreen()),
+                      builder: (context) => const SelectProfileScreen(
+                        strProfileSelect: '2',
+                      ),
+                    ),
                   );
                 },
                 child: Container(
