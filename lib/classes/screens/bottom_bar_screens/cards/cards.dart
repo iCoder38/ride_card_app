@@ -621,7 +621,9 @@ class _CardsScreenState extends State<CardsScreen> {
                         } else {
                           String errorDesc = v['data']['cCRResponse']
                               ['cIRReportDataLst'][0]['error']['errorDesc'];
-                          print(errorDesc);
+                          if (kDebugMode) {
+                            print(errorDesc);
+                          }
                           if (errorDesc == 'Consumer not found in bureau') {
                             customToast('Consumer not found.', Colors.redAccent,
                                 ToastGravity.BOTTOM);
@@ -631,7 +633,9 @@ class _CardsScreenState extends State<CardsScreen> {
                             List<dynamic> scoreDetails = v['data']
                                     ['cCRResponse']['cIRReportDataLst'][0]
                                 ['cIRReportData']['scoreDetails'];
-                            print(scoreDetails.length);
+                            if (kDebugMode) {
+                              print(scoreDetails.length);
+                            }
                             String name = scoreDetails[0]['value'].toString();
                             Navigator.pop(context);
                             Navigator.of(context).pop();

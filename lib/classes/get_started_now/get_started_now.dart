@@ -35,20 +35,28 @@ class _GetStartedNowScreenState extends State<GetStartedNowScreen> {
     return Scaffold(
       body: Stack(
         children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/background.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
           PageView(
             controller: _pageController,
             children: [
               Image.asset(
-                'assets/images/background.png',
-                fit: BoxFit.cover,
+                'assets/images/1.png',
+                fit: BoxFit.fitWidth,
               ),
               Image.asset(
-                'assets/images/background.png',
-                fit: BoxFit.cover,
+                'assets/images/2.png',
+                fit: BoxFit.fitWidth,
               ),
               Image.asset(
-                'assets/images/background.png',
-                fit: BoxFit.cover,
+                'assets/images/3.png',
+                fit: BoxFit.fitWidth,
               ),
             ],
           ),
@@ -65,9 +73,11 @@ class _GetStartedNowScreenState extends State<GetStartedNowScreen> {
                         duration: Duration(milliseconds: 500),
                         curve: Curves.ease);
                   },
-                  child: Text(
+                  child: textFontPOOPINS(
                     'Previous',
-                    style: TextStyle(fontSize: 16),
+                    Colors.white,
+                    14.0,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 Row(
@@ -80,7 +90,9 @@ class _GetStartedNowScreenState extends State<GetStartedNowScreen> {
                         height: 10.0,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: _currentPage == i ? Colors.red : Colors.grey,
+                          color: _currentPage == i
+                              ? hexToColor(appORANGEcolorHexCode)
+                              : Colors.grey,
                         ),
                       ),
                   ],
@@ -88,12 +100,14 @@ class _GetStartedNowScreenState extends State<GetStartedNowScreen> {
                 TextButton(
                   onPressed: () {
                     _pageController.nextPage(
-                        duration: Duration(milliseconds: 500),
+                        duration: const Duration(milliseconds: 500),
                         curve: Curves.ease);
                   },
-                  child: Text(
+                  child: textFontPOOPINS(
                     'Next',
-                    style: TextStyle(fontSize: 16),
+                    Colors.white,
+                    14.0,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
