@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
+import 'package:ride_card_app/classes/screens/all_cards/add_card/add_card.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/edit_profile/edit_profile.dart';
 import 'package:ride_card_app/classes/screens/welcome/welcome.dart';
@@ -159,6 +160,26 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 Colors.white,
                 16.0,
               ),
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.add_card_rounded,
+                color: Colors.white,
+              ),
+              title: textFontPOOPINS(
+                //
+                'Add external card',
+                Colors.white,
+                16.0,
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddCardScreen(),
+                  ),
+                );
+              },
             ),
             ListTile(
               leading: const Icon(

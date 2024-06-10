@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 
@@ -28,7 +29,9 @@ class ApiService {
       return response;
     } else {
       // Handle error
-      print(response);
+      if (kDebugMode) {
+        print(response.body);
+      }
       throw Exception('Failed to load data');
     }
   }
