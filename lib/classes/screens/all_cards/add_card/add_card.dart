@@ -94,7 +94,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
                     ),
                     suffixIcon: Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: svgImage('card', 14.0, 14.0),
+                      child: svgImage('user', 14.0, 14.0),
                     ),
                   ),
                   style: GoogleFonts.poppins(

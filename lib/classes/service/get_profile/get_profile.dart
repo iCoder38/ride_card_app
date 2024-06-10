@@ -33,13 +33,16 @@ Future<dynamic> sendRequestToProfileDynamic() async {
   try {
     final response = await _apiService.postRequest(parameters, '');
     if (kDebugMode) {
-      print(response.body);
+      // print(response.body);
     }
 
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       // String successStatus = jsonResponse['status'];
       String successMessage = jsonResponse['msg'];
+      if (kDebugMode) {
+        print(successMessage);
+      }
 
       if (successMessage == NOT_AUTHORIZED) {
         await _apiServiceGT.generateToken(userID.toString(),

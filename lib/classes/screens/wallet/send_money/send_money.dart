@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/search_user/search_user.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/send_money_portal/send_money_portal.dart';
 
 class SendMoneyScreen extends StatefulWidget {
@@ -20,6 +21,26 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
     return Scaffold(
       key: _scaffoldKey,
       drawer: const CustomDrawer(),
+      floatingActionButton: Visibility(
+        visible: true,
+        child: FloatingActionButton(
+          onPressed: () {
+            //
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SearchUserScreen(),
+              ),
+            );
+          },
+          tooltip: 'Search user',
+          backgroundColor: hexToColor(appORANGEcolorHexCode),
+          child: const Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
+        ),
+      ),
       body: _UIKit(context),
     );
   }
@@ -56,11 +77,11 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
             : customNavigationBar(context, TEXT_NAVIGATION_TITLE_SEND_MONEY),
         GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const SendMoneyPortalScreen()),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //       builder: (context) => const SendMoneyPortalScreen(receiverId: ,)),
+            // );
           },
           child: textFontPOOPINS(
             'Recents',

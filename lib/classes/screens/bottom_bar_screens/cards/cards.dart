@@ -227,7 +227,7 @@ class _CardsScreenState extends State<CardsScreen> {
               // getParticularAccountDetailsViaCustomerId();
               // checkMyDepositBankAccountLimit();
               // createCustomer();
-              apiServiceGT
+              /*apiServiceGT
                   .generateToken(
                 '52',
                 'test03@gmail.com',
@@ -239,7 +239,7 @@ class _CardsScreenState extends State<CardsScreen> {
                   print('TOKEN ==> $v');
                 }
                 // again click
-              });
+              });*/
             },
             child: Container(
               height: 60,
