@@ -1,10 +1,19 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/all_cards/service/service.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
+import 'package:ride_card_app/classes/service/service/service.dart';
+import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddMoneyScreen extends StatefulWidget {
   const AddMoneyScreen({super.key});
@@ -15,16 +24,19 @@ class AddMoneyScreen extends StatefulWidget {
 
 class _AddMoneyScreenState extends State<AddMoneyScreen> {
   //
+  final ApiService _apiService = ApiService();
+  GenerateTokenService apiServiceGT = GenerateTokenService();
   bool screenLoader = true;
   var myFullData;
   var myCurrentBalance;
   final apiService = ApiServiceForListOfAllCards();
   List<dynamic> cards = [];
+  var strUserSelectAmount = '0';
   //
   @override
   void initState() {
     //
-    fetchProfileData();
+    fetchProfileData('0');
     super.initState();
   }
 
@@ -61,7 +73,52 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
               const SizedBox(
                 height: 80,
               ),
-              customNavigationBar(context, TEXT_NAVIGATION_TITLE_ADD_MONEY),
+              //customNavigationBar(context, TEXT_NAVIGATION_TITLE_ADD_MONEY),
+              Row(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context, 'reload_screen');
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(
+                          left: 16.0,
+                        ),
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: hexToColor(appORANGEcolorHexCode),
+                          borderRadius: BorderRadius.circular(
+                            20.0,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 40.0,
+                  ),
+                  Container(
+                    height: 40,
+                    color: Colors.transparent,
+                    child: Center(
+                      child: textFontORBITRON(
+                        //
+                        TEXT_NAVIGATION_TITLE_ADD_MONEY,
+                        Colors.white,
+                        18.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  )
+                ],
+              ),
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
@@ -113,7 +170,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                           onTap: () {
                             setState(() {
                               debugPrint('object');
-                              Navigator.pop(context);
+                              Navigator.pop(context, 'reload_screen');
                             });
                           },
                           child: Container(
@@ -164,35 +221,44 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(
-                            16.0,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            strUserSelectAmount = '1';
+                          });
+                        },
+                        child: Container(
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: strUserSelectAmount == '1'
+                                ? Colors.orangeAccent
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(
+                              16.0,
+                            ),
                           ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Center(
-                                child: SizedBox(
-                                  height: 30,
-                                  width: 30,
-                                  child: Image.asset(
-                                    'assets/images/dollar@2x.png',
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Center(
+                                  child: SizedBox(
+                                    height: 30,
+                                    width: 30,
+                                    child: Image.asset(
+                                      'assets/images/dollar@2x.png',
+                                    ),
                                   ),
                                 ),
-                              ),
-                              textFontPOOPINS(
-                                '\$100',
-                                Colors.black,
-                                26.0,
-                                fontWeight: FontWeight.w800,
-                              )
-                            ],
+                                textFontPOOPINS(
+                                  '\$100',
+                                  Colors.black,
+                                  26.0,
+                                  fontWeight: FontWeight.w800,
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -201,35 +267,44 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(
-                            16.0,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            strUserSelectAmount = '2';
+                          });
+                        },
+                        child: Container(
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: strUserSelectAmount == '2'
+                                ? Colors.orangeAccent
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(
+                              16.0,
+                            ),
                           ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Center(
-                                child: SizedBox(
-                                  height: 30,
-                                  width: 30,
-                                  child: Image.asset(
-                                    'assets/images/dollar@2x.png',
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Center(
+                                  child: SizedBox(
+                                    height: 30,
+                                    width: 30,
+                                    child: Image.asset(
+                                      'assets/images/dollar@2x.png',
+                                    ),
                                   ),
                                 ),
-                              ),
-                              textFontPOOPINS(
-                                '\$500',
-                                Colors.black,
-                                26.0,
-                                fontWeight: FontWeight.w800,
-                              )
-                            ],
+                                textFontPOOPINS(
+                                  '\$500',
+                                  Colors.black,
+                                  26.0,
+                                  fontWeight: FontWeight.w800,
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -238,35 +313,44 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(
-                            16.0,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            strUserSelectAmount = '3';
+                          });
+                        },
+                        child: Container(
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: strUserSelectAmount == '3'
+                                ? Colors.orangeAccent
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(
+                              16.0,
+                            ),
                           ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Center(
-                                child: SizedBox(
-                                  height: 30,
-                                  width: 30,
-                                  child: Image.asset(
-                                    'assets/images/dollar@2x.png',
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Center(
+                                  child: SizedBox(
+                                    height: 30,
+                                    width: 30,
+                                    child: Image.asset(
+                                      'assets/images/dollar@2x.png',
+                                    ),
                                   ),
                                 ),
-                              ),
-                              textFontPOOPINS(
-                                'Custom',
-                                Colors.black,
-                                20.0,
-                                fontWeight: FontWeight.w800,
-                              )
-                            ],
+                                textFontPOOPINS(
+                                  'Custom',
+                                  Colors.black,
+                                  20.0,
+                                  fontWeight: FontWeight.w800,
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -316,6 +400,33 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                             Colors.black,
                             12.0,
                           ),
+                          onTap: () {
+                            if (strUserSelectAmount == '0') {
+                              //
+                              customToast(
+                                'Please select amount first',
+                                Colors.orange,
+                                ToastGravity.BOTTOM,
+                              );
+                            } else if (strUserSelectAmount == '3') {
+                              showCustomPopupForCustom(
+                                context,
+                                cards[i]['cardNumber'],
+                              );
+                            } else if (strUserSelectAmount == '2') {
+                              showCustomPopup(
+                                context,
+                                '500',
+                                cards[i]['cardNumber'],
+                              );
+                            } else {
+                              showCustomPopup(
+                                context,
+                                '100',
+                                cards[i]['cardNumber'],
+                              );
+                            }
+                          },
                         ),
                       ),
                       const SizedBox(height: 6.0),
@@ -323,7 +434,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                   ],
                 ),
               ),
-              Padding(
+              /*Padding(
                 padding: const EdgeInsets.only(
                   left: 8.0,
                   right: 8.0,
@@ -347,22 +458,27 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                     ),
                   ),
                 ),
-              )
+              )*/
             ],
           );
   }
 
-  void fetchCards() async {
+  void fetchCards(status) async {
     debugPrint('FETCH ALL CARDS');
     List<dynamic> fetchedCards = await apiService.listOfAllCards(context);
+
     setState(() {
+      if (status == '1') {
+        Navigator.pop(context);
+      }
       cards = fetchedCards;
       screenLoader = false;
+      strUserSelectAmount = '0';
     });
   }
 
   // EVS: API => GET USER PROFILE DATA
-  Future<void> fetchProfileData() async {
+  Future<void> fetchProfileData(status) async {
     await sendRequestToProfileDynamic().then((v) {
       myFullData = v;
 
@@ -375,8 +491,198 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
       }
       //
       debugPrint('2222');
-      fetchCards();
+      fetchCards(status);
     });
     // print(responseBody);
+  }
+
+  //
+  void showCustomPopup(BuildContext context, String amount, String cardNumber) {
+    TextEditingController firstController = TextEditingController(text: amount);
+    // TextEditingController secondController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: textFontPOOPINS(
+            'Add money',
+            Colors.black,
+            16.0,
+            fontWeight: FontWeight.w600,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const SizedBox(height: 10.0),
+              textFontPOOPINS(
+                'Card number: $cardNumber',
+                Colors.black,
+                12.0,
+              ),
+              const SizedBox(height: 10.0),
+              TextField(
+                controller: firstController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(hintText: 'Enter price'),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  // Handle button press
+                  String firstValue = firstController.text;
+                  // String secondValue = secondController.text;
+
+                  if (kDebugMode) {
+                    print('First value: $firstValue');
+                    // print('Second value: $secondValue');
+                  }
+
+                  Navigator.pop(context);
+
+                  // evs api: add money
+                  _addMoney(context, firstValue, 'dummy_1');
+                },
+                child: Text('Submit'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  //
+  void showCustomPopupForCustom(BuildContext context, String cardNumber) {
+    // Create controllers for text fields
+    TextEditingController firstController = TextEditingController();
+    // TextEditingController secondController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: textFontPOOPINS(
+            'Add money',
+            Colors.black,
+            16.0,
+            fontWeight: FontWeight.w600,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const SizedBox(height: 10.0),
+              textFontPOOPINS(
+                'Card number: $cardNumber',
+                Colors.black,
+                12.0,
+              ),
+              const SizedBox(height: 10.0),
+              TextField(
+                controller: firstController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(hintText: 'Enter price'),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  // Handle button press
+                  String firstValue = firstController.text;
+                  // String secondValue = secondController.text;
+
+                  if (kDebugMode) {
+                    print('First value: $firstValue');
+                    // print('Second value: $secondValue');
+                  }
+
+                  Navigator.pop(context);
+
+                  // evs api: add money
+                  _addMoney(context, firstValue, 'dummy_1');
+                },
+                child: Text('Submit'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+//
+/*
+action:addmoney
+userId:
+amount:
+transactionId:
+*/
+
+  // API
+  void _addMoney(context, String amount, String transactionId) async {
+    debugPrint('API ==> ADD MONEY');
+    showLoadingUI(context, 'adding...');
+    // customToast('adding please wait...', Colors.green, ToastGravity.BOTTOM);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+
+    final parameters = {
+      'action': 'addmoney',
+      'userId': userId,
+      'amount': amount,
+      'transactionId': transactionId,
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+
+    try {
+      final response = await _apiService.postRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+      if (kDebugMode) {
+        print('STATUS ==> $successStatus');
+        print(successMessage);
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          apiServiceGT
+              .generateToken(
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            'Member',
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click api
+            _addMoney(context, amount, transactionId);
+          });
+          //
+        } else {
+          //
+          fetchProfileData('1');
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }
   }
 }

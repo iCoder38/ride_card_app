@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
@@ -34,7 +35,7 @@ class _AllCardsScreenState extends State<AllCardsScreen> {
   @override
   void initState() {
     //
-    _listOfAllCards(context);
+    _listOfAllCards(context, '0');
     super.initState();
   }
 
@@ -98,6 +99,16 @@ class _AllCardsScreenState extends State<AllCardsScreen> {
                     ),
                   ),
                 ),
+                IconButton(
+                  onPressed: () {
+                    //
+                    _deleteCard(context, arrAllCards[i]['cardId'].toString());
+                  },
+                  icon: const Icon(
+                    Icons.delete,
+                    color: Colors.red,
+                  ),
+                ),
                 const Divider(
                   thickness: 0.2,
                 ),
@@ -107,7 +118,7 @@ class _AllCardsScreenState extends State<AllCardsScreen> {
   }
 
   // API
-  void _listOfAllCards(context) async {
+  void _listOfAllCards(context, status) async {
     debugPrint('API ==> ADD CARD');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -163,7 +174,7 @@ class _AllCardsScreenState extends State<AllCardsScreen> {
               print('TOKEN ==> $v');
             }
             // again click
-            _listOfAllCards(context);
+            _listOfAllCards(context, status);
           });
         } else {
           //
@@ -175,6 +186,9 @@ class _AllCardsScreenState extends State<AllCardsScreen> {
             print(arrAllCards);
           }
           setState(() {
+            if (status == '1') {
+              Navigator.pop(context);
+            }
             screenLoader = false;
           });
         }
@@ -188,4 +202,81 @@ class _AllCardsScreenState extends State<AllCardsScreen> {
       }
     }
   }
+
+  //
+  // API
+  void _deleteCard(context, String cardId) async {
+    debugPrint('API ==> DELETE CARD');
+    showLoadingUI(context, 'deleting...');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+
+    final parameters = {
+      'action': 'carddelete',
+      'userId': userId,
+      'cardId': cardId,
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+
+    try {
+      final response = await _apiService.postRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = '';
+      if (jsonResponse['msg'] == null) {
+        //
+        successMessage = '';
+        if (kDebugMode) {
+          print('STATUS ==> $successStatus');
+          print(successMessage);
+        }
+      } else {
+        successMessage = jsonResponse['msg'];
+        if (kDebugMode) {
+          print('STATUS ==> $successStatus');
+          print(successMessage);
+        }
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          apiServiceGT
+              .generateToken(
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            'Member',
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            _deleteCard(context, cardId);
+          });
+        } else {
+          //
+          _listOfAllCards(context, '1');
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }
+  }
+  //
 }
