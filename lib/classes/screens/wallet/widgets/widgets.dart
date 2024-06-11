@@ -3,7 +3,7 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/screens/wallet/add_money/add_money.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
 
-Widget widgetWalletUpperDeckContainerLeft(context) {
+Widget widgetWalletUpperDeckContainerLeft(context, walletBalance) {
   return Expanded(
     child: Container(
       height: 120,
@@ -26,7 +26,7 @@ Widget widgetWalletUpperDeckContainerLeft(context) {
           ),
           Expanded(
             child: textFontPOOPINS(
-              "\$15,000",
+              "\$$walletBalance",
               Colors.red,
               28.0,
               fontWeight: FontWeight.w900,
@@ -52,9 +52,10 @@ Widget widgetWalletUpperDeckContainerRight(context) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const SendMoneyScreen(
-                          menuBar: 'no',
-                        )),
+                  builder: (context) => const SendMoneyScreen(
+                    menuBar: 'no',
+                  ),
+                ),
               );
             },
             child: Container(
@@ -84,7 +85,9 @@ Widget widgetWalletUpperDeckContainerRight(context) {
               //
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const AddMoneyScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const AddMoneyScreen(),
+                ),
               );
             },
             child: Container(

@@ -36,7 +36,7 @@ class _GetStartedNowScreenState extends State<GetStartedNowScreen> {
       body: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/background.png'),
                 fit: BoxFit.cover,
@@ -70,7 +70,7 @@ class _GetStartedNowScreenState extends State<GetStartedNowScreen> {
                 TextButton(
                   onPressed: () {
                     _pageController.previousPage(
-                        duration: Duration(milliseconds: 500),
+                        duration: const Duration(milliseconds: 500),
                         curve: Curves.ease);
                   },
                   child: textFontPOOPINS(
@@ -85,7 +85,7 @@ class _GetStartedNowScreenState extends State<GetStartedNowScreen> {
                   children: [
                     for (int i = 0; i < 3; i++)
                       Container(
-                        margin: EdgeInsets.symmetric(horizontal: 5.0),
+                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
                         width: 10.0,
                         height: 10.0,
                         decoration: BoxDecoration(

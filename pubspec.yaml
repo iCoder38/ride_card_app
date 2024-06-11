@@ -67,6 +67,7 @@ dependencies:
   webview_flutter:
   flutter_inappwebview:
   page_view_dot_indicator: ^2.3.0
+  shimmer:
   
 
 dev_dependencies:

@@ -1,9 +1,21 @@
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
+import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/search_user/search_user.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/send_money_portal/send_money_portal.dart';
+import 'package:ride_card_app/classes/screens/wallet/send_money/service/service.dart';
+import 'package:ride_card_app/classes/service/service/service.dart';
+import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 
 class SendMoneyScreen extends StatefulWidget {
   const SendMoneyScreen({super.key, required this.menuBar});
@@ -16,6 +28,40 @@ class SendMoneyScreen extends StatefulWidget {
 
 class _SendMoneyScreenState extends State<SendMoneyScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _formKey = GlobalKey<FormState>();
+  final ApiService _apiService = ApiService();
+  GenerateTokenService apiServiceGT = GenerateTokenService();
+  var arrAllUser = [];
+  bool resultLoader = true;
+  //
+  @override
+  void initState() {
+    //
+    _allRecentTransaction(context);
+    super.initState();
+  }
+
+  void _allRecentTransaction(BuildContext context) async {
+    List<dynamic> transactions =
+        await TransactionService.recentTransaction(context);
+    if (transactions.isNotEmpty) {
+      // Success: Handle the transactions list as needed
+      if (kDebugMode) {
+        print('Success: Transactions fetched successfully');
+      }
+      arrAllUser = transactions;
+      setState(() {
+        resultLoader = false;
+      });
+    } else {
+      // Failure: Handle the empty list or error case
+      if (kDebugMode) {
+        print('Failure: No transactions found or an error occurred');
+      }
+    }
+    // Handle the transactions list as needed
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,39 +110,211 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
   }
 
   Widget _UIKitSendMoneyAfterBG(context) {
-    return Column(
-      children: [
-        const SizedBox(
-          height: 80,
-        ),
-        widget.menuBar == 'yes'
-            ? customNavigationBarForMenu(
-                TEXT_NAVIGATION_TITLE_SEND_MONEY,
-                _scaffoldKey,
-              )
-            : customNavigationBar(context, TEXT_NAVIGATION_TITLE_SEND_MONEY),
-        GestureDetector(
-          onTap: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //       builder: (context) => const SendMoneyPortalScreen(receiverId: ,)),
-            // );
-          },
-          child: textFontPOOPINS(
-            'Recents',
-            hexToColor(appREDcolorHexCode),
-            16.0,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        textFontPOOPINS(
-          'Contacts',
-          hexToColor(appREDcolorHexCode),
-          16.0,
-          fontWeight: FontWeight.w800,
-        ),
-      ],
+    return resultLoader == true
+        ? const SizedBox()
+        : Column(
+            children: [
+              const SizedBox(
+                height: 80,
+              ),
+              widget.menuBar == 'yes'
+                  ? customNavigationBarForMenu(
+                      TEXT_NAVIGATION_TITLE_SEND_MONEY,
+                      _scaffoldKey,
+                    )
+                  : customNavigationBar(
+                      context, TEXT_NAVIGATION_TITLE_SEND_MONEY),
+              /*GestureDetector(
+                onTap: () {
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //       builder: (context) => const SendMoneyPortalScreen(receiverId: ,)),
+                  // );
+                },
+                child: textFontPOOPINS(
+                  'Recents',
+                  hexToColor(appREDcolorHexCode),
+                  16.0,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              textFontPOOPINS(
+                'Contacts',
+                hexToColor(appREDcolorHexCode),
+                16.0,
+                fontWeight: FontWeight.w800,
+              ),*/
+              const SizedBox(
+                height: 20,
+              ),
+              textFontPOOPINS(
+                'Recent',
+                Colors.white,
+                18.0,
+                fontWeight: FontWeight.w800,
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              GridView.builder(
+                padding: const EdgeInsets.all(0),
+                shrinkWrap: true,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
+                ),
+                itemCount: arrAllUser.length,
+                itemBuilder: (context, index) {
+                  return Column(
+                    children: [
+                      SizedBox(
+                        height: 80,
+                        width: 80,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SendMoneyPortalScreen(
+                                  data: arrAllUser[index],
+                                ),
+                              ),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              25.0,
+                            ),
+                            child: CachedNetworkImage(
+                              memCacheHeight: 600,
+                              memCacheWidth: 600,
+                              imageUrl: arrAllUser[index]['profile_picture'],
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => SizedBox(
+                                height: 40,
+                                width: 40,
+                                child: ShimmerLoader(
+                                  width: MediaQuery.of(context).size.width,
+                                ),
+                                // child: CircularProgressIndicator(
+                                //   strokeWidth: 1,
+                                // ),
+                              ),
+                              errorWidget: (context, url, error) => const Icon(
+                                Icons.error,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                      // SizedBox(height: 8),
+                      // Text(arrAllUser[index]['userName']!),
+                    ],
+                  );
+                },
+              ),
+            ],
+          );
+  }
+
+  ShimmerLoader(
+      {required double width,
+      double? height,
+      Color? color,
+      Decoration? decoration}) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        decoration: decoration,
+        width: width,
+        height: height ?? 10,
+        color: color ?? Colors.white,
+      ),
     );
   }
+  //
+  // API
+  /*void _recentTrasaction(context) async {
+    debugPrint('API ==> RECENT TRANSACTION');
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+
+    final parameters = {
+      'action': 'recenthistory',
+      'userId': userId,
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+
+    try {
+      final response = await _apiService.postRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = '';
+      if (jsonResponse['msg'] == null) {
+        //
+        successMessage = '';
+        if (kDebugMode) {
+          print('STATUS ==> $successStatus');
+          print(successMessage);
+        }
+      } else {
+        successMessage = jsonResponse['msg'];
+        if (kDebugMode) {
+          print('STATUS ==> $successStatus');
+          print(successMessage);
+        }
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          apiServiceGT
+              .generateToken(
+                  userId, FirebaseAuth.instance.currentUser!.email, 'Member')
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            _recentTrasaction(context);
+          });
+        } else {
+          //
+
+          arrAllUser = jsonResponse['data'];
+
+          debugPrint('YEAH DONE');
+          if (kDebugMode) {
+            print(arrAllUser);
+          }
+          // Navigator.pop(context);
+          setState(() {
+            resultLoader = false;
+          });
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }
+  }*/
 }

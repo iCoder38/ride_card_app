@@ -357,8 +357,6 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
       showLoadingUI(context, 'sending...');
     }
 
-    // customToast('adding please wait...', Colors.green, ToastGravity.BOTTOM);
-
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
@@ -368,7 +366,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
       'senderId': userId,
       'userId': receiverId, // receiverId
       'amount': amount,
-      'type': 'Send',
+      'type': 'Sent',
     };
     if (kDebugMode) {
       print(parameters);
@@ -410,6 +408,8 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
           //
         } else {
           //
+          Navigator.pop(context);
+          pushToSuccess(context);
         }
       } else {
         customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
@@ -419,6 +419,11 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
       if (kDebugMode) {
         print(error);
       }
+      Navigator.pop(context);
+      customToast(
+          'Something went wrong with server. Please try again after sometime.',
+          Colors.red,
+          ToastGravity.TOP);
     }
   }
 
@@ -440,6 +445,35 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
       if (kDebugMode) {
         print(result);
       }
+      //
+      fetchProfileData();
+      //
+    }
+  }
+
+  Future<void> pushToSuccess(
+    BuildContext context,
+  ) async {
+    //
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SuccessScreen(
+          receiverData: widget.data,
+          responseData: '',
+          amount: firstController.text.toString(),
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+    //
+    if (result == 'reload_screen') {
+      if (kDebugMode) {
+        print(result);
+      }
+      firstController.text = '';
       //
       fetchProfileData();
       //

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
-import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 
 class SuccessScreen extends StatefulWidget {
-  const SuccessScreen({super.key});
+  const SuccessScreen(
+      {super.key, required this.amount, this.receiverData, this.responseData});
+
+  final receiverData;
+  final String amount;
+  final responseData;
 
   @override
   State<SuccessScreen> createState() => _SuccessScreenState();
@@ -40,222 +45,320 @@ class _SuccessScreenState extends State<SuccessScreen> {
   }
 
   Widget _UIKitSUCCESSAfterBG(context) {
-    return Column(
-      children: [
-        const SizedBox(
-          height: 80.0,
-        ),
-        customNavigationBar(
-          context,
-          TEXT_NAVIGATION_TITLE_SUCCESS,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(
-            left: 16.0,
-            right: 16.0,
-            top: 20.0,
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(
+            height: 80.0,
           ),
-          child: Container(
-            // height: 100,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              color: hexToColor(appORANGEcolorHexCode),
-              borderRadius: BorderRadius.circular(
-                16.0,
-              ),
-            ),
-            child: ListTile(
-              leading: Container(
-                height: 80,
-                width: 80,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(
-                    20.0,
+          // customNavigationBar(
+          //   context,
+          //   TEXT_NAVIGATION_TITLE_SUCCESS,
+          // ),
+          Row(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context, 'reload_screen');
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                      left: 16.0,
+                    ),
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: hexToColor(appORANGEcolorHexCode),
+                      borderRadius: BorderRadius.circular(
+                        20.0,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-              title: textFontPOOPINS(
-                'Dishant rajput',
-                Colors.white,
-                18.0,
-                fontWeight: FontWeight.w800,
+              const SizedBox(
+                width: 40.0,
               ),
-              subtitle: textFontPOOPINS(
-                '+91-8287632340',
+              Container(
+                height: 40,
+                color: Colors.transparent,
+                child: Center(
+                  child: textFontORBITRON(
+                    //
+                    TEXT_NAVIGATION_TITLE_SUCCESS,
+                    Colors.white,
+                    18.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              )
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              top: 20.0,
+            ),
+            child: Container(
+              // height: 100,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                color: hexToColor(appORANGEcolorHexCode),
+                borderRadius: BorderRadius.circular(
+                  16.0,
+                ),
+              ),
+              child: ListTile(
+                leading: Container(
+                  height: 80,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(
+                      20.0,
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      40.0,
+                    ),
+                    child: Image.network(
+                      // sd
+                      widget.receiverData['profile_picture'],
+                      fit: BoxFit.fitWidth,
+                    ),
+                  ),
+                ),
+                title: textFontPOOPINS(
+                  //
+                  widget.receiverData['userName'],
+                  Colors.white,
+                  18.0,
+                  fontWeight: FontWeight.w800,
+                ),
+                subtitle: textFontPOOPINS(
+                  //
+                  widget.receiverData['usercontactNumber'],
+                  Colors.white,
+                  12.0,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 60.0,
+          ),
+          Container(
+            height: 100,
+            width: 100,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(
+                50.0,
+              ),
+            ),
+            child: Image.asset('assets/images/payment.png'),
+          ),
+          const SizedBox(
+            height: 60.0,
+          ),
+          textFontPOOPINS(
+            'Sent successfully to ${widget.receiverData['userName']}',
+            Colors.white,
+            16.0,
+            fontWeight: FontWeight.w600,
+          ),
+          const SizedBox(
+            height: 20.0,
+          ),
+          textFontPOOPINS(
+            '\$${widget.amount}',
+            hexToColor(appORANGEcolorHexCode),
+            36.0,
+            fontWeight: FontWeight.w800,
+          ),
+          const SizedBox(
+            height: 40.0,
+          ),
+          const Padding(
+            padding: EdgeInsets.only(left: 16.0),
+            child: Divider(
+              thickness: 0.4,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              textFontPOOPINS(
+                'Transaction done on',
+                Colors.white,
+                14.0,
+                fontWeight: FontWeight.w400,
+              ),
+              textFontPOOPINS(
+                ' 06 MARCH 2024',
+                hexToColor(appORANGEcolorHexCode),
+                14.0,
+                fontWeight: FontWeight.w600,
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 4.0,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              textFontPOOPINS(
+                'Your trasaction id is',
                 Colors.white,
                 12.0,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w400,
               ),
-            ),
+              textFontPOOPINS(
+                ' 03040504',
+                hexToColor(appORANGEcolorHexCode),
+                12.0,
+                fontWeight: FontWeight.w600,
+              ),
+            ],
           ),
-        ),
-        const SizedBox(
-          height: 60.0,
-        ),
-        Container(
-          height: 100,
-          width: 100,
-          decoration: BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(
-              50.0,
-            ),
+          const SizedBox(
+            height: 20.0,
           ),
-          child: Image.asset('assets/images/payment.png'),
-        ),
-        const SizedBox(
-          height: 60.0,
-        ),
-        textFontPOOPINS(
-          'Sent successfully to Dishant rajput',
-          Colors.white,
-          16.0,
-          fontWeight: FontWeight.w600,
-        ),
-        const SizedBox(
-          height: 20.0,
-        ),
-        textFontPOOPINS(
-          '\$100.00',
-          hexToColor(appORANGEcolorHexCode),
-          36.0,
-          fontWeight: FontWeight.w800,
-        ),
-        const SizedBox(
-          height: 40.0,
-        ),
-        const Padding(
-          padding: EdgeInsets.only(left: 16.0),
-          child: Divider(
-            thickness: 0.4,
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            textFontPOOPINS(
-              'Transaction done on',
-              Colors.white,
-              14.0,
-              fontWeight: FontWeight.w400,
-            ),
-            textFontPOOPINS(
-              ' 06 MARCH 2024',
-              hexToColor(appORANGEcolorHexCode),
-              14.0,
-              fontWeight: FontWeight.w600,
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 4.0,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            textFontPOOPINS(
-              'Your trasaction id is',
-              Colors.white,
-              12.0,
-              fontWeight: FontWeight.w400,
-            ),
-            textFontPOOPINS(
-              ' 03040504',
-              hexToColor(appORANGEcolorHexCode),
-              12.0,
-              fontWeight: FontWeight.w600,
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 20.0,
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SuccessScreen()),
-              );
-            },
-            child: Container(
-              color: Colors.transparent,
-              child: Center(
-                child: Container(
-                  height: 60,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    color: hexToColor(appREDcolorHexCode),
-                    borderRadius: BorderRadius.circular(
-                      16.0,
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pop(context, 'reload_screen');
+              },
+              child: Container(
+                color: Colors.transparent,
+                child: Center(
+                  child: Container(
+                    height: 60,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      color: hexToColor(appREDcolorHexCode),
+                      borderRadius: BorderRadius.circular(
+                        16.0,
+                      ),
                     ),
-                  ),
-                  child: Center(
-                    child: textFontPOOPINS(
-                      'Make another payment',
-                      Colors.white,
-                      18.0,
-                      fontWeight: FontWeight.w400,
+                    child: Center(
+                      child: textFontPOOPINS(
+                        'Make another payment',
+                        Colors.white,
+                        18.0,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(
-            left: 16.0,
-            right: 16.0,
-          ),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SuccessScreen()),
-              );
-            },
-            child: Container(
-              color: Colors.transparent,
-              child: Center(
-                child: Container(
-                  height: 60,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    color: hexToColor(appORANGEcolorHexCode),
-                    borderRadius: BorderRadius.circular(
-                      16.0,
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+            ),
+            child: GestureDetector(
+              onTap: () {},
+              child: Container(
+                color: Colors.transparent,
+                child: Center(
+                  child: Container(
+                    height: 60,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      color: hexToColor(appORANGEcolorHexCode),
+                      borderRadius: BorderRadius.circular(
+                        16.0,
+                      ),
                     ),
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.share_outlined,
-                          size: 22.0,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(
-                          width: 8.0,
-                        ),
-                        textFontPOOPINS(
-                          'Make another payment',
-                          Colors.white,
-                          18.0,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ],
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.share_outlined,
+                            size: 22.0,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(
+                            width: 8.0,
+                          ),
+                          textFontPOOPINS(
+                            'Share',
+                            Colors.white,
+                            18.0,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 40),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+            ),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BottomBar(selectedIndex: 0),
+                  ),
+                );
+              },
+              child: Container(
+                color: Colors.transparent,
+                child: Center(
+                  child: Container(
+                    height: 60,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      //color: hexToColor(appORANGEcolorHexCode),
+                      borderRadius: BorderRadius.circular(
+                        16.0,
+                      ),
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            width: 8.0,
+                          ),
+                          textFontPOOPINS(
+                            'Home',
+                            Colors.white,
+                            14.0,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
