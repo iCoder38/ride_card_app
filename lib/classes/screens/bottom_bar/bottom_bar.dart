@@ -153,21 +153,16 @@ class _BottomBarState extends State<BottomBar> {
         ],
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-            /*gradient: LinearGradient(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
             colors: [
-              Color.fromRGBO(234, 160, 70, 1),
-              Color.fromRGBO(234, 150, 70, 1),
-              Color.fromRGBO(234, 140, 70, 1),
-              Color.fromRGBO(234, 130, 70, 1),
-              Color.fromRGBO(234, 120, 70, 1),
-              Color.fromRGBO(234, 110, 70, 1),
-              Color.fromRGBO(234, 100, 70, 1),
+              Colors.black,
+              Colors.black.withOpacity(0.5),
             ],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),*/
-            ),
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
         child: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(

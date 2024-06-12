@@ -26,6 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final ApiService _apiService = ApiService();
   final TextEditingController _contEmail = TextEditingController();
   final TextEditingController _contPassword = TextEditingController();
+  bool evsRegistered = false;
   //
   @override
   void initState() {
@@ -302,10 +303,25 @@ class _LoginScreenState extends State<LoginScreen> {
           customToast(successMessage, Colors.red, ToastGravity.TOP);
         } else {
           //
-          SharedPreferences prefs2 = await SharedPreferences.getInstance();
-          prefs2.setString('Key_save_login_user_id',
-              jsonResponse['data']['userId'].toString());
-          _loginViaFirebase();
+          if (successStatus == 'success') {
+            SharedPreferences prefs2 = await SharedPreferences.getInstance();
+            prefs2.setString('Key_save_login_user_id',
+                jsonResponse['data']['userId'].toString());
+            //
+            evsRegistered = true;
+            _loginViaFirebase(
+              context,
+              jsonResponse['data']['fullName'],
+              jsonResponse['data']['lastName'],
+              jsonResponse['data']['email'],
+            );
+          } else {
+            customToast(
+              'Something went wrong with server',
+              Colors.red,
+              ToastGravity.TOP,
+            );
+          }
         }
       } else {
         customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
@@ -316,7 +332,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _loginViaFirebase() async {
+  Future<void> _loginViaFirebase(context, firstName, lastName, email) async {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     try {
       await _auth
@@ -335,6 +351,81 @@ class _LoginScreenState extends State<LoginScreen> {
       if (kDebugMode) {
         print(e);
       } // Handle errors here
+      debugPrint('FIREBASE ERROR');
+      if (evsRegistered == true) {
+        //
+        createAnAccountInFirebase(context, firstName, lastName, email);
+      }
     }
+  }
+
+  createAnAccountInFirebase(context, firstName, lastName, email) async {
+    //
+    debugPrint('==================================================');
+    debugPrint('============= FIREBASE ===========================');
+    // showLoadingUI(context, PLEASE_WAIT);
+    try {
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: email.toString(),
+            password: 'firebase_password_rca_!',
+          )
+          .then((value) => {
+                //
+                // debugPrint('REGISTERED IN FIREBASE'),
+                updateUserName(context, firstName, lastName)
+                //
+              });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        Navigator.pop(context);
+        customToast(
+          'The password provided is too weak.',
+          Colors.redAccent,
+          ToastGravity.TOP,
+        );
+      } else if (e.code == 'email-already-in-use') {
+        Navigator.pop(context);
+        FocusScope.of(context).unfocus();
+        customToast(
+          //
+          TEXT_ALREADY_BEEN_EXIST,
+          hexToColor(appREDcolorHexCode),
+          ToastGravity.TOP,
+        );
+      } else {
+        debugPrint('Error');
+        /*Navigator.pop(context);
+        customToast(
+          //
+          TEXT_F_ERROR,
+          Colors.redAccent,
+          ToastGravity.TOP,
+        );*/
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      Navigator.pop(context);
+    }
+  }
+
+  updateUserName(context, firstName, lastName) async {
+    var mergeName = '$firstName $lastName';
+    debugPrint(mergeName);
+    await FirebaseAuth.instance.currentUser!
+        .updateDisplayName(mergeName)
+        .then((v) {
+      debugPrint('REGISTERED NAME ALSO');
+      //
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BottomBar(selectedIndex: 0),
+        ),
+      );
+    });
   }
 }

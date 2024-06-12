@@ -432,20 +432,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         // prefs2.setString('Key_save_login_user_id', data['userId'].toString());
         //
         //
-        successfullyCreatedAccount(
-          context,
-          successStatus,
-          successMessage,
-          jsonResponse,
-        );
-        /*successStatus.toLowerCase() == 'success'
-            ? successfullyCreatedAccount(
-                context,
-                successStatus,
-                successMessage,
-                jsonResponse,
-              )
-            :  deleteAuthUser(successStatus);*/
+        if (successStatus == 'Fails') {
+          dismissKeyboard(context);
+          Navigator.pop(context);
+          customToast(successMessage, Colors.redAccent, ToastGravity.BOTTOM);
+        } else {
+          successfullyCreatedAccount(
+            context,
+            successStatus,
+            successMessage,
+            jsonResponse,
+          );
+        }
       } else {
         customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
         debugPrint('REGISTRATION: RESPONSE ==> FAILURE');

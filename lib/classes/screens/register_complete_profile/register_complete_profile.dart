@@ -1248,7 +1248,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         }
         //
         createdCustomerId = jsonData['included'][0]['id'].toString();
-        createAnAccountInFirebase();
+        _sendRequestToCompleteProfile();
+        //
       } else {
         final jsonData = json.decode(response.body);
         debugPrint('=================== E');
@@ -1271,79 +1272,15 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     }
   }
 
-// REGISTER THIS USER IN FIREBASE NOW
-  createAnAccountInFirebase() async {
-    //
-    debugPrint('==================================================');
-    debugPrint('============= FIREBASE ===========================');
-    // showLoadingUI(context, PLEASE_WAIT);
-    try {
-      await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-            email: widget.getEmail.toString(),
-            password: 'firebase_password_rca_!',
-          )
-          .then((value) => {
-                //
-                // debugPrint('REGISTERED IN FIREBASE'),
-                updateUserName(context)
-                //
-              });
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        Navigator.pop(context);
-        customToast(
-          'The password provided is too weak.',
-          Colors.redAccent,
-          ToastGravity.TOP,
-        );
-      } else if (e.code == 'email-already-in-use') {
-        Navigator.pop(context);
-        FocusScope.of(context).unfocus();
-        customToast(
-          //
-          TEXT_ALREADY_BEEN_EXIST,
-          hexToColor(appREDcolorHexCode),
-          ToastGravity.TOP,
-        );
-      } else {
-        debugPrint('Error');
-        /*Navigator.pop(context);
-        customToast(
-          //
-          TEXT_F_ERROR,
-          Colors.redAccent,
-          ToastGravity.TOP,
-        );*/
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-      Navigator.pop(context);
-    }
-  }
-
-  updateUserName(context) async {
-    var mergeName = '${widget.getFirstName} ${widget.getLastName}';
-    debugPrint(mergeName);
-    await FirebaseAuth.instance.currentUser!
-        .updateDisplayName(mergeName)
-        .then((v) {
-      debugPrint('REGISTERED NAME ALSO');
-      _sendRequestToCompleteProfile(context);
-    });
-  }
-
-  // API
-  void _sendRequestToCompleteProfile(context) async {
+// API
+  void _sendRequestToCompleteProfile() async {
     debugPrint(
         '===============================================================');
     debugPrint(
         '============= API: COMPLETE PROFILE ===========================');
 
     var box = await Hive.openBox<MyData>('myBox1');
-    var myData = box.getAt(0);
+    // var myData = box.getAt(0);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // print(prefs.getString('key_save_token_locally'));
@@ -1364,7 +1301,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       'address': _contAddress.text.toString(),
       'occupation': _contOccupation.text.toString(),
       'key_data': UUID_KEY_FOR_REGISTRATION,
-      'firebaseId': FirebaseAuth.instance.currentUser!.uid.toString(),
+      'firebaseId': '',
       'customerId': createdCustomerId,
     };
     if (kDebugMode) {
@@ -1404,10 +1341,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               print('TOKEN ==> $v');
             }
             // again click
-            _sendRequestToCompleteProfile(context);
+            _sendRequestToCompleteProfile();
           });
         } else {
           //
+          createAnAccountInFirebase();
           // createAnAccountInFirebaseFirst(context);
           successStatus.toLowerCase() == 'success'
               ? successfullyCreatedAccount(successStatus, successMessage)
@@ -1425,6 +1363,70 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     } catch (error) {
       print(error);
     }
+  }
+
+// REGISTER THIS USER IN FIREBASE NOW
+  createAnAccountInFirebase() async {
+    //
+    debugPrint('==================================================');
+    debugPrint('============= FIREBASE ===========================');
+    // showLoadingUI(context, PLEASE_WAIT);
+    try {
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: widget.getEmail.toString(),
+            password: 'firebase_password_rca_!',
+          )
+          .then((value) => {
+                //
+                // debugPrint('REGISTERED IN FIREBASE'),
+                updateUserName(context)
+                //
+              });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        /*Navigator.pop(context);
+        customToast(
+          'The password provided is too weak.',
+          Colors.redAccent,
+          ToastGravity.TOP,
+        );*/
+      } else if (e.code == 'email-already-in-use') {
+        /*Navigator.pop(context);
+        FocusScope.of(context).unfocus();
+        customToast(
+          //
+          TEXT_ALREADY_BEEN_EXIST,
+          hexToColor(appREDcolorHexCode),
+          ToastGravity.TOP,
+        );*/
+      } else {
+        debugPrint('Error');
+        /*Navigator.pop(context);
+        customToast(
+          //
+          TEXT_F_ERROR,
+          Colors.redAccent,
+          ToastGravity.TOP,
+        );*/
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      Navigator.pop(context);
+    }
+  }
+
+  updateUserName(context) async {
+    var mergeName = '${widget.getFirstName} ${widget.getLastName}';
+    debugPrint(mergeName);
+    await FirebaseAuth.instance.currentUser!
+        .updateDisplayName(mergeName)
+        .then((v) {
+      debugPrint('REGISTERED NAME ALSO');
+      // _sendRequestToCompleteProfile();
+    });
   }
 
   successfullyCreatedAccount(status, message) {
