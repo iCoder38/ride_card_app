@@ -267,6 +267,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 fontWeight: FontWeight.w600,
               ),
               subtitle: textFontPOOPINS(
+                //
                 'April 33, 2024',
                 Colors.grey,
                 12.0,
