@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 import 'package:ride_card_app/classes/common/hive/hive.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
@@ -67,4 +68,15 @@ String generateRandomString(int length) {
   Random random = Random();
   return List.generate(
       length, (index) => charset[random.nextInt(charset.length)]).join();
+}
+
+// convert sv date to custom date
+String formatDate(String inputDateStr) {
+  // Convert input date string to DateTime object
+  DateTime inputDate = DateTime.parse(inputDateStr);
+
+  // Format DateTime object to desired format
+  String formattedDate = DateFormat('MMMM dd, yyyy').format(inputDate);
+
+  return formattedDate;
 }

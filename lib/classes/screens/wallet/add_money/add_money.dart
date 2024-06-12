@@ -8,6 +8,7 @@ import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/all_cards/add_card/add_card.dart';
 import 'package:ride_card_app/classes/screens/all_cards/service/service.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
@@ -373,6 +374,16 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                   12.0,
                   fontWeight: FontWeight.w400,
                 ),
+                trailing: IconButton(
+                  onPressed: () {
+                    //
+                    pushToAddCardScreen(context);
+                  },
+                  icon: const Icon(
+                    Icons.add,
+                    color: Colors.amber,
+                  ),
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -695,6 +706,27 @@ transactionId:
       if (kDebugMode) {
         print(error);
       }
+    }
+  }
+
+  Future<void> pushToAddCardScreen(BuildContext context) async {
+    //
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddCardScreen(
+          strMenuBack: 'yes',
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+    //
+    if (result == 'reload_screen') {
+      if (kDebugMode) {
+        print(result);
+      }
+      fetchProfileData('0');
     }
   }
 }

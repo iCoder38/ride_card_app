@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
+import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/service/service.dart';
 
@@ -129,12 +130,22 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
                           18.0,
                           fontWeight: FontWeight.w600,
                         ),
-                        subtitle: textFontPOOPINS(
-                          'April 33, 2024',
-                          Colors.grey,
-                          12.0,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        subtitle: arrAllUser[i]['trn_date'].toString() == ''
+                            ? textFontPOOPINS(
+                                // sv
+                                '',
+                                Colors.grey,
+                                12.0,
+                                fontWeight: FontWeight.w500,
+                              )
+                            : textFontPOOPINS(
+                                // sv
+                                formatDate(
+                                    arrAllUser[i]['trn_date'].toString()),
+                                Colors.grey,
+                                12.0,
+                                fontWeight: FontWeight.w500,
+                              ),
                         trailing: Container(
                           width: 120,
                           color: Colors.transparent,
@@ -176,12 +187,22 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
                           18.0,
                           fontWeight: FontWeight.w600,
                         ),
-                        subtitle: textFontPOOPINS(
-                          'April 33, 2024',
-                          Colors.grey,
-                          12.0,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        subtitle: arrAllUser[i]['trn_date'].toString() == ''
+                            ? textFontPOOPINS(
+                                // sv
+                                '',
+                                Colors.grey,
+                                12.0,
+                                fontWeight: FontWeight.w500,
+                              )
+                            : textFontPOOPINS(
+                                // sv
+                                formatDate(
+                                    arrAllUser[i]['trn_date'].toString()),
+                                Colors.grey,
+                                12.0,
+                                fontWeight: FontWeight.w500,
+                              ),
                         trailing: Container(
                           width: 120,
                           color: Colors.transparent,
@@ -223,12 +244,22 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
                           18.0,
                           fontWeight: FontWeight.w600,
                         ),
-                        subtitle: textFontPOOPINS(
-                          'April 33, 2024',
-                          Colors.grey,
-                          12.0,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        subtitle: arrAllUser[i]['trn_date'].toString() == ''
+                            ? textFontPOOPINS(
+                                // sv
+                                '',
+                                Colors.grey,
+                                12.0,
+                                fontWeight: FontWeight.w500,
+                              )
+                            : textFontPOOPINS(
+                                // sv
+                                formatDate(
+                                    arrAllUser[i]['trn_date'].toString()),
+                                Colors.grey,
+                                12.0,
+                                fontWeight: FontWeight.w500,
+                              ),
                         trailing: Container(
                           width: 120,
                           color: Colors.transparent,

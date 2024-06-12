@@ -15,7 +15,9 @@ import 'package:ride_card_app/classes/service/token_generate/token_service.dart'
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddCardScreen extends StatefulWidget {
-  const AddCardScreen({super.key});
+  const AddCardScreen({super.key, required this.strMenuBack});
+
+  final String strMenuBack;
 
   @override
   State<AddCardScreen> createState() => _AddCardScreenState();
@@ -65,7 +67,53 @@ class _AddCardScreenState extends State<AddCardScreen> {
       child: Column(
         children: [
           const SizedBox(height: 80),
-          customNavigationBarForMenu('Add card', _scaffoldKey),
+          widget.strMenuBack == 'yes'
+              ? Row(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context, 'reload_screen');
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(
+                            left: 16.0,
+                          ),
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            color: hexToColor(appORANGEcolorHexCode),
+                            borderRadius: BorderRadius.circular(
+                              20.0,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 40.0,
+                    ),
+                    Container(
+                      height: 40,
+                      color: Colors.transparent,
+                      child: Center(
+                        child: textFontORBITRON(
+                          //
+                          'Add card',
+                          Colors.white,
+                          18.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    )
+                  ],
+                )
+              : customNavigationBarForMenu('Add card', _scaffoldKey),
           const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.only(

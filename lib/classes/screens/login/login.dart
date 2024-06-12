@@ -321,7 +321,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await _auth
           .signInWithEmailAndPassword(
-              email: 'purnimaevs@gmail.com',
+              email: _contEmail.text.toString(),
               password: 'firebase_password_rca_!')
           .then((v) {
         Navigator.push(

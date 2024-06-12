@@ -218,7 +218,9 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AddCardScreen(),
+                    builder: (context) => const AddCardScreen(
+                      strMenuBack: 'no',
+                    ),
                   ),
                 );
               },
@@ -366,6 +368,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 //
                 SharedPreferences prefs2 =
                     await SharedPreferences.getInstance();
+                prefs2.remove('Key_save_login_user_id');
                 prefs2.remove('Key_save_login_profile_picture');
                 //
                 signOut();

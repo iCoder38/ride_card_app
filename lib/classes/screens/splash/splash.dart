@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/get_started_now/get_started_now.dart';
+import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
 import 'package:ride_card_app/classes/screens/select_profile/select_profile.dart';
 import 'package:ride_card_app/classes/screens/welcome/welcome.dart';
@@ -214,7 +215,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
 checkUserIsLoginOrNot(context) {
   //
-
   FirebaseAuth.instance.authStateChanges().listen((User? user) {
     if (user == null) {
       if (kDebugMode) {
@@ -233,7 +233,9 @@ checkUserIsLoginOrNot(context) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const CardsScreen(),
+          builder: (context) => BottomBar(
+            selectedIndex: 0,
+          ),
         ),
       );
     }
