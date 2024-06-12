@@ -88,7 +88,7 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
                 child: Center(
                   child: TextFormField(
                     controller: _contUser,
-                    keyboardType: TextInputType.number,
+                    // keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       hintText: 'Search...',
                       border: InputBorder.none,

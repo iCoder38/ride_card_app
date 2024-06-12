@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/screens/wallet/add_money/add_money.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
 
 Widget widgetWalletUpperDeckContainerLeft(context, walletBalance) {
+  String formattedDate = DateFormat('MMMM dd yyyy').format(DateTime.now());
   return Expanded(
     child: Container(
       height: 120,
@@ -20,17 +22,25 @@ Widget widgetWalletUpperDeckContainerLeft(context, walletBalance) {
             fontWeight: FontWeight.w600,
           ),
           textFontPOOPINS(
-            'March 6, 2024',
+            //
+            formattedDate,
             Colors.grey,
             14.0,
           ),
           Expanded(
-            child: textFontPOOPINS(
-              "\$$walletBalance",
-              Colors.red,
-              28.0,
-              fontWeight: FontWeight.w900,
-            ),
+            child: walletBalance == ''
+                ? textFontPOOPINS(
+                    "\$0",
+                    Colors.red,
+                    28.0,
+                    fontWeight: FontWeight.w900,
+                  )
+                : textFontPOOPINS(
+                    "\$$walletBalance",
+                    Colors.red,
+                    28.0,
+                    fontWeight: FontWeight.w900,
+                  ),
           ),
         ],
       ),

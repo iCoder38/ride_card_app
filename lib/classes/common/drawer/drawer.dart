@@ -1,13 +1,17 @@
 // custom_drawer.dart
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
+import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/screens/all_cards/add_card/add_card.dart';
 import 'package:ride_card_app/classes/screens/all_cards/all_cards.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/edit_profile/edit_profile.dart';
 import 'package:ride_card_app/classes/screens/welcome/welcome.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomDrawer extends StatefulWidget {
   const CustomDrawer({super.key});
@@ -17,14 +21,26 @@ class CustomDrawer extends StatefulWidget {
 }
 
 class _CustomDrawerState extends State<CustomDrawer> {
+  //
+  var displayProfilePicture = '';
+
   @override
   void initState() {
-    // getCurrentUserDisplayName().then((value) {
-    //   setState(() {
-    //     // displayName = value;
-    //   });
-    // });
+    //
+    localData();
     super.initState();
+  }
+
+  localData() async {
+    debugPrint('== LOCAL DATA ==');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    displayProfilePicture =
+        prefs.getString('Key_save_login_profile_picture').toString();
+    setState(() {
+      if (kDebugMode) {
+        print(displayProfilePicture);
+      }
+    });
   }
 
   @override
@@ -73,10 +89,35 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       borderRadius: BorderRadius.circular(
                         40.0,
                       ),
-                      child: Image.asset(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          25.0,
+                        ),
+                        child: CachedNetworkImage(
+                          memCacheHeight: 600,
+                          memCacheWidth: 600,
+                          imageUrl: displayProfilePicture,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => SizedBox(
+                            height: 40,
+                            width: 40,
+                            child: ShimmerLoader(
+                              width: MediaQuery.of(context).size.width,
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Image.asset(
+                              'assets/images/logo.png',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                      /*child: Image.asset(
                         'assets/images/orange_gradient_horizontal.png',
                         fit: BoxFit.cover,
-                      ),
+                      ),*/
                     ),
                   ),
                   const SizedBox(
@@ -236,7 +277,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => BottomBar(selectedIndex: 1)),
+                      builder: (context) => BottomBar(selectedIndex: 2)),
                 );
               },
             ),
@@ -321,7 +362,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 Colors.white,
                 16.0,
               ),
-              onTap: () {
+              onTap: () async {
+                //
+                SharedPreferences prefs2 =
+                    await SharedPreferences.getInstance();
+                prefs2.remove('Key_save_login_profile_picture');
                 //
                 signOut();
                 Navigator.push(

@@ -143,6 +143,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
+                              dismissKeyboard(context);
                               pushToAddMoney(
                                 context,
                               );
@@ -152,7 +153,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
                               child: Center(
                                 child: Container(
                                   height: 40,
-                                  width: 120,
+                                  width: 100,
                                   decoration: BoxDecoration(
                                     color: hexToColor(appREDcolorHexCode),
                                     borderRadius: BorderRadius.circular(
@@ -163,7 +164,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
                                     child: textFontPOOPINS(
                                       'Add money',
                                       Colors.white,
-                                      14.0,
+                                      12.0,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -408,8 +409,17 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
           //
         } else {
           //
-          Navigator.pop(context);
-          pushToSuccess(context);
+          if (successStatus == 'Fail') {
+            Navigator.pop(context);
+            dismissKeyboard(context);
+            // Navigator.pop(context);
+            customToast(successMessage, hexToColor(appORANGEcolorHexCode),
+                ToastGravity.BOTTOM);
+          } else {
+            Navigator.pop(context);
+
+            pushToSuccess(context, jsonResponse);
+          }
         }
       } else {
         customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
@@ -451,17 +461,15 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
     }
   }
 
-  Future<void> pushToSuccess(
-    BuildContext context,
-  ) async {
+  Future<void> pushToSuccess(BuildContext context, responseData) async {
     //
-
+    dismissKeyboard(context);
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => SuccessScreen(
           receiverData: widget.data,
-          responseData: '',
+          responseData: responseData,
           amount: firstController.text.toString(),
         ),
       ),

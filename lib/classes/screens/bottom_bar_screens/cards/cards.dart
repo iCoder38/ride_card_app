@@ -204,7 +204,7 @@ class _CardsScreenState extends State<CardsScreen> {
         const SizedBox(
           height: 20.0,
         ),
-        widgetDashbaordLowerDeck(),
+        widgetDashbaordLowerDeck(context),
 
         Padding(
           padding: const EdgeInsets.all(22.0),

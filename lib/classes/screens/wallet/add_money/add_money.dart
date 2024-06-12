@@ -523,8 +523,14 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
               const SizedBox(height: 10.0),
               TextField(
                 controller: firstController,
-                keyboardType: TextInputType.emailAddress,
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(hintText: 'Enter price'),
+              ),
+              const TextField(
+                // controller: firstController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(hintText: 'cvv'),
+                maxLength: 3,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
@@ -580,8 +586,14 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
               const SizedBox(height: 10.0),
               TextField(
                 controller: firstController,
-                keyboardType: TextInputType.emailAddress,
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(hintText: 'Enter price'),
+              ),
+              const TextField(
+                // controller: firstController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(hintText: 'cvv'),
+                maxLength: 3,
               ),
               const SizedBox(height: 20),
               ElevatedButton(

@@ -58,6 +58,9 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
       if (kDebugMode) {
         print('Failure: No transactions found or an error occurred');
       }
+      setState(() {
+        resultLoader = false;
+      });
     }
     // Handle the transactions list as needed
   }
@@ -102,29 +105,28 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
           fit: BoxFit.cover,
         ),
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: _UIKitSendMoneyAfterBG(context),
-      ),
+      child: resultLoader == true
+          ? customCircularProgressIndicator()
+          : SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: _UIKitSendMoneyAfterBG(context),
+            ),
     );
   }
 
   Widget _UIKitSendMoneyAfterBG(context) {
-    return resultLoader == true
-        ? const SizedBox()
-        : Column(
-            children: [
-              const SizedBox(
-                height: 80,
-              ),
-              widget.menuBar == 'yes'
-                  ? customNavigationBarForMenu(
-                      TEXT_NAVIGATION_TITLE_SEND_MONEY,
-                      _scaffoldKey,
-                    )
-                  : customNavigationBar(
-                      context, TEXT_NAVIGATION_TITLE_SEND_MONEY),
-              /*GestureDetector(
+    return Column(
+      children: [
+        const SizedBox(
+          height: 80,
+        ),
+        widget.menuBar == 'yes'
+            ? customNavigationBarForMenu(
+                TEXT_NAVIGATION_TITLE_SEND_MONEY,
+                _scaffoldKey,
+              )
+            : customNavigationBar(context, TEXT_NAVIGATION_TITLE_SEND_MONEY),
+        /*GestureDetector(
                 onTap: () {
                   // Navigator.push(
                   //   context,
@@ -145,97 +147,81 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                 16.0,
                 fontWeight: FontWeight.w800,
               ),*/
-              const SizedBox(
-                height: 20,
-              ),
-              textFontPOOPINS(
-                'Recent',
-                Colors.white,
-                18.0,
-                fontWeight: FontWeight.w800,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              GridView.builder(
-                padding: const EdgeInsets.all(0),
-                shrinkWrap: true,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  crossAxisSpacing: 16.0,
-                  mainAxisSpacing: 16.0,
-                ),
-                itemCount: arrAllUser.length,
-                itemBuilder: (context, index) {
-                  return Column(
-                    children: [
-                      SizedBox(
-                        height: 80,
-                        width: 80,
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SendMoneyPortalScreen(
-                                  data: arrAllUser[index],
-                                ),
-                              ),
-                            );
-                          },
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(
-                              25.0,
-                            ),
-                            child: CachedNetworkImage(
-                              memCacheHeight: 600,
-                              memCacheWidth: 600,
-                              imageUrl: arrAllUser[index]['profile_picture'],
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => SizedBox(
-                                height: 40,
-                                width: 40,
-                                child: ShimmerLoader(
-                                  width: MediaQuery.of(context).size.width,
-                                ),
-                                // child: CircularProgressIndicator(
-                                //   strokeWidth: 1,
-                                // ),
-                              ),
-                              errorWidget: (context, url, error) => const Icon(
-                                Icons.error,
-                                color: Colors.white,
-                              ),
-                            ),
+        const SizedBox(
+          height: 20,
+        ),
+        textFontPOOPINS(
+          'Recent',
+          Colors.white,
+          18.0,
+          fontWeight: FontWeight.w800,
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        GridView.builder(
+          padding: const EdgeInsets.all(0),
+          shrinkWrap: true,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            crossAxisSpacing: 16.0,
+            mainAxisSpacing: 16.0,
+          ),
+          itemCount: arrAllUser.length,
+          itemBuilder: (context, index) {
+            return Column(
+              children: [
+                SizedBox(
+                  height: 80,
+                  width: 80,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SendMoneyPortalScreen(
+                            data: arrAllUser[index],
                           ),
                         ),
-                      )
-                      // SizedBox(height: 8),
-                      // Text(arrAllUser[index]['userName']!),
-                    ],
-                  );
-                },
-              ),
-            ],
-          );
-  }
-
-  ShimmerLoader(
-      {required double width,
-      double? height,
-      Color? color,
-      Decoration? decoration}) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Container(
-        decoration: decoration,
-        width: width,
-        height: height ?? 10,
-        color: color ?? Colors.white,
-      ),
+                      );
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                        25.0,
+                      ),
+                      child: CachedNetworkImage(
+                        memCacheHeight: 600,
+                        memCacheWidth: 600,
+                        imageUrl: arrAllUser[index]['profile_picture'],
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => SizedBox(
+                          height: 40,
+                          width: 40,
+                          child: ShimmerLoader(
+                            width: MediaQuery.of(context).size.width,
+                          ),
+                          // child: CircularProgressIndicator(
+                          //   strokeWidth: 1,
+                          // ),
+                        ),
+                        errorWidget: (context, url, error) => const Icon(
+                          Icons.error,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+                // SizedBox(height: 8),
+                // Text(arrAllUser[index]['userName']!),
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
+
   //
   // API
   /*void _recentTrasaction(context) async {

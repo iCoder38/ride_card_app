@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/wallet/send_money/service/service.dart';
 
 class RequestHistoryScreen extends StatefulWidget {
   const RequestHistoryScreen({super.key, required this.menuBar});
@@ -14,6 +16,44 @@ class RequestHistoryScreen extends StatefulWidget {
 
 class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  var arrAllUser = [];
+  bool screenLoader = true;
+  bool resultLoader = true;
+
+  //
+  @override
+  void initState() {
+    //
+    _allRecentTransaction(context);
+    super.initState();
+  }
+
+  void _allRecentTransaction(BuildContext context) async {
+    List<dynamic> transactions =
+        await TransactionService.transacctionHistory(context);
+    if (transactions.isNotEmpty) {
+      // Success: Handle the transactions list as needed
+      if (kDebugMode) {
+        print('Success: Transactions fetched successfully');
+      }
+      arrAllUser = transactions;
+      setState(() {
+        resultLoader = false;
+        screenLoader = false;
+      });
+    } else {
+      // Failure: Handle the empty list or error case
+      if (kDebugMode) {
+        print('Failure: No transactions found or an error occurred');
+      }
+      setState(() {
+        resultLoader = false;
+        screenLoader = false;
+      });
+    }
+    // Handle the transactions list as needed
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,10 +74,16 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
           fit: BoxFit.cover,
         ),
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: _UIKitRequestHistoryAfterBG(context),
-      ),
+      child: screenLoader == true
+          ? customCircularProgressIndicator()
+          : arrAllUser.isEmpty
+              ? Center(
+                  child: textFontPOOPINS(
+                      'No transaction found', Colors.white, 12.0))
+              : SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: _UIKitRequestHistoryAfterBG(context),
+                ),
     );
   }
 
@@ -61,52 +107,158 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
             // height: 100,
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.transparent,
               borderRadius: BorderRadius.circular(
                 16.0,
               ),
             ),
-            child: ListTile(
-              leading: Container(
-                height: 80,
-                width: 80,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(
-                    20.0,
-                  ),
-                ),
-              ),
-              title: textFontPOOPINS(
-                'Dishant rajput',
-                Colors.black,
-                18.0,
-                fontWeight: FontWeight.w800,
-              ),
-              subtitle: textFontPOOPINS(
-                '+91-8287632340',
-                Colors.black,
-                12.0,
-                fontWeight: FontWeight.w500,
-              ),
-              trailing: Container(
-                height: 30,
-                width: 60,
-                decoration: BoxDecoration(
-                  color: hexToColor(appGREENcolorHexCode),
-                  borderRadius: BorderRadius.circular(
-                    14.0,
-                  ),
-                ),
-                child: Center(
-                  child: textFontPOOPINS(
-                    '\$200',
-                    Colors.white,
-                    14.0,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
+            child: Column(
+              children: [
+                for (int i = 0; i < arrAllUser.length; i++) ...[
+                  if (arrAllUser[i]['type'] == 'Add') ...[
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: ListTile(
+                        title: textFontPOOPINS(
+                          //
+                          'Money added',
+                          Colors.black,
+                          18.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        subtitle: textFontPOOPINS(
+                          'April 33, 2024',
+                          Colors.grey,
+                          12.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        trailing: Container(
+                          width: 120,
+                          color: Colors.transparent,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              const Icon(
+                                Icons.add,
+                                size: 16.0,
+                                color: Colors.green,
+                              ),
+                              const SizedBox(width: 4.0),
+                              textFontORBITRON(
+                                //
+                                arrAllUser[i]['amount'].toString(),
+                                Colors.green,
+                                18.0,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10.0,
+                    ),
+                  ] else if (arrAllUser[i]['type'] == 'Sent') ...[
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: ListTile(
+                        title: textFontPOOPINS(
+                          //
+                          'Money sent',
+                          Colors.black,
+                          18.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        subtitle: textFontPOOPINS(
+                          'April 33, 2024',
+                          Colors.grey,
+                          12.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        trailing: Container(
+                          width: 120,
+                          color: Colors.transparent,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              const Icon(
+                                Icons.arrow_outward,
+                                size: 16.0,
+                                color: Colors.orangeAccent,
+                              ),
+                              const SizedBox(width: 4.0),
+                              textFontORBITRON(
+                                //
+                                arrAllUser[i]['amount'].toString(),
+                                Colors.orangeAccent,
+                                18.0,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10.0,
+                    ),
+                  ] else ...[
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: ListTile(
+                        title: textFontPOOPINS(
+                          //
+                          'Money sent',
+                          Colors.black,
+                          18.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        subtitle: textFontPOOPINS(
+                          'April 33, 2024',
+                          Colors.grey,
+                          12.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        trailing: Container(
+                          width: 120,
+                          color: Colors.transparent,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              const Icon(
+                                Icons.remove,
+                                size: 16.0,
+                                color: Colors.red,
+                              ),
+                              const SizedBox(width: 4.0),
+                              textFontORBITRON(
+                                //
+                                arrAllUser[i]['amount'].toString(),
+                                Colors.red,
+                                18.0,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10.0,
+                    ),
+                  ],
+                ],
+              ],
             ),
           ),
         ),

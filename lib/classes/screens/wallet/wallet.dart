@@ -22,12 +22,13 @@ class WalletScreen extends StatefulWidget {
 
 class _WalletScreenState extends State<WalletScreen> {
   //
-  bool screenLoader = true;
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final ApiService _apiService = ApiService();
   GenerateTokenService apiServiceGT = GenerateTokenService();
   var myFullData;
   var arrAllUser = [];
+  bool screenLoader = true;
   bool resultLoader = true;
   //
   @override
@@ -69,6 +70,10 @@ class _WalletScreenState extends State<WalletScreen> {
       if (kDebugMode) {
         print('Failure: No transactions found or an error occurred');
       }
+      setState(() {
+        resultLoader = false;
+        screenLoader = false;
+      });
     }
     // Handle the transactions list as needed
   }
@@ -93,250 +98,248 @@ class _WalletScreenState extends State<WalletScreen> {
           fit: BoxFit.cover,
         ),
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: _UIKitWalletAfterBG(context),
-      ),
+      child: screenLoader == true
+          ? customCircularProgressIndicator()
+          : SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: _UIKitWalletAfterBG(context),
+            ),
     );
   }
 
   Widget _UIKitWalletAfterBG(context) {
-    return screenLoader == true
-        ? const SizedBox()
-        : Column(
-            children: [
-              const SizedBox(
-                height: 80.0,
+    return Column(
+      children: [
+        const SizedBox(
+          height: 80.0,
+        ),
+        customNavigationBarForMenu(TEXT_NAVIGATION_TITLE_WALLET, _scaffoldKey),
+        Padding(
+          padding: const EdgeInsets.all(14.0),
+          child: Container(
+            height: 120,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(
+                14.0,
               ),
-              customNavigationBarForMenu(
-                  TEXT_NAVIGATION_TITLE_WALLET, _scaffoldKey),
-              Padding(
-                padding: const EdgeInsets.all(14.0),
-                child: Container(
-                  height: 120,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(
-                      14.0,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      widgetWalletUpperDeckContainerLeft(
-                          context, myFullData['data']['wallet'].toString()),
-                      //widgetWalletUpperDeckContainerRight(context),
-                      Expanded(
-                        child: Container(
-                          height: 120,
-                          color: Colors.transparent,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  //
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const SendMoneyScreen(
-                                        menuBar: 'no',
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  height: 40,
-                                  width: 130,
-                                  decoration: BoxDecoration(
-                                    color: hexToColor(appORANGEcolorHexCode),
-                                    borderRadius: BorderRadius.circular(
-                                      14.0,
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: textFontPOOPINS(
-                                      'Send',
-                                      Colors.white,
-                                      16.0,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+            ),
+            child: Row(
+              children: [
+                widgetWalletUpperDeckContainerLeft(
+                    context, myFullData['data']['wallet'].toString()),
+                //widgetWalletUpperDeckContainerRight(context),
+                Expanded(
+                  child: Container(
+                    height: 120,
+                    color: Colors.transparent,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            //
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SendMoneyScreen(
+                                  menuBar: 'no',
                                 ),
                               ),
-                              const SizedBox(
-                                height: 6,
+                            );
+                          },
+                          child: Container(
+                            height: 40,
+                            width: 130,
+                            decoration: BoxDecoration(
+                              color: hexToColor(appORANGEcolorHexCode),
+                              borderRadius: BorderRadius.circular(
+                                14.0,
                               ),
-                              GestureDetector(
-                                onTap: () {
-                                  //
-                                  pushToAddMoney(context);
-                                },
-                                child: Container(
-                                  height: 40,
-                                  width: 130,
-                                  decoration: BoxDecoration(
-                                    color: hexToColor(appREDcolorHexCode),
-                                    borderRadius: BorderRadius.circular(
-                                      14.0,
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: textFontPOOPINS(
-                                      'Add money',
-                                      Colors.white,
-                                      16.0,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ],
+                            ),
+                            child: Center(
+                              child: textFontPOOPINS(
+                                'Send',
+                                Colors.white,
+                                16.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(
+                          height: 6,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            //
+                            pushToAddMoney(context);
+                          },
+                          child: Container(
+                            height: 40,
+                            width: 130,
+                            decoration: BoxDecoration(
+                              color: hexToColor(appREDcolorHexCode),
+                              borderRadius: BorderRadius.circular(
+                                14.0,
+                              ),
+                            ),
+                            child: Center(
+                              child: textFontPOOPINS(
+                                'Add money',
+                                Colors.white,
+                                16.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 18.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: textFontPOOPINS(
-                    'Recent transactions',
-                    Colors.orangeAccent,
-                    16.0,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              for (int i = 0; i < arrAllUser.length; i++) ...[
-                if (arrAllUser[i]['type'] == 'Add') ...[
-                  ListTile(
-                    title: textFontPOOPINS(
-                      //
-                      'Money added',
-                      Colors.white,
-                      18.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    subtitle: textFontPOOPINS(
-                      'April 33, 2024',
-                      Colors.grey,
-                      12.0,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    trailing: Container(
-                      width: 120,
-                      color: Colors.transparent,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Icon(
-                            Icons.add,
-                            size: 16.0,
-                            color: Colors.green,
-                          ),
-                          const SizedBox(width: 4.0),
-                          textFontORBITRON(
-                            //
-                            arrAllUser[i]['amount'].toString(),
-                            Colors.green,
-                            18.0,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ] else if (arrAllUser[i]['type'] == 'Sent') ...[
-                  ListTile(
-                    title: textFontPOOPINS(
-                      //
-                      'Money sent',
-                      Colors.white,
-                      18.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    subtitle: textFontPOOPINS(
-                      'April 33, 2024',
-                      Colors.grey,
-                      12.0,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    trailing: Container(
-                      width: 120,
-                      color: Colors.transparent,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Icon(
-                            Icons.arrow_outward,
-                            size: 16.0,
-                            color: Colors.orangeAccent,
-                          ),
-                          const SizedBox(width: 4.0),
-                          textFontORBITRON(
-                            //
-                            arrAllUser[i]['amount'].toString(),
-                            Colors.orangeAccent,
-                            18.0,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ] else ...[
-                  ListTile(
-                    title: textFontPOOPINS(
-                      //
-                      'Money sent',
-                      Colors.white,
-                      18.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    subtitle: textFontPOOPINS(
-                      'April 33, 2024',
-                      Colors.grey,
-                      12.0,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    trailing: Container(
-                      width: 120,
-                      color: Colors.transparent,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Icon(
-                            Icons.remove,
-                            size: 16.0,
-                            color: Colors.red,
-                          ),
-                          const SizedBox(width: 4.0),
-                          textFontORBITRON(
-                            //
-                            arrAllUser[i]['amount'].toString(),
-                            Colors.red,
-                            18.0,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
               ],
-              const Divider(
-                thickness: 0.2,
-              )
-            ],
-          );
+            ),
+          ),
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 18.0),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: textFontPOOPINS(
+              'Recent transactions',
+              Colors.orangeAccent,
+              16.0,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        for (int i = 0; i < arrAllUser.length; i++) ...[
+          if (arrAllUser[i]['type'] == 'Add') ...[
+            ListTile(
+              title: textFontPOOPINS(
+                //
+                'Money added',
+                Colors.white,
+                18.0,
+                fontWeight: FontWeight.w600,
+              ),
+              subtitle: textFontPOOPINS(
+                'April 33, 2024',
+                Colors.grey,
+                12.0,
+                fontWeight: FontWeight.w500,
+              ),
+              trailing: Container(
+                width: 120,
+                color: Colors.transparent,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const Icon(
+                      Icons.add,
+                      size: 16.0,
+                      color: Colors.green,
+                    ),
+                    const SizedBox(width: 4.0),
+                    textFontORBITRON(
+                      //
+                      arrAllUser[i]['amount'].toString(),
+                      Colors.green,
+                      18.0,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ] else if (arrAllUser[i]['type'] == 'Sent') ...[
+            ListTile(
+              title: textFontPOOPINS(
+                //
+                'Money sent',
+                Colors.white,
+                18.0,
+                fontWeight: FontWeight.w600,
+              ),
+              subtitle: textFontPOOPINS(
+                'April 33, 2024',
+                Colors.grey,
+                12.0,
+                fontWeight: FontWeight.w500,
+              ),
+              trailing: Container(
+                width: 120,
+                color: Colors.transparent,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const Icon(
+                      Icons.arrow_outward,
+                      size: 16.0,
+                      color: Colors.orangeAccent,
+                    ),
+                    const SizedBox(width: 4.0),
+                    textFontORBITRON(
+                      //
+                      arrAllUser[i]['amount'].toString(),
+                      Colors.orangeAccent,
+                      18.0,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ] else ...[
+            ListTile(
+              title: textFontPOOPINS(
+                //
+                'Money sent',
+                Colors.white,
+                18.0,
+                fontWeight: FontWeight.w600,
+              ),
+              subtitle: textFontPOOPINS(
+                'April 33, 2024',
+                Colors.grey,
+                12.0,
+                fontWeight: FontWeight.w500,
+              ),
+              trailing: Container(
+                width: 120,
+                color: Colors.transparent,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const Icon(
+                      Icons.remove,
+                      size: 16.0,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(width: 4.0),
+                    textFontORBITRON(
+                      //
+                      arrAllUser[i]['amount'].toString(),
+                      Colors.red,
+                      18.0,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
+        const Divider(
+          thickness: 0.2,
+        )
+      ],
+    );
   }
 
   //

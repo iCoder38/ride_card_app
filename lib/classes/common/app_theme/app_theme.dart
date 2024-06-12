@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shimmer/shimmer.dart';
 
 // SAVE HIVE KEY DEFAULT
 var KEY_SAVE_DEFAULT = 'key_save_data2';
@@ -174,4 +175,35 @@ customToast(message, COLOR, LOCATION) {
       backgroundColor: COLOR,
       textColor: Colors.white,
       fontSize: 14.0);
+}
+
+ShimmerLoader(
+    {required double width,
+    double? height,
+    Color? color,
+    Decoration? decoration}) {
+  return Shimmer.fromColors(
+    baseColor: Colors.grey[300]!,
+    highlightColor: Colors.grey[100]!,
+    child: Container(
+      decoration: decoration,
+      width: width,
+      height: height ?? 10,
+      color: color ?? Colors.white,
+    ),
+  );
+}
+
+// center progress indicator
+Widget customCircularProgressIndicator({Color color = Colors.white}) {
+  return Center(
+    child: CircularProgressIndicator(
+      color: color,
+    ),
+  );
+}
+
+// dismiss keyboard
+void dismissKeyboard(BuildContext context) {
+  FocusScope.of(context).requestFocus(FocusNode());
 }

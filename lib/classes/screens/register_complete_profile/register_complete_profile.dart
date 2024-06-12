@@ -261,7 +261,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 child: TextFormField(
                   controller: _contAddress,
                   decoration: const InputDecoration(
-                    hintText: 'Street',
+                    hintText: 'Street ',
                     border: InputBorder.none, // Remove the border
                     filled: false,
                     contentPadding: EdgeInsets.symmetric(
@@ -365,7 +365,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 child: TextFormField(
                   controller: _contState,
                   decoration: const InputDecoration(
-                    hintText: 'State',
+                    hintText: 'State( Ex. LA )',
                     border: InputBorder.none, // Remove the border
                     filled: false,
                     contentPadding: EdgeInsets.symmetric(
@@ -376,6 +376,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 14.0,
                   ),
+                  maxLength: 2,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return TEXT_FIELD_EMPTY_TEXT;
@@ -470,6 +471,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               child: Center(
                 child: TextFormField(
                   obscureText: true,
+                  keyboardType: TextInputType.number,
                   controller: _contSSN,
                   decoration: const InputDecoration(
                     hintText: 'Social Security Number',
@@ -483,6 +485,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 14.0,
                   ),
+                  maxLength: 9,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return TEXT_FIELD_EMPTY_TEXT;

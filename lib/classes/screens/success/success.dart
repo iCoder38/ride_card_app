@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
@@ -17,6 +19,19 @@ class SuccessScreen extends StatefulWidget {
 
 class _SuccessScreenState extends State<SuccessScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String formattedDate = DateFormat('dd MMMM yyyy').format(DateTime.now());
+  //
+  @override
+  void initState() {
+    //
+
+    //
+    if (kDebugMode) {
+      print(widget.responseData);
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,7 +219,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
                 fontWeight: FontWeight.w400,
               ),
               textFontPOOPINS(
-                ' 06 MARCH 2024',
+                //
+                ' $formattedDate',
                 hexToColor(appORANGEcolorHexCode),
                 14.0,
                 fontWeight: FontWeight.w600,
@@ -224,15 +240,61 @@ class _SuccessScreenState extends State<SuccessScreen> {
                 fontWeight: FontWeight.w400,
               ),
               textFontPOOPINS(
-                ' 03040504',
+                // sv
+                ' 0000${widget.responseData['transactionId']}',
                 hexToColor(appORANGEcolorHexCode),
                 12.0,
                 fontWeight: FontWeight.w600,
               ),
             ],
           ),
-          const SizedBox(
-            height: 20.0,
+
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+            ),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BottomBar(selectedIndex: 0),
+                  ),
+                );
+              },
+              child: Container(
+                color: Colors.transparent,
+                child: Center(
+                  child: Container(
+                    height: 60,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      //color: hexToColor(appORANGEcolorHexCode),
+                      borderRadius: BorderRadius.circular(
+                        16.0,
+                      ),
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            width: 8.0,
+                          ),
+                          textFontPOOPINS(
+                            'Home',
+                            Colors.blue,
+                            14.0,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -311,52 +373,6 @@ class _SuccessScreenState extends State<SuccessScreen> {
             ),
           ),
           const SizedBox(height: 40),
-          Padding(
-            padding: const EdgeInsets.only(
-              left: 16.0,
-              right: 16.0,
-            ),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BottomBar(selectedIndex: 0),
-                  ),
-                );
-              },
-              child: Container(
-                color: Colors.transparent,
-                child: Center(
-                  child: Container(
-                    height: 60,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      //color: hexToColor(appORANGEcolorHexCode),
-                      borderRadius: BorderRadius.circular(
-                        16.0,
-                      ),
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(
-                            width: 8.0,
-                          ),
-                          textFontPOOPINS(
-                            'Home',
-                            Colors.white,
-                            14.0,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );

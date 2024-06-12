@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:http/http.dart' as http;
 
 // import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
@@ -41,6 +44,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   // final TextEditingController _contPassword = TextEditingController();
   File? imageFile;
   var myFullData;
+  bool isImageSelect = false;
   //
   @override
   void initState() {
@@ -52,7 +56,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> fetchProfileData() async {
     await sendRequestToProfileDynamic().then((v) {
       myFullData = v;
-      // print(v.runtimeType);
+      print(myFullData);
       parseValue();
     });
     // print(responseBody);
@@ -90,10 +94,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           fit: BoxFit.cover,
         ),
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: screenLoader == true ? const SizedBox() : _UIKitStackBG(context),
-      ),
+      child: screenLoader == true
+          ? customCircularProgressIndicator()
+          : SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: _UIKitStackBG(context),
+            ),
     );
   }
 
@@ -111,7 +117,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             customNavigationBarForMenu('Edit profile', _scaffoldKey),
             GestureDetector(
               onTap: () {
-                // openGalleryOrCamera(context);
+                openGalleryOrCamera(context);
               },
               child: Container(
                 margin: const EdgeInsets.only(top: 40.0),
@@ -124,12 +130,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 child: imageFile == null
-                    ? Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Image.asset(
-                          'assets/images/logo.png',
-                          fit: BoxFit.cover,
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          25.0,
                         ),
+                        child: CachedNetworkImage(
+                            memCacheHeight: 600,
+                            memCacheWidth: 600,
+                            imageUrl: myFullData['data']['image'],
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => SizedBox(
+                                  height: 40,
+                                  width: 40,
+                                  child: ShimmerLoader(
+                                    width: MediaQuery.of(context).size.width,
+                                  ),
+                                ),
+                            errorWidget: (context, url, error) => Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Image.asset(
+                                    'assets/images/logo.png',
+                                    fit: BoxFit.cover,
+                                  ),
+                                )),
                       )
                     : Padding(
                         padding: const EdgeInsets.all(4.0),
@@ -403,19 +426,150 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  successfullyCreatedAccount(status, message) async {
+    //
+    var mergeName = '${_contFirstName.text} ${_contLastName.text}';
+    debugPrint(mergeName);
+    await FirebaseAuth.instance.currentUser!
+        .updateDisplayName(mergeName)
+        .then((v) {
+      debugPrint('REGISTERED NAME ALSO');
+      customToast(message, Colors.green, ToastGravity.TOP);
+      Navigator.pop(context);
+    });
+  }
+
+  //
+  void openGalleryOrCamera(
+    BuildContext context,
+  ) async {
+    await showDialog(
+      barrierDismissible: true,
+      context: context,
+      builder: (BuildContext context) {
+        return Material(
+          type: MaterialType.transparency,
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      Navigator.pop(context);
+                      //
+                      // ignore: deprecated_member_use
+                      PickedFile? pickedFile = await ImagePicker().getImage(
+                        source: ImageSource.camera,
+                        maxWidth: 1800,
+                        maxHeight: 1800,
+                      );
+                      if (pickedFile != null) {
+                        setState(() {
+                          // print('camera');
+                          imageFile = File(pickedFile.path);
+                        });
+                        //
+                      }
+                      //
+                    },
+                    child: Container(
+                      height: 60,
+                      width: MediaQuery.of(context).size.width,
+                      color: Colors.white,
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            svgImage('camera', 16.0, 16.0),
+                            const SizedBox(
+                              width: 8.0,
+                            ),
+                            textFontPOOPINS(
+                              'Camera',
+                              Colors.black,
+                              12.0,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      //
+                      Navigator.pop(context);
+                      //
+                      // ignore: deprecated_member_use
+                      PickedFile? pickedFile = await ImagePicker().getImage(
+                        source: ImageSource.gallery,
+                        maxWidth: 1800,
+                        maxHeight: 1800,
+                      );
+                      if (pickedFile != null) {
+                        setState(() {
+                          // print('camera');
+                          imageFile = File(pickedFile.path);
+                        });
+                        //
+                      }
+                    },
+                    child: Container(
+                      height: 60,
+                      width: MediaQuery.of(context).size.width,
+                      color: Colors.white,
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            svgImage('video', 16.0, 16.0),
+                            const SizedBox(
+                              width: 8.0,
+                            ),
+                            textFontPOOPINS(
+                              'Gallery',
+                              Colors.black,
+                              12.0,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 2.0,
+                  ),
+                  Container(
+                    height: 60,
+                    width: MediaQuery.of(context).size.width,
+                    color: Colors.white,
+                    child: Center(
+                      child: textFontPOOPINS(
+                        'Dismiss',
+                        Colors.redAccent,
+                        12.0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  //
   // API
   void _sendRequestToUpdateProfile(context) async {
     debugPrint('API ==> COMPLETE PROFILE');
     String parseDevice = await deviceIs();
-    var box = await Hive.openBox<MyData>('myBox1');
-    var myData = box.getAt(0);
-    await box.close();
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // print(prefs.getString('key_save_token_locally'));
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
-
-    // print(prefs.getString('key_save_token_locally'));
     var userId = prefs.getString('Key_save_login_user_id').toString();
 
     final parameters = {
@@ -464,9 +618,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           });
         } else {
           //
-          successStatus.toLowerCase() == 'success'
-              ? successfullyCreatedAccount(successStatus, successMessage)
-              : Navigator.pop(context);
+          if (imageFile != null) {
+            updateProfile(context);
+          } else {
+            successStatus.toLowerCase() == 'success'
+                ? successfullyCreatedAccount(successStatus, successMessage)
+                : Navigator.pop(context);
+          }
+
           /*customToast(
             successStatus,
             hexToColor(appREDcolorHexCode),
@@ -482,9 +641,100 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  successfullyCreatedAccount(status, message) {
-    //
-    customToast(message, Colors.green, ToastGravity.TOP);
-    Navigator.pop(context);
+  Future<void> updateProfile(BuildContext context) async {
+    String parseDevice = await deviceIs();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse(BASE_URL),
+    );
+
+    request.fields['action'] = 'editprofile';
+    request.fields['userId'] = userId.toString();
+    request.fields['role'] = RESPONSE_ROLE;
+    request.fields['fullName'] = _contFirstName.text;
+    request.fields['lastName'] = _contLastName.text;
+    request.fields['contactNumber'] = _contPhone.text;
+    request.fields['device'] = parseDevice;
+
+    request.headers['token'] = token;
+
+    if (kDebugMode) {
+      print(request);
+    }
+
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'image',
+        imageFile!.path,
+      ),
+    );
+
+    var response = await request.send();
+    var responsed = await http.Response.fromStream(response);
+    final responsedData = json.decode(responsed.body);
+    if (kDebugMode) {
+      print(responsedData);
+      // print('object 3.3.3.3.3');
+      // print(responsedData['data']);
+    }
+
+    if (responsedData['status'].toString().toLowerCase() == 'success') {
+      imageFile = null;
+
+      if (kDebugMode) {
+        print('success');
+      }
+
+      String successStatus = responsedData['status'];
+      String successMessage = responsedData['msg'];
+      debugPrint(successStatus);
+      debugPrint(successMessage);
+      /*Map<String, dynamic> jsonResponse = jsonDecode(responsedData.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];*/
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        // save profile image
+        SharedPreferences prefs2 = await SharedPreferences.getInstance();
+        prefs2.setString('Key_save_login_profile_picture',
+            responsedData['data']['image'].toString());
+        //
+        successStatus.toLowerCase() == 'success'
+            ? successfullyCreatedAccount(successStatus, successMessage)
+            : Navigator.pop(context);
+        //
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } else {
+      debugPrint('Fails');
+
+      if (responsedData['msg'].toString() == NOT_AUTHORIZED) {
+        debugPrint('NA');
+        apiServiceGT
+            .generateToken(
+                userId, FirebaseAuth.instance.currentUser!.email, 'Member')
+            .then((v) {
+          //
+          if (kDebugMode) {
+            print('TOKEN ==> $v');
+          }
+          // again click
+          updateProfile(context);
+        });
+      }
+    }
+  }
+
+  successfullyUploadedProfilePicture(successStatus, successMessage, context) {
+    successStatus.toLowerCase() == 'success'
+        ? successfullyCreatedAccount(successStatus, successMessage)
+        : Navigator.pop(context);
   }
 }
