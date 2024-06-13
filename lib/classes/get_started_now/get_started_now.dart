@@ -14,6 +14,11 @@ class GetStartedNowScreen extends StatefulWidget {
 class _GetStartedNowScreenState extends State<GetStartedNowScreen> {
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPage = 0;
+  final List<String> _texts = [
+    'Welcome to Ride Wallet',
+    'Card management: Your money deserve the best. Free debit earn cashback',
+    'Payment using wallet: Making digital transaction easy. Earn rewards daily'
+  ];
   @override
   void initState() {
     super.initState();
@@ -59,6 +64,83 @@ class _GetStartedNowScreenState extends State<GetStartedNowScreen> {
                 fit: BoxFit.fitWidth,
               ),
             ],
+          ),
+          Positioned(
+            bottom: 140.0,
+            left: 20,
+            right: 20,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (int i = 0; i < _texts.length; i++)
+                  if (_currentPage == i) ...[
+                    if (i == 0) ...[
+                      textFontPOOPINS(
+                        _texts[i],
+                        hexToColor(appORANGEcolorHexCode),
+                        22.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ] else if (i == 1) ...[
+                      Column(
+                        children: [
+                          textFontPOOPINS(
+                            'Card management',
+                            hexToColor(appORANGEcolorHexCode),
+                            22.0,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textFontPOOPINS(
+                            'Your money deserve the best.',
+                            Colors.white,
+                            14.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          textFontPOOPINS(
+                            'Free debit earn cashback.',
+                            Colors.white,
+                            12.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ],
+                      ),
+                    ] else if (i == 2) ...[
+                      Column(
+                        children: [
+                          textFontPOOPINS(
+                            'Payment using wallet.',
+                            hexToColor(appORANGEcolorHexCode),
+                            22.0,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textFontPOOPINS(
+                            'Making digital transaction easy.',
+                            Colors.white,
+                            14.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          textFontPOOPINS(
+                            'Earn rewards daily.',
+                            Colors.white,
+                            12.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ],
+                      ),
+                    ],
+                    // Expanded(
+                    //   child: Align(
+                    //     alignment: Alignment.center,
+                    //     child: textFontPOOPINS(
+                    //       _texts[i],
+                    //       Colors.white,
+                    //       14.0,
+                    //     ),
+                    //   ),
+                    // ),
+                  ]
+              ],
+            ),
           ),
           Positioned(
             bottom: 20.0,
@@ -150,28 +232,6 @@ class _GetStartedNowScreenState extends State<GetStartedNowScreen> {
               ),
             ),
           ),
-          // Positioned(
-          //   bottom: 30.0,
-          //   left: 0,
-          //   right: 0,
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.center,
-          //     children: [
-          //       for (int i = 0; i < 3; i++)
-          //         Container(
-          //           margin: const EdgeInsets.symmetric(horizontal: 5.0),
-          //           width: 10.0,
-          //           height: 10.0,
-          //           decoration: BoxDecoration(
-          //             shape: BoxShape.circle,
-          //             color: _currentPage == i
-          //                 ? hexToColor(appORANGEcolorHexCode)
-          //                 : Colors.grey,
-          //           ),
-          //         ),
-          //     ],
-          //   ),
-          // ),
         ],
       ),
     );
