@@ -126,7 +126,7 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
                 onTap: () async {
                   if (_formKey.currentState!.validate()) {
                     showLoadingUI(context, 'searching...');
-                    /**/
+                    //
                     _searchUser(context);
                   }
                 },
@@ -218,14 +218,7 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
                               ),
                               onTap: () {
                                 //
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => SendMoneyPortalScreen(
-                                      data: arrAllUser[i],
-                                    ),
-                                  ),
-                                );
+                                openSendRequestMoney(context, arrAllUser[i]);
                               },
                             ),
                           ),
@@ -236,6 +229,121 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void openSendRequestMoney(
+    BuildContext context,
+    data,
+  ) async {
+    await showDialog(
+      barrierDismissible: true,
+      context: context,
+      builder: (BuildContext context) {
+        return Material(
+          type: MaterialType.transparency,
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      Navigator.pop(context);
+                      //
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SendMoneyPortalScreen(
+                            data: data,
+                            title: '1',
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      height: 60,
+                      width: MediaQuery.of(context).size.width,
+                      color: Colors.white,
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // svgImage('camera', 16.0, 16.0),
+                            // const SizedBox(
+                            //   width: 8.0,
+                            // ),
+                            textFontPOOPINS(
+                              'Send money',
+                              Colors.black,
+                              12.0,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      //
+                      Navigator.pop(context);
+                      //
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SendMoneyPortalScreen(
+                            data: data,
+                            title: '2',
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      height: 60,
+                      width: MediaQuery.of(context).size.width,
+                      color: Colors.white,
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // svgImage('video', 16.0, 16.0),
+                            // const SizedBox(
+                            //   width: 8.0,
+                            // ),
+                            textFontPOOPINS(
+                              'Request money',
+                              Colors.black,
+                              12.0,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 2.0,
+                  ),
+                  Container(
+                    height: 60,
+                    width: MediaQuery.of(context).size.width,
+                    color: Colors.white,
+                    child: Center(
+                      child: textFontPOOPINS(
+                        'Dismiss',
+                        Colors.redAccent,
+                        12.0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

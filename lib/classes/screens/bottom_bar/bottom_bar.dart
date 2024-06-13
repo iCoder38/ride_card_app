@@ -171,7 +171,7 @@ class _BottomBarState extends State<BottomBar> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.attach_money),
-              label: 'Send money',
+              label: 'Send/Request',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.wallet),

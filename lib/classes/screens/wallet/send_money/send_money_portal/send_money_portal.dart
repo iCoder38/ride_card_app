@@ -10,6 +10,7 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/request_money/request_money.dart';
 import 'package:ride_card_app/classes/screens/success/success.dart';
 import 'package:ride_card_app/classes/screens/wallet/add_money/add_money.dart';
@@ -19,9 +20,11 @@ import 'package:ride_card_app/classes/service/token_generate/token_service.dart'
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SendMoneyPortalScreen extends StatefulWidget {
-  const SendMoneyPortalScreen({super.key, this.data});
+  const SendMoneyPortalScreen({super.key, this.data, required this.title});
 
   final data;
+  final String title;
+
   @override
   State<SendMoneyPortalScreen> createState() => _SendMoneyPortalScreenState();
 }
@@ -90,10 +93,15 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
                 const SizedBox(
                   height: 80.0,
                 ),
-                customNavigationBar(
-                  context,
-                  TEXT_NAVIGATION_TITLE_SEND_MONEY,
-                ),
+                widget.title == '1'
+                    ? customNavigationBar(
+                        context,
+                        'Send money',
+                      )
+                    : customNavigationBar(
+                        context,
+                        'Request money',
+                      ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Container(
@@ -244,13 +252,21 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
                 const SizedBox(
                   height: 60.0,
                 ),
-                textFontPOOPINS(
-                  //
-                  'Enter amount to send',
-                  appORANGEcolor,
-                  16.0,
-                  fontWeight: FontWeight.w600,
-                ),
+                widget.title == '1'
+                    ? textFontPOOPINS(
+                        //
+                        'Enter amount to send',
+                        appORANGEcolor,
+                        16.0,
+                        fontWeight: FontWeight.w600,
+                      )
+                    : textFontPOOPINS(
+                        //
+                        'Enter amount to request',
+                        appORANGEcolor,
+                        16.0,
+                        fontWeight: FontWeight.w600,
+                      ),
                 Padding(
                   padding: const EdgeInsets.only(
                     left: 16.0,
@@ -295,8 +311,21 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
                   child: GestureDetector(
                     onTap: () {
                       if (_formKey.currentState!.validate()) {
-                        _sendMoney(context, widget.data['userId'].toString(),
-                            firstController.text.toString(), '1');
+                        widget.title == '1'
+                            ? _sendMoney(
+                                context,
+                                widget.data['userId'].toString(),
+                                firstController.text.toString(),
+                                '1',
+                                'Sent',
+                              )
+                            : _sendMoney(
+                                context,
+                                widget.data['userId'].toString(),
+                                firstController.text.toString(),
+                                '1',
+                                'Request',
+                              );
                       }
                     },
                     child: Container(
@@ -311,14 +340,23 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
                               16.0,
                             ),
                           ),
-                          child: Center(
-                            child: textFontPOOPINS(
-                              'Send money',
-                              Colors.white,
-                              22.0,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
+                          child: widget.title == '1'
+                              ? Center(
+                                  child: textFontPOOPINS(
+                                    'Send money',
+                                    Colors.white,
+                                    22.0,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                )
+                              : Center(
+                                  child: textFontPOOPINS(
+                                    'Request money',
+                                    Colors.white,
+                                    22.0,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
                         ),
                       ),
                     ),
@@ -351,11 +389,14 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
 
   // send money
 // API
-  void _sendMoney(context, String receiverId, String amount, status) async {
+  void _sendMoney(
+      context, String receiverId, String amount, status, String type) async {
     debugPrint('API ==> SEND MONEY');
 
     if (status == '1') {
-      showLoadingUI(context, 'sending...');
+      widget.title == '1'
+          ? showLoadingUI(context, 'sending...')
+          : showLoadingUI(context, 'requesting...');
     }
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -367,7 +408,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
       'senderId': userId,
       'userId': receiverId, // receiverId
       'amount': amount,
-      'type': 'Sent',
+      'type': type,
     };
     if (kDebugMode) {
       print(parameters);
@@ -404,7 +445,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
               print('TOKEN ==> $v');
             }
             // again click api
-            _sendMoney(context, receiverId, amount, '0');
+            _sendMoney(context, receiverId, amount, '0', type);
           });
           //
         } else {
@@ -417,8 +458,16 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
                 ToastGravity.BOTTOM);
           } else {
             Navigator.pop(context);
-
-            pushToSuccess(context, jsonResponse);
+            widget.title == '1'
+                ? pushToSuccess(context, jsonResponse)
+                : Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BottomBar(
+                        selectedIndex: 4,
+                      ),
+                    ),
+                  );
           }
         }
       } else {

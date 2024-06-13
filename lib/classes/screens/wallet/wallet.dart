@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
+import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/wallet/add_money/add_money.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
@@ -12,6 +14,7 @@ import 'package:ride_card_app/classes/screens/wallet/widgets/widgets.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
@@ -30,12 +33,22 @@ class _WalletScreenState extends State<WalletScreen> {
   var arrAllUser = [];
   bool screenLoader = true;
   bool resultLoader = true;
+  var strLoginUserId = '0';
   //
   @override
   void initState() {
     //
-    fetchProfileData();
+
+    getLoginUserId();
     super.initState();
+  }
+
+  getLoginUserId() async {
+    SharedPreferences prefs2 = await SharedPreferences.getInstance();
+    var userID = prefs2.getString('Key_save_login_user_id').toString();
+    strLoginUserId = userID.toString();
+    //
+    fetchProfileData();
   }
 
   Future<void> fetchProfileData() async {
@@ -128,8 +141,9 @@ class _WalletScreenState extends State<WalletScreen> {
             child: Row(
               children: [
                 widgetWalletUpperDeckContainerLeft(
-                    context, myFullData['data']['wallet'].toString()),
-                //widgetWalletUpperDeckContainerRight(context),
+                  context,
+                  myFullData['data']['wallet'].toString(),
+                ),
                 Expanded(
                   child: Container(
                     height: 120,
@@ -211,7 +225,7 @@ class _WalletScreenState extends State<WalletScreen> {
           child: Align(
             alignment: Alignment.centerLeft,
             child: textFontPOOPINS(
-              'Recent transactions',
+              'Transactions',
               Colors.orangeAccent,
               16.0,
               fontWeight: FontWeight.w600,
@@ -229,7 +243,9 @@ class _WalletScreenState extends State<WalletScreen> {
                 fontWeight: FontWeight.w600,
               ),
               subtitle: textFontPOOPINS(
-                'April 33, 2024',
+                //
+                'Me',
+                //FirebaseAuth.instance.currentUser!.displayName,
                 Colors.grey,
                 12.0,
                 fontWeight: FontWeight.w500,
@@ -237,27 +253,58 @@ class _WalletScreenState extends State<WalletScreen> {
               trailing: Container(
                 width: 120,
                 color: Colors.transparent,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
-                      Icons.add,
-                      size: 16.0,
-                      color: Colors.green,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const Icon(
+                          Icons.add,
+                          size: 24.0,
+                          color: Colors.green,
+                        ),
+                        const SizedBox(width: 4.0),
+                        textFontORBITRON(
+                          //
+                          arrAllUser[i]['amount'].toString(),
+                          Colors.green,
+                          18.0,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 4.0),
-                    textFontORBITRON(
-                      //
-                      arrAllUser[i]['amount'].toString(),
-                      Colors.green,
-                      18.0,
-                      fontWeight: FontWeight.w800,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        arrAllUser[i]['trn_date'].toString() == ''
+                            ? textFontPOOPINS(
+                                // sv
+                                '',
+                                Colors.grey,
+                                12.0,
+                                fontWeight: FontWeight.w500,
+                              )
+                            : textFontPOOPINS(
+                                // sv
+                                formatDate(
+                                    arrAllUser[i]['trn_date'].toString()),
+                                Colors.grey,
+                                12.0,
+                                fontWeight: FontWeight.w500,
+                              ),
+                      ],
                     ),
                   ],
                 ),
               ),
+              onTap: () {
+                showTransactionDetails(context, arrAllUser[i]);
+              },
             ),
-          ] else if (arrAllUser[i]['type'] == 'Sent') ...[
+          ] else if (arrAllUser[i]['senderId'].toString() ==
+              strLoginUserId) ...[
+            // sent money
             ListTile(
               title: textFontPOOPINS(
                 //
@@ -268,7 +315,7 @@ class _WalletScreenState extends State<WalletScreen> {
               ),
               subtitle: textFontPOOPINS(
                 //
-                'April 33, 2024',
+                'To: ${arrAllUser[i]['userName']}',
                 Colors.grey,
                 12.0,
                 fontWeight: FontWeight.w500,
@@ -276,37 +323,66 @@ class _WalletScreenState extends State<WalletScreen> {
               trailing: Container(
                 width: 120,
                 color: Colors.transparent,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
-                      Icons.arrow_outward,
-                      size: 16.0,
-                      color: Colors.orangeAccent,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const Icon(
+                          Icons.remove,
+                          size: 16.0,
+                          color: Colors.redAccent,
+                        ),
+                        const SizedBox(width: 4.0),
+                        textFontORBITRON(
+                          //
+                          arrAllUser[i]['amount'].toString(),
+                          Colors.redAccent,
+                          18.0,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 4.0),
-                    textFontORBITRON(
-                      //
-                      arrAllUser[i]['amount'].toString(),
-                      Colors.orangeAccent,
-                      18.0,
-                      fontWeight: FontWeight.w800,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        arrAllUser[i]['trn_date'].toString() == ''
+                            ? textFontPOOPINS(
+                                // sv
+                                '',
+                                Colors.grey,
+                                12.0,
+                                fontWeight: FontWeight.w500,
+                              )
+                            : textFontPOOPINS(
+                                // sv
+                                formatDate(
+                                    arrAllUser[i]['trn_date'].toString()),
+                                Colors.grey,
+                                12.0,
+                                fontWeight: FontWeight.w500,
+                              ),
+                      ],
                     ),
                   ],
                 ),
               ),
+              onTap: () {
+                showTransactionDetails(context, arrAllUser[i]);
+              },
             ),
           ] else ...[
             ListTile(
               title: textFontPOOPINS(
                 //
-                'Money sent',
+                'Money received',
                 Colors.white,
                 18.0,
                 fontWeight: FontWeight.w600,
               ),
               subtitle: textFontPOOPINS(
-                'April 33, 2024',
+                'From: ${arrAllUser[i]['sender_userName']}',
                 Colors.grey,
                 12.0,
                 fontWeight: FontWeight.w500,
@@ -314,25 +390,54 @@ class _WalletScreenState extends State<WalletScreen> {
               trailing: Container(
                 width: 120,
                 color: Colors.transparent,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
-                      Icons.remove,
-                      size: 16.0,
-                      color: Colors.red,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const Icon(
+                          Icons.arrow_outward,
+                          size: 16.0,
+                          color: Colors.green,
+                        ),
+                        const SizedBox(width: 4.0),
+                        textFontORBITRON(
+                          //
+                          arrAllUser[i]['amount'].toString(),
+                          Colors.green,
+                          18.0,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 4.0),
-                    textFontORBITRON(
-                      //
-                      arrAllUser[i]['amount'].toString(),
-                      Colors.red,
-                      18.0,
-                      fontWeight: FontWeight.w800,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        arrAllUser[i]['trn_date'].toString() == ''
+                            ? textFontPOOPINS(
+                                // sv
+                                '',
+                                Colors.grey,
+                                12.0,
+                                fontWeight: FontWeight.w500,
+                              )
+                            : textFontPOOPINS(
+                                // sv
+                                formatDate(
+                                    arrAllUser[i]['trn_date'].toString()),
+                                Colors.grey,
+                                12.0,
+                                fontWeight: FontWeight.w500,
+                              ),
+                      ],
                     ),
                   ],
                 ),
               ),
+              onTap: () {
+                showTransactionDetails(context, arrAllUser[i]);
+              },
             ),
           ],
         ],
@@ -340,6 +445,38 @@ class _WalletScreenState extends State<WalletScreen> {
           thickness: 0.2,
         )
       ],
+    );
+  }
+
+  void showTransactionDetails(
+    BuildContext context,
+    data,
+  ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: textFontPOOPINS('Details', Colors.black, 16.0),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                textFontPOOPINS(
+                    'Transaction id: 0000${data['transactionId'].toString()}',
+                    Colors.black,
+                    14.0),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 

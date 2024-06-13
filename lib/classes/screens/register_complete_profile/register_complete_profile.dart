@@ -1258,8 +1258,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           debugPrint('===================');
         }
         Navigator.pop(context);
-        customToast('Something wrong. Please check you data and try again.',
-            Colors.redAccent, ToastGravity.TOP);
+        customToast(
+          'Something wrong. Please check you data and try again.',
+          Colors.redAccent,
+          ToastGravity.TOP,
+        );
 
         // If the server returns an error response, throw an exception
         throw Exception('Failed to update data');
@@ -1269,6 +1272,12 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       if (kDebugMode) {
         print('Error: $error');
       }
+      Navigator.pop(context);
+      customToast(
+        'Something wrong. Server issue.',
+        Colors.redAccent,
+        ToastGravity.TOP,
+      );
     }
   }
 
