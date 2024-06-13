@@ -58,7 +58,7 @@ class _ShowCompleteProfileUserScreenState
     _contSourceOfIncome.text = myFullData['data']['PlaceOfWork'] ?? '';
     _contAddress.text = myFullData['data']['address'] ?? ''; // street
     _contCity.text = myFullData['data']['City'] ?? '';
-    _contState.text = myFullData['data']['state'] ?? '';
+    _contState.text = myFullData['data']['address'] ?? '';
     _contPostalCode.text = myFullData['data']['zipcode'] ?? '';
     _contSSN.text = myFullData['data']['ssn'] ?? '';
     setState(() {});

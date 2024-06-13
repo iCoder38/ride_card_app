@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
 import 'package:ride_card_app/classes/screens/register/register.dart';
@@ -74,6 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(
               height: 80.0,
             ),
+            customNavigationBar(context, 'Login'),
             GestureDetector(
               onTap: () {},
               child: Container(

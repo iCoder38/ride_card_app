@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/login/login.dart';
 import 'package:ride_card_app/classes/screens/register/register.dart';
 import 'package:ride_card_app/classes/screens/register_complete_profile/register_complete_profile.dart';
 import 'package:ride_card_app/classes/screens/select_profile/widgets/widget.dart';
+import 'package:ride_card_app/classes/screens/welcome/welcome.dart';
 
 class SelectProfileScreen extends StatefulWidget {
   const SelectProfileScreen({super.key, required this.strProfileSelect});
@@ -34,6 +36,13 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
           widgetSelectProfileHeader(),
           // SUB HEADER
           widgetSelectProfileSubHeader(),
+          // Positioned(
+          //   top: 80.0,
+          //   child: customNavigationBar(
+          //     context,
+          //     'Back',
+          //   ),
+          // ),
           Positioned(
             bottom: 100,
             left: 0,
@@ -50,6 +59,15 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
                         builder: (context) => RegisterScreen(
                           strProfileIs: widget.strProfileSelect,
                         ),
+                      ),
+                    );
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WelcomeScreen(
+                            // strProfileIs: widget.strProfileSelect,
+                            ),
                       ),
                     );
                   }

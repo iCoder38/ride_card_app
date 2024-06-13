@@ -537,7 +537,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   showLoadingUI(context, PLEASE_WAIT);
                   //
                   // _sendRequestToCompleteProfile(context);
-                  createCustomerInUnit();
+                  createCustomerInUnit(context);
                 }
               },
               child: Container(
@@ -1176,7 +1176,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 //
 
   // CREATE ACCOUNT IN UNIT
-  Future<void> createCustomerInUnit() async {
+  Future<void> createCustomerInUnit(context) async {
     //
     debugPrint('==============================================');
     debugPrint('============= UNIT ===========================');
@@ -1248,7 +1248,34 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           debugPrint('===================');
         }
         //
+        // var decodedData = json.decode(jsonData);
+        //  var attributes = jsonData['data']['attributes'];
+        // String status = attributes['status'];
+        // String message = attributes['message'];
+        //
+        if (jsonData['data']['status'] == 'Denied') {
+          //
+          dismissKeyboard(context);
+          customToast(
+            jsonData['data']['message'],
+            Colors.redAccent,
+            ToastGravity.BOTTOM,
+          );
+          return;
+        } else if (jsonData['data']['status'] == 'AwaitingDocuments') {
+          dismissKeyboard(context);
+          customToast(
+            jsonData['included'][0]['id']['attributes']['description']
+                .toString(),
+            Colors.redAccent,
+            ToastGravity.BOTTOM,
+          );
+        }
+
         createdCustomerId = jsonData['included'][0]['id'].toString();
+        if (kDebugMode) {
+          print('CUSTOMER ID ==> $createdCustomerId');
+        }
         _sendRequestToCompleteProfile();
         //
       } else {
@@ -1304,6 +1331,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       'City': _contCity.text.toString(),
       'zipcode': _contPostalCode.text.toString(),
       'country': COUNTRY_US,
+      'state': _contState.text.toString(),
       'ssn': _contSSN.text.toString(),
       'dob': _contDOB.text.toString(),
       'Salary': _contAnnualIncome.text.toString(),

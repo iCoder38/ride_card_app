@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/login/login.dart';
 import 'package:ride_card_app/classes/screens/register/register.dart';
 import 'package:ride_card_app/classes/screens/select_profile/select_profile.dart';
@@ -27,6 +28,13 @@ class WelcomeScreen extends StatelessWidget {
           // SUB HEADER
           widgetLoginSubHeader(),
           Positioned(
+            top: 80.0,
+            child: customNavigationBar(
+              context,
+              'Back',
+            ),
+          ),
+          Positioned(
             bottom: 100,
             left: 0,
             right: 0,
@@ -35,6 +43,14 @@ class WelcomeScreen extends StatelessWidget {
               child: GestureDetector(
                 onTap: () {
                   debugPrint('==> SIGN IN <==');
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => const SelectProfileScreen(
+                  //       strProfileSelect: '2',
+                  //     ),
+                  //   ),
+                  // );
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -76,8 +92,8 @@ class WelcomeScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const SelectProfileScreen(
-                        strProfileSelect: '2',
+                      builder: (context) => const RegisterScreen(
+                        strProfileIs: '2',
                       ),
                     ),
                   );

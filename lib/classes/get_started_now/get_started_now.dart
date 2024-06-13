@@ -65,6 +65,7 @@ class _GetStartedNowScreenState extends State<GetStartedNowScreen> {
               ),
             ],
           ),
+          // const SizedBox(height: 40),
           Positioned(
             bottom: 140.0,
             left: 20,
@@ -208,7 +209,9 @@ class _GetStartedNowScreenState extends State<GetStartedNowScreen> {
                     context,
                     MaterialPageRoute(
                       // builder: (context) => const HomeFeedScreen(),
-                      builder: (context) => const WelcomeScreen(),
+                      builder: (context) => const SelectProfileScreen(
+                        strProfileSelect: '1',
+                      ),
                     ),
                   );
                 },
