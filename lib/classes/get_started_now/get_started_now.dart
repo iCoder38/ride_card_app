@@ -52,7 +52,7 @@ class _GetStartedNowScreenState extends State<GetStartedNowScreen> {
             controller: _pageController,
             children: [
               Image.asset(
-                'assets/images/1.png',
+                'assets/images/3.png',
                 fit: BoxFit.fitWidth,
               ),
               Image.asset(
@@ -60,7 +60,7 @@ class _GetStartedNowScreenState extends State<GetStartedNowScreen> {
                 fit: BoxFit.fitWidth,
               ),
               Image.asset(
-                'assets/images/3.png',
+                'assets/images/1.png',
                 fit: BoxFit.fitWidth,
               ),
             ],

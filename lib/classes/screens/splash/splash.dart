@@ -228,7 +228,7 @@ checkUserIsLoginOrNot(context) {
     } else {
       if (kDebugMode) {
         print('User is signed in!');
-        print(FirebaseAuth.instance.currentUser!.uid);
+        // print(FirebaseAuth.instance.currentUser!.uid);
       }
       Navigator.push(
         context,

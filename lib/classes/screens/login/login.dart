@@ -100,8 +100,8 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 40.0,
             ),
             // const Spacer(),
-            SizedBox(
-              height: 240,
+            const SizedBox(
+              height: 200,
             ),
             textFontPOOPINS(
               'Sign in to your account',
