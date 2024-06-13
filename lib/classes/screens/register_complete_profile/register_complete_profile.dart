@@ -13,6 +13,7 @@ import 'package:ride_card_app/classes/common/hive/hive.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
+import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
 import 'package:ride_card_app/classes/screens/register_complete_profile_business/register_complete_profile_business.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
@@ -1444,7 +1445,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     Navigator.pop(context);
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const CardsScreen()),
+      MaterialPageRoute(
+          builder: (context) => BottomBar(
+                selectedIndex: 0,
+              )),
     );
   }
 }

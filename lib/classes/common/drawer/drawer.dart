@@ -262,7 +262,10 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => BottomBar(selectedIndex: 1)),
+                    builder: (context) => BottomBar(
+                      selectedIndex: 1,
+                    ),
+                  ),
                 );
               },
             ),
@@ -296,8 +299,21 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 Colors.white,
                 16.0,
               ),
+              onTap: () async {
+                SharedPreferences prefs2 =
+                    await SharedPreferences.getInstance();
+                prefs2.setString('key_show_cc_panel', 'yes');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BottomBar(
+                      selectedIndex: 0,
+                    ),
+                  ),
+                );
+              },
             ),
-            ListTile(
+            /*ListTile(
               leading: const Icon(
                 Icons.settings,
                 color: Colors.white,
@@ -308,7 +324,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 Colors.white,
                 16.0,
               ),
-            ),
+            ),*/
             ListTile(
               leading: const Icon(
                 Icons.file_copy,
@@ -388,6 +404,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 //
                 SharedPreferences prefs2 =
                     await SharedPreferences.getInstance();
+                prefs2.remove('key_show_cc_panel');
                 prefs2.remove('Key_save_login_user_id');
                 prefs2.remove('Key_save_login_profile_picture');
                 //

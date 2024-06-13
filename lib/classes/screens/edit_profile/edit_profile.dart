@@ -18,6 +18,7 @@ import 'package:ride_card_app/classes/common/hive/hive.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/show_complete_profile/show_complete_profile.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
@@ -412,6 +413,43 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     child: textFontPOOPINS(
                       //
                       'UPDATE',
+                      Colors.white,
+                      18.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                top: 16.0,
+              ),
+              child: GestureDetector(
+                onTap: () async {
+                  //
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const ShowCompleteProfileUserScreen()),
+                  );
+                },
+                child: Container(
+                  height: 60,
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    color: hexToColor(appORANGEcolorHexCode),
+                    borderRadius: BorderRadius.circular(
+                      12.0,
+                    ),
+                  ),
+                  child: Center(
+                    child: textFontPOOPINS(
+                      //
+                      'Profile',
                       Colors.white,
                       18.0,
                       fontWeight: FontWeight.w600,
