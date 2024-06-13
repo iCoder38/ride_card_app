@@ -99,6 +99,7 @@ class _BottomBarState extends State<BottomBar> {
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
 import 'package:ride_card_app/classes/screens/request_history/request_history.dart';
+import 'package:ride_card_app/classes/screens/requests_history/requests_history.dart';
 import 'package:ride_card_app/classes/screens/statement/statement.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
 import 'package:ride_card_app/classes/screens/wallet/wallet.dart';
@@ -125,7 +126,7 @@ class _BottomBarState extends State<BottomBar> {
     RequestHistoryScreen(
       menuBar: 'yes',
     ),
-    StatementScreen(),
+    RequestsHistoryScreen(),
   ];
 
   void _onItemTapped(int index) {
