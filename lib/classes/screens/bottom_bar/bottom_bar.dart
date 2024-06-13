@@ -182,8 +182,8 @@ class _BottomBarState extends State<BottomBar> {
               label: 'History',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.list),
-              label: 'Statement',
+              icon: Icon(Icons.request_page_outlined),
+              label: 'Requests',
             ),
           ],
           currentIndex: widget.selectedIndex,

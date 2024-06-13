@@ -390,7 +390,12 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
   // send money
 // API
   void _sendMoney(
-      context, String receiverId, String amount, status, String type) async {
+    context,
+    String receiverId,
+    String amount,
+    status,
+    String type,
+  ) async {
     debugPrint('API ==> SEND MONEY');
 
     if (status == '1') {
@@ -403,13 +408,22 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
 
-    final parameters = {
-      'action': 'sendmoney',
-      'senderId': userId,
-      'userId': receiverId, // receiverId
-      'amount': amount,
-      'type': type,
-    };
+    final parameters;
+    widget.title == '1'
+        ? parameters = {
+            'action': 'sendmoney',
+            'senderId': userId,
+            'userId': receiverId, // receiverId
+            'amount': amount,
+            'type': type,
+          }
+        : parameters = {
+            'action': 'sendmoney',
+            'senderId': receiverId, // receiver id
+            'userId': userId, // login id
+            'amount': amount,
+            'type': type,
+          };
     if (kDebugMode) {
       print(parameters);
     }
@@ -460,14 +474,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
             Navigator.pop(context);
             widget.title == '1'
                 ? pushToSuccess(context, jsonResponse)
-                : Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BottomBar(
-                        selectedIndex: 4,
-                      ),
-                    ),
-                  );
+                : pushToRequestAllScreen(successMessage);
           }
         }
       } else {
@@ -480,9 +487,10 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
       }
       Navigator.pop(context);
       customToast(
-          'Something went wrong with server. Please try again after sometime.',
-          Colors.red,
-          ToastGravity.TOP);
+        'Something went wrong with server. Please try again after sometime.',
+        Colors.red,
+        ToastGravity.TOP,
+      );
     }
   }
 
@@ -508,6 +516,23 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
       fetchProfileData();
       //
     }
+  }
+
+  pushToRequestAllScreen(String successMessage) {
+    //
+    customToast(
+      successMessage,
+      Colors.green,
+      ToastGravity.BOTTOM,
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BottomBar(
+          selectedIndex: 4,
+        ),
+      ),
+    );
   }
 
   Future<void> pushToSuccess(BuildContext context, responseData) async {
