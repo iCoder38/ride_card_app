@@ -197,9 +197,9 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                           //   strokeWidth: 1,
                           // ),
                         ),
-                        errorWidget: (context, url, error) => const Icon(
-                          Icons.error,
-                          color: Colors.white,
+                        errorWidget: (context, url, error) => Image.asset(
+                          'assets/images/logo.png',
+                          fit: BoxFit.fill,
                         ),
                       ),
                     ),

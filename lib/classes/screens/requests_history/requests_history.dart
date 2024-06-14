@@ -211,14 +211,14 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
               child: ListTile(
                 title: textFontPOOPINS(
                   //
-                  'I request',
+                  'Request from you',
                   Colors.black,
                   18.0,
                   fontWeight: FontWeight.w600,
                 ),
                 subtitle: textFontPOOPINS(
                   //
-                  'From: ${arrAllUser[i]['sender_userName']}',
+                  'To: ${arrAllUser[i]['sender_userName']}',
                   Colors.grey,
                   12.0,
                   fontWeight: FontWeight.w500,

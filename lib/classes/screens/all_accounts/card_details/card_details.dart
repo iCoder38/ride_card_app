@@ -230,14 +230,14 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
               ),
               onTap: () {
                 //
-                Navigator.push(
+                /*Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => CardDetailsScreen(
                       cardData: widget.cardData,
                     ),
                   ),
-                );
+                );*/
               },
             ),
           ),

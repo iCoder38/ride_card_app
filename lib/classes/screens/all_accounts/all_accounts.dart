@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
@@ -126,7 +128,7 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
                         //
                         Navigator.pop(context);
                         //
-                        _createAccount();
+                        _createAccount(context);
                       },
                       child: Container(
                         height: 40,
@@ -157,7 +159,8 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
     );
   }
 
-  void _createAccount() async {
+  void _createAccount(context) async {
+    showLoadingUI(context, 'please wait...');
     bool result = await CreateAccountService.createAccount(customerID);
     setState(() {
       accountCreated = result;
@@ -166,10 +169,16 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
     // Print the result to check it
     if (result) {
       debugPrint('Account created successfully.');
-      fetchAccountDetails();
+      successCreated();
     } else {
       debugPrint('Failed to create account.');
     }
+  }
+
+  successCreated() {
+    Navigator.pop(context);
+    customToast('created', Colors.green, ToastGravity.BOTTOM);
+    fetchAccountDetails();
   }
 
   Container _UIKit(BuildContext context) {

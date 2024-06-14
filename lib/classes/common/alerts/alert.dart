@@ -12,17 +12,25 @@ void showLoadingUI(BuildContext context, String message) async {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Container(
-              height: 60,
-              width: MediaQuery.of(context).size.width,
-              color: Colors.white,
-              child: Center(
-                child: textFontORBITRON(
-                  //
-                  message,
-                  Colors.black,
-                  16.0,
-                  fontWeight: FontWeight.w600,
-                ),
+              height: 160,
+              width: 160,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(
+                    height: 20.0,
+                  ),
+                  textFontPOOPINS(
+                    message,
+                    Colors.black,
+                    14.0,
+                  ),
+                ],
               ),
             ),
           ),
