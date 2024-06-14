@@ -7,6 +7,7 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/success/success.dart';
 import 'package:ride_card_app/classes/screens/wallet/add_money/add_money.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/service/service.dart';
@@ -299,7 +300,19 @@ class _WalletScreenState extends State<WalletScreen> {
                 ),
               ),
               onTap: () {
-                showTransactionDetails(context, arrAllUser[i]);
+                // showTransactionDetails(context, arrAllUser[i]);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SuccessScreen(
+                      receiverData: arrAllUser[i],
+                      responseData: arrAllUser[i],
+                      amount: arrAllUser[i]['amount'].toString(),
+                      showButton: false,
+                      status: '2',
+                    ),
+                  ),
+                );
               },
             ),
           ] else if (arrAllUser[i]['senderId'].toString() ==
@@ -369,7 +382,19 @@ class _WalletScreenState extends State<WalletScreen> {
                 ),
               ),
               onTap: () {
-                showTransactionDetails(context, arrAllUser[i]);
+                // showTransactionDetails(context, arrAllUser[i]);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SuccessScreen(
+                      receiverData: arrAllUser[i],
+                      responseData: arrAllUser[i],
+                      amount: arrAllUser[i]['amount'].toString(),
+                      showButton: false,
+                      status: '1',
+                    ),
+                  ),
+                );
               },
             ),
           ] else ...[
@@ -436,7 +461,19 @@ class _WalletScreenState extends State<WalletScreen> {
                 ),
               ),
               onTap: () {
-                showTransactionDetails(context, arrAllUser[i]);
+                // showTransactionDetails(context, arrAllUser[i]);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SuccessScreen(
+                      receiverData: arrAllUser[i],
+                      responseData: arrAllUser[i],
+                      amount: arrAllUser[i]['amount'].toString(),
+                      showButton: false,
+                      status: '3',
+                    ),
+                  ),
+                );
               },
             ),
           ],

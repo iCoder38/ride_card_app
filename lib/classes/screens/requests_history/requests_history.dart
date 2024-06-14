@@ -121,7 +121,7 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
           height: 80.0,
         ),
         customNavigationBarForMenu(
-          'History',
+          'Request History',
           _scaffoldKey,
         ),
         //
@@ -137,14 +137,14 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
               child: ListTile(
                 title: textFontPOOPINS(
                   //
-                  'Money request',
+                  'Request from ${arrAllUser[i]['userName']}',
                   Colors.black,
-                  18.0,
+                  14.0,
                   fontWeight: FontWeight.w600,
                 ),
                 subtitle: textFontPOOPINS(
                   //
-                  'From: ${arrAllUser[i]['userName']}',
+                  'Payment status: pending',
                   Colors.grey,
                   12.0,
                   fontWeight: FontWeight.w500,
@@ -198,7 +198,7 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                   ),
                 ),
                 onTap: () {
-                  _showBottomSheet(context, arrAllUser[i]);
+                  _showAlertDialog(context, arrAllUser[i]);
                 },
               ),
             ),
@@ -283,7 +283,76 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
     );
   } // API
 
-  void _showBottomSheet(BuildContext context, Map<String, dynamic> user) {
+  void _showAlertDialog(BuildContext context, Map<String, dynamic> user) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: textFontPOOPINS(
+            'Details',
+            Colors.black,
+            18.0,
+            fontWeight: FontWeight.w600,
+          ),
+          content: SizedBox(
+            height: 80,
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                textFontPOOPINS(
+                  'Request from: ${user['userName']}',
+                  Colors.black,
+                  14.0,
+                ),
+                const SizedBox(height: 20),
+                textFontPOOPINS(
+                  'Transaction Id: ${user['transactionId']}',
+                  Colors.black,
+                  14.0,
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: textFontPOOPINS(
+                'Decline',
+                Colors.red,
+                12.0,
+                fontWeight: FontWeight.w400,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _acceptDeclineAPI(
+                  context,
+                  user['transactionId'].toString(),
+                  'decline',
+                );
+              },
+            ),
+            TextButton(
+              child: textFontPOOPINS(
+                'Accept & Pay',
+                Colors.green,
+                14.0,
+                fontWeight: FontWeight.w600,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _acceptDeclineAPI(
+                  context,
+                  user['transactionId'].toString(),
+                  'approve',
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /*void _showBottomSheet(BuildContext context, Map<String, dynamic> user) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -322,7 +391,7 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
         );
       },
     );
-  }
+  }*/
 
   _acceptDeclineAPI(context, transactionId, status) async {
     debugPrint('API ==> REQUEST HISTORYE');

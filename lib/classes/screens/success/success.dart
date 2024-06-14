@@ -3,15 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
+import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 
 class SuccessScreen extends StatefulWidget {
   const SuccessScreen(
-      {super.key, required this.amount, this.receiverData, this.responseData});
+      {super.key,
+      required this.amount,
+      this.receiverData,
+      this.responseData,
+      required this.showButton,
+      required this.status});
 
   final receiverData;
   final String amount;
   final responseData;
+  final bool showButton;
+  final String status;
 
   @override
   State<SuccessScreen> createState() => _SuccessScreenState();
@@ -185,12 +193,29 @@ class _SuccessScreenState extends State<SuccessScreen> {
           const SizedBox(
             height: 60.0,
           ),
-          textFontPOOPINS(
-            'Sent successfully to ${widget.receiverData['userName']}',
-            Colors.white,
-            16.0,
-            fontWeight: FontWeight.w600,
-          ),
+          if (widget.status == '1') ...[
+            textFontPOOPINS(
+              'Sent successfully to ${widget.receiverData['userName']}',
+              Colors.white,
+              16.0,
+              fontWeight: FontWeight.w600,
+            ),
+          ] else if (widget.status == '2') ...[
+            textFontPOOPINS(
+              'Added successfully',
+              Colors.white,
+              16.0,
+              fontWeight: FontWeight.w600,
+            ),
+          ] else if (widget.status == '3') ...[
+            textFontPOOPINS(
+              'Received successfully from ${widget.receiverData['userName']}',
+              Colors.white,
+              16.0,
+              fontWeight: FontWeight.w600,
+            ),
+          ],
+
           const SizedBox(
             height: 20.0,
           ),
@@ -218,13 +243,20 @@ class _SuccessScreenState extends State<SuccessScreen> {
                 14.0,
                 fontWeight: FontWeight.w400,
               ),
-              textFontPOOPINS(
-                //
-                ' $formattedDate',
-                hexToColor(appORANGEcolorHexCode),
-                14.0,
-                fontWeight: FontWeight.w600,
-              ),
+              widget.showButton == false
+                  ? textFontPOOPINS(
+                      ' ${formatDate(widget.responseData['trn_date'].toString())}',
+                      hexToColor(appORANGEcolorHexCode),
+                      14.0,
+                      fontWeight: FontWeight.w600,
+                    )
+                  : textFontPOOPINS(
+                      //
+                      ' $formattedDate',
+                      hexToColor(appORANGEcolorHexCode),
+                      14.0,
+                      fontWeight: FontWeight.w600,
+                    ),
             ],
           ),
           const SizedBox(
@@ -296,37 +328,39 @@ class _SuccessScreenState extends State<SuccessScreen> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.pop(context, 'reload_screen');
-              },
-              child: Container(
-                color: Colors.transparent,
-                child: Center(
-                  child: Container(
-                    height: 60,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      color: hexToColor(appREDcolorHexCode),
-                      borderRadius: BorderRadius.circular(
-                        16.0,
-                      ),
-                    ),
-                    child: Center(
-                      child: textFontPOOPINS(
-                        'Make another payment',
-                        Colors.white,
-                        18.0,
-                        fontWeight: FontWeight.w400,
+          widget.showButton == false
+              ? const SizedBox()
+              : Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context, 'reload_screen');
+                    },
+                    child: Container(
+                      color: Colors.transparent,
+                      child: Center(
+                        child: Container(
+                          height: 60,
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                            color: hexToColor(appREDcolorHexCode),
+                            borderRadius: BorderRadius.circular(
+                              16.0,
+                            ),
+                          ),
+                          child: Center(
+                            child: textFontPOOPINS(
+                              'Make another payment',
+                              Colors.white,
+                              18.0,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
           Padding(
             padding: const EdgeInsets.only(
               left: 16.0,

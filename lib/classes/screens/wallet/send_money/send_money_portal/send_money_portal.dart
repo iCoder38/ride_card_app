@@ -545,6 +545,8 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
           receiverData: widget.data,
           responseData: responseData,
           amount: firstController.text.toString(),
+          showButton: true,
+          status: '0',
         ),
       ),
     );
