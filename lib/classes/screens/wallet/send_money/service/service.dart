@@ -80,6 +80,7 @@ class TransactionService {
     final parameters = {
       'action': 'transactionhistory',
       'userId': userId,
+      'type': 'Add,Sent'
     };
     if (kDebugMode) {
       print(parameters);

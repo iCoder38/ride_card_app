@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/show_complete_profile/model/model.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 
 class ShowCompleteProfileUserScreen extends StatefulWidget {
@@ -26,6 +27,8 @@ class _ShowCompleteProfileUserScreenState
   final TextEditingController _contCity = TextEditingController();
   final TextEditingController _contState = TextEditingController();
   final TextEditingController _contPostalCode = TextEditingController();
+
+  late UserData _userData;
 
   final TextEditingController _contSSN = TextEditingController();
   var myFullData;
@@ -64,10 +67,29 @@ class _ShowCompleteProfileUserScreenState
     setState(() {});
   }
 
+  void _initializeData() {
+    final myFullDataModelParse = {
+      'data': {
+        'dob': myFullData['data']['dob'],
+        'occupation': myFullData['data']['occupation'] ?? '',
+        'Salary': myFullData['data']['Salary'] ?? '',
+        'PlaceOfWork': myFullData['data']['PlaceOfWork'] ?? '',
+        'address': myFullData['data']['address'] ?? '', // street
+        'City': myFullData['data']['City'] ?? '',
+        'state': myFullData['data']['state'] ?? '',
+        'zipcode': myFullData['data']['zipcode'] ?? '',
+        'ssn': myFullData['data']['ssn'] ?? '',
+      },
+    };
+
+    setState(() {
+      _userData = UserData.fromMap(myFullDataModelParse['data']!);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     //
-
     return Scaffold(
       body: _UIKit(context),
     );

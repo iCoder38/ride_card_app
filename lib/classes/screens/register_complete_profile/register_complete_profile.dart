@@ -1285,7 +1285,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           print(jsonData);
           debugPrint('===================');
         }
-        Navigator.pop(context);
+        // Navigator.pop(context);
         customToast(
           'Something wrong. Please check you data and try again.',
           Colors.redAccent,
