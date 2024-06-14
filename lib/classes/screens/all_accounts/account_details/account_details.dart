@@ -393,8 +393,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                       child: Center(
                         child: textFontPOOPINS(
                           //
-                          'Reopen my account',
-                          Colors.green,
+                          'Your account is closed',
+                          Colors.red,
                           12.0,
                           fontWeight: FontWeight.w600,
                         ),
@@ -733,7 +733,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                   child: SingleChildScrollView(
                     child: textFontPOOPINS(
                       //
-                      'Are you sure you want to open an account ?',
+                      'Your account is permanently closed.',
                       Colors.black,
                       18.0,
                     ),
@@ -742,7 +742,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                 const SizedBox(
                   height: 20.0,
                 ),
-                Row(
+                /*Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     GestureDetector(
@@ -799,7 +799,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                     ),
                     //
                   ],
-                ),
+                ),*/
               ],
             ),
           ),
