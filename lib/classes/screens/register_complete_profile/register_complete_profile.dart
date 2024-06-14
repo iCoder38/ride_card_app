@@ -1238,10 +1238,17 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         body: json.encode(body),
       );
 
-      // print(response.body);
+      if (kDebugMode) {
+        print('*******************************');
+        print(response.statusCode);
+        print(response.body);
+        print('*******************************');
+      }
       if (response.statusCode == 201) {
         // If the server returns a 200 OK response, parse the JSON
         final jsonData = json.decode(response.body);
+        // print(jsonData['data']);
+        // print(jsonData['data']['attributes']['status']);
         debugPrint('=================== S');
         if (kDebugMode) {
           print(jsonData);
@@ -1253,31 +1260,50 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         // String status = attributes['status'];
         // String message = attributes['message'];
         //
-        if (jsonData['data']['status'] == 'Denied') {
+
+        if (jsonData['data']['attributes']['status'] == 'Denied') {
           //
           dismissKeyboard(context);
           customToast(
-            jsonData['data']['message'],
+            'This account and Email is blocked by Ride Card App. Due to unusual activity. Please contact support.',
             Colors.redAccent,
             ToastGravity.BOTTOM,
           );
           return;
-        } else if (jsonData['data']['status'] == 'AwaitingDocuments') {
-          dismissKeyboard(context);
+        } else if (jsonData['data']['attributes']['status'] ==
+            'AwaitingDocuments') {
+          debugPrint('======> AWAITED DOCUMENTS <=======');
+          //
+          createdCustomerId = jsonData['included'][0]['id'].toString();
+          if (kDebugMode) {
+            print('CUSTOMER ID ==> $createdCustomerId');
+          }
           customToast(
-            jsonData['included'][0]['id']['attributes']['description']
-                .toString(),
+            'You Id has been created but your document is not verified. Please contact support and upload your documents.',
             Colors.redAccent,
             ToastGravity.BOTTOM,
           );
+          _sendRequestToCompleteProfile();
+        } else {
+          debugPrint('======> APPROVED <=======');
+          // if (kDebugMode) {
+          //   print('CUSTOMER ID ==> $createdCustomerId');
+          // }
+          createdCustomerId = jsonData['data']['relationships']['customer']
+                  ['data']['id']
+              .toString();
+          _sendRequestToCompleteProfile();
         }
 
-        createdCustomerId = jsonData['included'][0]['id'].toString();
-        if (kDebugMode) {
-          print('CUSTOMER ID ==> $createdCustomerId');
-        }
-        _sendRequestToCompleteProfile();
         //
+      } else if (response.statusCode == 400) {
+        dismissKeyboard(context);
+        Navigator.pop(context);
+        customToast(
+          'This details is already exists.',
+          Colors.orange,
+          ToastGravity.BOTTOM,
+        );
       } else {
         final jsonData = json.decode(response.body);
         debugPrint('=================== E');
