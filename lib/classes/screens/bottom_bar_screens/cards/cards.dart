@@ -649,16 +649,7 @@ class _CardsScreenState extends State<CardsScreen> {
                           Navigator.pop(context);
                           Navigator.of(context).pop();
                         } else {
-                          String errorDesc = v['data']['cCRResponse']
-                              ['cIRReportDataLst'][0]['error']['errorDesc'];
-                          if (kDebugMode) {
-                            print(errorDesc);
-                          }
-                          if (errorDesc == 'Consumer not found in bureau') {
-                            customToast('Consumer not found.', Colors.redAccent,
-                                ToastGravity.BOTTOM);
-                            Navigator.pop(context);
-                          } else {
+                          if (v['status'].toString() == 'SUCCESS') {
                             debugPrint('SUCCESSFULLY GET');
                             List<dynamic> scoreDetails = v['data']
                                     ['cCRResponse']['cIRReportDataLst'][0]
@@ -678,7 +669,23 @@ class _CardsScreenState extends State<CardsScreen> {
                             setState(() {
                               yourScore = name;
                             });
+                          } else {
+                            customToast('Consumer not found.', Colors.redAccent,
+                                ToastGravity.BOTTOM);
+                            Navigator.pop(context);
                           }
+                          /*String errorDesc = v['data']['cCRResponse']
+                                      ['cIRReportDataLst'][0]['error']
+                                  ['errorDesc'] ??
+                              'N.A.';
+                          if (kDebugMode) {
+                            print(errorDesc);
+                          }*/
+                          // if (errorDesc == 'Consumer not found in bureau') {
+                          //   customToast('Consumer not found.', Colors.redAccent,
+                          //       ToastGravity.BOTTOM);
+                          //   Navigator.pop(context);
+                          // } else {}
                         }
                       });
                       //
