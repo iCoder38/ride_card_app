@@ -213,7 +213,7 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                   //
                   'Request from you',
                   Colors.black,
-                  18.0,
+                  14.0,
                   fontWeight: FontWeight.w600,
                 ),
                 subtitle: textFontPOOPINS(

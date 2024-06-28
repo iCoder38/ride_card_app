@@ -287,7 +287,7 @@ class _CardsScreenState extends State<CardsScreen> {
               child: Center(
                 child: textFontPOOPINS(
                   //
-                  TEXT_BUSINESS,
+                  'Apply Ride Debit Card',
                   Colors.white,
                   18.0,
                   fontWeight: FontWeight.w700,

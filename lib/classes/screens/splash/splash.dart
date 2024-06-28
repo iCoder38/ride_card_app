@@ -6,13 +6,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/get_started_now/get_started_now.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
-import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
-import 'package:ride_card_app/classes/screens/select_profile/select_profile.dart';
-import 'package:ride_card_app/classes/screens/welcome/welcome.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -135,11 +133,35 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: textFontOPENSANS(
-          'Ride Card App',
-          Colors.black,
-          16.0,
+      body: _UIKit(context),
+      // Center(
+      //   child: textFontOPENSANS(
+      //     'Ride Card App',
+      //     Colors.black,
+      //     16.0,
+      //   ),
+      // ),
+    );
+  }
+
+  Container _UIKit(BuildContext context) {
+    return Container(
+      height: double.infinity,
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Colors.amber,
+        image: DecorationImage(
+          image: AssetImage('assets/images/background.png'),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Center(
+        child: SizedBox(
+          height: 200,
+          width: 200,
+          child: Image.asset(
+            'assets/images/logo.png',
+          ),
         ),
       ),
     );
