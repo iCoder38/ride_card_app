@@ -6,6 +6,8 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 // import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/all_accounts/card_details/alert/alert.dart';
+import 'package:ride_card_app/classes/screens/all_accounts/card_details/service/service.dart';
 
 // import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
 import 'package:ride_card_app/classes/service/UNIT/CARD/pin_status/pin_status.dart';
@@ -13,6 +15,7 @@ import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/customer_token/custo
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class CardDetailsScreen extends StatefulWidget {
   const CardDetailsScreen({super.key, this.cardData});
@@ -25,13 +28,18 @@ class CardDetailsScreen extends StatefulWidget {
 
 class _CardDetailsScreenState extends State<CardDetailsScreen> {
   //
+  var storeCardId = '';
   var strPinStatus = '';
   bool pinStatusLoader = true;
   var storeCustomerFullData;
   var storeCustomerToken = '';
   var storeCustomerId = '';
   var strSelectType = '0';
-
+  //
+  var strCardStatus = '';
+  //
+  late WebViewController _controller;
+  //
   @override
   void initState() {
     if (kDebugMode) {
@@ -39,6 +47,14 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
       print(widget.cardData);
       print(widget.cardData['id']);
       print('=================================');
+    }
+    _controller = WebViewController();
+    _controller.loadFlutterAsset('assets/images/display_card_details.html');
+    //
+    storeCardId = widget.cardData['id'].toString();
+    strCardStatus = widget.cardData['attributes']['status'].toString();
+    if (kDebugMode) {
+      print(strCardStatus);
     }
 
     fetchProfileData();
@@ -144,21 +160,34 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
               trailing: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  widget.cardData['attributes']['status'].toString() == 'Active'
-                      ? textFontPOOPINS(
-                          //
-                          widget.cardData['attributes']['status'].toString(),
-                          Colors.green,
-                          10.0,
-                          fontWeight: FontWeight.w700,
-                        )
-                      : textFontPOOPINS(
-                          //
-                          'Closed',
-                          Colors.redAccent,
-                          10.0,
-                          fontWeight: FontWeight.w700,
-                        ),
+                  if (widget.cardData['attributes']['status'].toString() ==
+                      'Active') ...[
+                    textFontPOOPINS(
+                      //
+                      widget.cardData['attributes']['status'].toString(),
+                      Colors.green,
+                      10.0,
+                      fontWeight: FontWeight.w700,
+                    )
+                  ] else if (widget.cardData['attributes']['status']
+                          .toString() ==
+                      'Frozen') ...[
+                    textFontPOOPINS(
+                      //
+                      widget.cardData['attributes']['status'].toString(),
+                      Colors.green,
+                      10.0,
+                      fontWeight: FontWeight.w700,
+                    )
+                  ] else ...[
+                    textFontPOOPINS(
+                      //
+                      'Closed',
+                      Colors.redAccent,
+                      10.0,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ]
                 ],
               ),
               onTap: () {
@@ -281,7 +310,148 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
             ],
           ),
         ),
+        //
+        Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: Row(
+            children: [
+              textFontPOOPINS(
+                'Freeze card: ',
+                Colors.white,
+                14.0,
+              ),
+              GestureDetector(
+                onTap: () {
+                  //
+                  if (kDebugMode) {
+                    print('CLICKED ==> CHECK CARD NUMBER');
+                  }
+
+                  //
+                  if (strCardStatus == 'Frozen') {
+                    showUnfreezeCardDialog(context);
+                  } else {
+                    showFreezeCardDialog(context);
+                  }
+                },
+                child: Column(
+                  children: [
+                    if (strCardStatus == 'Frozen') ...[
+                      Text(
+                        'Unfreeze',
+                        style: GoogleFonts.poppins(
+                          color: Colors.red,
+                          textStyle: const TextStyle(
+                            fontSize: 14,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.blue,
+                            decorationThickness: 2.0,
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      Text(
+                        'Freeze',
+                        style: GoogleFonts.poppins(
+                          color: Colors.blue,
+                          textStyle: const TextStyle(
+                            fontSize: 14,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.blue,
+                            decorationThickness: 2.0,
+                          ),
+                        ),
+                      ),
+                    ]
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          height: 500.0, // Set your desired height
+          width: 400.0, // Set your desired width
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.blueAccent),
+          ),
+          child: WebViewWidget(controller: _controller),
+          /*WebView(
+            initialUrl: '',
+            onWebViewCreated: (WebViewController webViewController) {
+              _controller = webViewController;
+              _loadHtmlFromAssets();
+            },
+            javascriptMode: JavaScriptMode.unrestricted,
+          ),*/
+        ),
+        //
       ],
+    );
+  }
+
+  _loadHtmlFromAssets() async {
+    String fileText = await DefaultAssetBundle.of(context)
+        .loadString('assets/images/display_card_details.html');
+    _controller.loadHtmlString(fileText);
+  }
+
+  void showFreezeCardDialog(BuildContext context) {
+    areYouSureFreezeCardPopup(
+      context,
+      type: '1',
+      message: 'Are you sure you want to freeze your card ?',
+      onDismiss: () {
+        // Your dismiss action here
+        if (kDebugMode) {
+          print('Card freeze dismissed');
+        }
+      },
+      onFreeze: () async {
+        // Your freeze action here
+        if (kDebugMode) {
+          print('Card frozen');
+        }
+        showLoadingUI(context, 'please wait...');
+        bool freezeStatus =
+            await CardAllFunctionsService.freezeMyCard(storeCardId);
+
+        if (kDebugMode) {
+          print(freezeStatus);
+        }
+        Navigator.pop(context);
+        Navigator.pop(context, 'reload_screen');
+      },
+    );
+  }
+
+  void showUnfreezeCardDialog(BuildContext context) {
+    areYouSureFreezeCardPopup(
+      context,
+      type: '2',
+      message: 'Are you sure you want to unfreeze your card ?',
+      onDismiss: () {
+        // Your dismiss action here
+        if (kDebugMode) {
+          print('Card freeze dismissed');
+        }
+      },
+      onFreeze: () async {
+        // Your freeze action here
+        if (kDebugMode) {
+          print('Card unfrozen');
+        }
+        showLoadingUI(context, 'please wait...');
+
+        bool freezeStatus =
+            await CardAllFunctionsService.unFreezeMyCard(storeCardId);
+
+        if (kDebugMode) {
+          print(freezeStatus);
+        }
+        Navigator.pop(context);
+        Navigator.pop(context, 'reload_screen');
+      },
     );
   }
 
@@ -352,9 +522,9 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
     if (strSelectType == '1') {
       if (kDebugMode) {
         print('clicked');
-        print(storeCustomerId);
-        print(widget.cardData['id']);
-        print(storeCustomerToken);
+        print('Customer id ==>$storeCustomerId');
+        print('Card id ==>${widget.cardData['id']}');
+        print('Customer Token after all ==> $storeCustomerToken');
       }
       _launchURL(
         '$SET_PIN_URL$storeCustomerId&cardid=${widget.cardData['id']}&customertoken=$storeCustomerToken',
@@ -380,6 +550,9 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         if (kDebugMode) {
           print('Status: $status');
         }
+        //
+
+        debugPrint('Card Pin Status ===========> $strCardStatus');
         if (status == 'Set') {
           strPinStatus = 'Set';
         } else {

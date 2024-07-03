@@ -525,33 +525,39 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                     const Icon(
                       Icons.chevron_right_outlined,
                     ),
-                    allCards![i]['attributes']['status'].toString() == 'Active'
-                        ? textFontPOOPINS(
-                            //
-                            allCards![i]['attributes']['status'].toString(),
-                            Colors.green,
-                            10.0,
-                            fontWeight: FontWeight.w700,
-                          )
-                        : textFontPOOPINS(
-                            //
-                            'Closed',
-                            Colors.redAccent,
-                            10.0,
-                            fontWeight: FontWeight.w700,
-                          ),
+                    if (allCards![i]['attributes']['status'].toString() ==
+                        'Active') ...[
+                      textFontPOOPINS(
+                        //
+                        allCards![i]['attributes']['status'].toString(),
+                        Colors.green,
+                        10.0,
+                        fontWeight: FontWeight.w700,
+                      )
+                    ] else if (allCards![i]['attributes']['status']
+                            .toString() ==
+                        'Frozen') ...[
+                      textFontPOOPINS(
+                        //
+                        allCards![i]['attributes']['status'].toString(),
+                        Colors.orange,
+                        10.0,
+                        fontWeight: FontWeight.w700,
+                      )
+                    ] else ...[
+                      textFontPOOPINS(
+                        //
+                        'Closed',
+                        Colors.redAccent,
+                        10.0,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ]
                   ],
                 ),
                 onTap: () {
                   //
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CardDetailsScreen(
-                        cardData: allCards![i],
-                      ),
-                    ),
-                  );
+                  pushToCardDetails(context, allCards![i]);
                 },
               ),
             ),
@@ -559,6 +565,27 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         ],
       ],
     );
+  }
+
+  Future<void> pushToCardDetails(BuildContext context, data) async {
+    //
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CardDetailsScreen(
+          cardData: data,
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+    //
+    if (result == 'reload_screen') {
+      if (kDebugMode) {
+        print(result);
+      }
+      fetchAllCardsDetails();
+    }
   }
 
   Future<void> freezeMyAccount() async {

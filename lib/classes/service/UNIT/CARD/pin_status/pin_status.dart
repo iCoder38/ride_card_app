@@ -15,10 +15,10 @@ class CardPinStatusService {
     String url = '$_baseUrl$cardId/secure-data/pin/status';
     //
     if (kDebugMode) {
-      print('=========== CARD PIN STATUS URL =====================');
+      debugPrint(url);
+      print('======================================================');
     }
 
-    debugPrint(url);
     final Uri uri = Uri.parse(url);
 
     // Define custom headers
@@ -28,7 +28,7 @@ class CardPinStatusService {
     };
 
     try {
-      final response = await http.get(uri, headers: headers);
+      final response = await http.post(uri, headers: headers);
 
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response, parse the JSON

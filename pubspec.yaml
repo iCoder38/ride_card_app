@@ -64,12 +64,13 @@ dependencies:
   hive_flutter: ^1.1.0
   path_provider: ^2.0.2
   build_runner:
-  webview_flutter:
+  # webview_flutter:
   flutter_inappwebview:
   page_view_dot_indicator: ^2.3.0
   shimmer:
   firebase_auth_platform_interface: ^7.4.0
   url_launcher: ^6.3.0
+  webview_flutter: ^4.8.0
   
 
 dev_dependencies:
@@ -99,6 +100,7 @@ flutter:
   assets:
     - assets/images/
     - assets/images/svg/
+    - assets/images/display_card_details/display_card_details.html
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
