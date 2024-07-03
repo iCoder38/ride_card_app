@@ -1,18 +1,11 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
-import 'package:ride_card_app/classes/common/hive/hive.dart';
-import 'package:ride_card_app/classes/common/utils/utils.dart';
-import 'package:ride_card_app/classes/service/service/service.dart';
-import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
 
 clearCache() {
   debugPrint('========');

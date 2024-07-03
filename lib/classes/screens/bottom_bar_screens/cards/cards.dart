@@ -86,41 +86,9 @@ class _CardsScreenState extends State<CardsScreen> {
       prefs2.setString(
           'Key_save_login_profile_picture', v['data']['image'].toString());
     });
-    // print(responseBody);
+    // delete this in production mode
+    getCustomerToken();
   }
-  /*Future<void> fetchCreditScore() async {
-    debugPrint('CHECK');
-    try {
-      final response = await http.post(
-        Uri.parse(baseUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Client-Id': clientId,
-        },
-        body: jsonEncode({
-          'firstName': 'Dishant', // Replace with actual first name
-          'lastName': 'Rajput', // Replace with actual last name
-          'panCardNumber': 'AYQP56608H', // Replace with actual SSN
-          'dateOfBirth': '1992-06-06', // Replace with actual DOB
-          // Add other necessary parameters
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        debugPrint('success');
-        final data = jsonDecode(response.body);
-        setState(() {
-          creditScore = 'Your credit score is: ${data['creditScore']}';
-        });
-      } else {
-        throw Exception('Failed to fetch credit score');
-      }
-    } catch (error) {
-      setState(() {
-        creditScore = 'Failed to fetch credit score: $error';
-      });
-    }
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -923,7 +891,9 @@ class _CardsScreenState extends State<CardsScreen> {
         }
       }
     };
-    print(body);
+    if (kDebugMode) {
+      print(body);
+    }
 
     try {
       final response = await http.post(
@@ -935,28 +905,36 @@ class _CardsScreenState extends State<CardsScreen> {
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response, parse the JSON
         final jsonData = json.decode(response.body);
-        print(jsonData);
+        if (kDebugMode) {
+          print(jsonData);
+        }
       } else {
         final jsonData = json.decode(response.body);
-        print(jsonData);
+        if (kDebugMode) {
+          print(jsonData);
+        }
         // If the server returns an error response, throw an exception
         throw Exception('Failed to update data');
       }
     } catch (error) {
       // Handle any errors that occur during the HTTP request
-      print('Error: $error');
+      if (kDebugMode) {
+        print('Error: $error');
+      }
     }
   }
 
-  /*Future<void> fetchDummyData() async {
-    print('customerToken');
+  Future<void> getCustomerToken() async {
+    if (kDebugMode) {
+      print('customerToken');
+    }
     // final url = Uri.parse('https://api.s.unit.sh/customers/1983432/token');
     final url = Uri.parse('https://api.s.unit.sh/customers/:customerId');
 
     // Define custom headers
     Map<String, String> headers = {
       'Content-Type': 'application/vnd.api+json',
-      'Authorization': 'Bearer $token',
+      'Authorization': 'Bearer $TESTING_TOKEN',
     };
 
     // Define the request body
@@ -977,16 +955,20 @@ class _CardsScreenState extends State<CardsScreen> {
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response, parse the JSON
         final jsonData = json.decode(response.body);
-        print(jsonData);
+        if (kDebugMode) {
+          print(jsonData);
+        }
       } else {
         // If the server returns an error response, throw an exception
         throw Exception('Failed to GET CUSTOMER TOKEN: ${response.statusCode}');
       }
     } catch (error) {
       // Handle any errors that occur during the HTTP request
-      print('Error: $error');
+      if (kDebugMode) {
+        print('Error: $error');
+      }
     }
-  }*/
+  }
 
   Future<void> getAllTotalAccounts() async {
     const String baseUrl = 'https://api.s.unit.sh/accounts/';

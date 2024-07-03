@@ -1,20 +1,18 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 // import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
-import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
+
 // import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
 import 'package:ride_card_app/classes/service/UNIT/CARD/pin_status/pin_status.dart';
 import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/customer_token/customer_token.dart';
-import 'package:uuid/uuid.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
+
+import 'package:url_launcher/url_launcher.dart';
 
 class CardDetailsScreen extends StatefulWidget {
   const CardDetailsScreen({super.key, this.cardData});
@@ -29,6 +27,10 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
   //
   var strPinStatus = '';
   bool pinStatusLoader = true;
+  var storeCustomerFullData;
+  var storeCustomerToken = '';
+  var storeCustomerId = '';
+  var strSelectType = '0';
 
   @override
   void initState() {
@@ -39,97 +41,28 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
       print('=================================');
     }
 
-    // test
-    fetchCustomerToken();
-    // FETCH AND CHECK PIN STATUS
-    // fetchCardPinStatus(widget.cardData['id']); // card id
+    fetchProfileData();
+    //
     super.initState();
   }
 
-  String generateHtml() {
-    return '''
-      <!DOCTYPE html>
-      <html>
-      <head>
-          <meta charset="utf-8">
-          <title>Sensitive Data</title>
-          <style>
-              iframe {
-                  height: 20px;
-              }
-          </style>
-      </head>
-      <body>
-      <h2>Sensitive Data example</h2>
-      <label>Card Number:</label>
-      <div id="cardNumber"></div>
-      <label>CVV2:</label>
-      <div id="cvv2"></div>
-
-      <script type="text/javascript" src="https://js.verygoodvault.com/vgs-show/1.5/ACh8JJTM42LYxwe2wfGQxwj5.js"></script>
-      <script type="text/javascript">
-          const show = VGSShow.create('tntazhyknp1');
-          const customerToken = "";
-          const cardId = "";
-
-          const cvv2iframe = show.request({
-                  name: 'data-text',
-                  method: 'GET',
-                  path: '/cards/' + cardId + '/secure-data/cvv2',
-                  headers: {
-                      "Authorization": "Bearer " + customerToken
-                  },
-                  htmlWrapper: 'text',
-                  jsonPathSelector: 'data.attributes.cvv2'
-              });
-          cvv2iframe.render('#cvv2');
-
-          const cardNumberIframe = show.request({
-                  name: 'data-text',
-                  method: 'GET',
-                  path: '/cards/' + cardId + '/secure-data/pan',
-                  headers: {
-                      "Authorization": "Bearer " + customerToken
-                  },
-                  htmlWrapper: 'text',
-                  jsonPathSelector: 'data.attributes.pan'
-              });
-          cardNumberIframe.render('#cardNumber');
-      </script>
-      </body>
-      </html>
-    ''';
-  }
-
-  Future<void> fetchCustomerToken() async {
-    String customerID = '1992974'; // Replace with actual customer ID
-    String? token =
-        await CreateCustomerTokenService().getCustomerToken(customerID);
-    if (kDebugMode) {
-      print('============= TOKEN ==============');
-      print('Customer Token: $token');
-      print('===================================');
-    }
-    // _submitFormToSetPin(token, widget.cardData['id']);
-    // dummy(token, widget.cardData['id']);
-    // _submitForm(widget.cardData['id'], token);
-    // getCustomerToken(token, customerID);
-    // Handle the token as needed
-    fetchSensitiveData(token, widget.cardData['id']);
+  Future<void> fetchProfileData() async {
+    await sendRequestToProfileDynamic().then((v) async {
+      if (kDebugMode) {
+        print(v['data']['customerId']);
+      }
+      storeCustomerFullData = v;
+      storeCustomerId = v['data']['customerId'].toString();
+      // check pin status
+      fetchCardPinStatus(widget.cardData['id']);
+      //
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: /* WebViewWidget(
-       initialUrl:'',
-        javascriptMode: JavaScriptMode.unrestricted,
-        onWebViewCreated: (WebViewController webViewController) {
-          // _controller = webViewController;
-        },
-      ),*/
-
-          _UIKit(context),
+      body: _UIKit(context),
     );
   }
 
@@ -264,16 +197,26 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                       GestureDetector(
                         onTap: () {
                           //
+                          strSelectType = '1';
                           if (kDebugMode) {
                             print('CLICKED ==> NOT SET');
                           }
+                          /*if (kDebugMode) {
+                            print(widget.cardData['id']);
+                            print(storeCustomerToken);
+                          }*/
+                          showLoadingUI(context, 'please wait...');
+                          fetchCustomerToken(
+                            storeCustomerFullData['data']['customerId']
+                                .toString(),
+                          );
                         },
                         child: Text(
                           'Not Set',
                           style: GoogleFonts.poppins(
                             color: Colors.blue,
                             textStyle: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 14,
                               decoration: TextDecoration.underline,
                               decorationColor: Colors.blue,
                               decorationThickness: 2.0,
@@ -281,11 +224,12 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                           ),
                         ),
                       ),
+                      const SizedBox(width: 10.0),
                     ],
                   ),
                 ] else ...[
                   textFontPOOPINS(
-                    'Pin status: $pinStatusLoader',
+                    'Pin status: $strPinStatus',
                     Colors.white,
                     14.0,
                   ),
@@ -294,11 +238,135 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: Row(
+            children: [
+              textFontPOOPINS(
+                'Display card number: ',
+                Colors.white,
+                14.0,
+              ),
+              GestureDetector(
+                onTap: () {
+                  //
+                  if (kDebugMode) {
+                    print('CLICKED ==> CHECK CARD NUMBER');
+                  }
+
+                  if (kDebugMode) {
+                    print(widget.cardData['id']);
+                    print(storeCustomerToken);
+                  }
+                  strSelectType = '2';
+                  //
+                  showLoadingUI(context, 'please wait...');
+                  fetchCustomerToken(
+                    storeCustomerFullData['data']['customerId'].toString(),
+                  );
+                },
+                child: Text(
+                  'Display',
+                  style: GoogleFonts.poppins(
+                    color: Colors.blue,
+                    textStyle: const TextStyle(
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                      decorationColor: Colors.blue,
+                      decorationThickness: 2.0,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
 
-// check pin status
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  // FETCH CUSTOMER TOKEN
+  Future<void> fetchCustomerToken(String customerID) async {
+    String? token =
+        await CreateCustomerTokenService().getCustomerToken(customerID);
+    if (kDebugMode) {
+      print('============= TOKEN ==============');
+      print('Customer Token: $token');
+      print('===================================');
+    }
+
+    // create for token verification
+    createCustomerTokenForVerification(customerID);
+  }
+
+  //
+  Future<void> createCustomerTokenForVerification(String customerID) async {
+    String? token = await CreateCustomerTokenService()
+        .getCustomerTokenVerification(customerID);
+    if (kDebugMode) {
+      print('============= VERIFICATION TOKEN ==============');
+      print('Customer Verification Token: $token');
+      print('===============================================');
+    }
+    createCustomerTokenAfterVerification(
+      customerID,
+      token.toString(),
+      '000001',
+    );
+  }
+
+  //
+  Future<void> createCustomerTokenAfterVerification(
+    String customerID,
+    String verificationToken,
+    String verificationCode,
+  ) async {
+    String? tokenAfterAll = await CreateCustomerTokenService()
+        .createCustomerTokenAfterVerificationCode(
+      strSelectType,
+      customerID,
+      verificationToken,
+      verificationCode,
+    );
+    if (kDebugMode) {
+      print('============= VERIFICATION TOKEN AFTER ALL ==============');
+      print('Customer Verification Token AFTER ALL: $tokenAfterAll');
+      print('===============================================');
+    }
+    storeCustomerToken = tokenAfterAll.toString();
+    // open browser
+    openBrowserToShowCardDetails();
+  }
+
+  openBrowserToShowCardDetails() {
+    Navigator.pop(context);
+    debugPrint(strSelectType);
+    if (strSelectType == '1') {
+      if (kDebugMode) {
+        print('clicked');
+        print(storeCustomerId);
+        print(widget.cardData['id']);
+        print(storeCustomerToken);
+      }
+      _launchURL(
+        '$SET_PIN_URL$storeCustomerId&cardid=${widget.cardData['id']}&customertoken=$storeCustomerToken',
+      );
+    } else {
+      _launchURL(
+        '$OPEN_CARD_DETAILS_URL${widget.cardData['id']}&customertoken=$storeCustomerToken',
+      );
+    }
+  }
+
+  // check pin status
   Future<void> fetchCardPinStatus(String cardId) async {
     try {
       Map<String, dynamic> pinStatus =
@@ -312,7 +380,12 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         if (kDebugMode) {
           print('Status: $status');
         }
-        strPinStatus = status;
+        if (status == 'Set') {
+          strPinStatus = 'Set';
+        } else {
+          strPinStatus = status;
+        }
+
         setState(() {
           pinStatusLoader = false;
         });
@@ -330,210 +403,5 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
       }
       // Handle the error as needed
     }
-  }
-
-  /*Future<void> _submitFormToSetPin(customerToken, cardID) async {
-    final apiUrl = Uri.parse('$SANDBOX_LIVE_URL/cards/$cardID/secure-data/pin');
-    print(apiUrl);
-    // return;
-    try {
-      final response = await http.post(
-        apiUrl.replace(path: apiUrl.path.replaceAll('{CARD_ID}', cardID)),
-        headers: {
-          'Content-Type': 'application/vnd.api+json',
-          'Authorization': 'Bearer $customerToken',
-        },
-        body: <String, dynamic>{
-          'data': {
-            'attributes': {'pin': '1234'}
-          }
-        },
-      );
-
-      // Handle response
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-    } catch (error) {
-      print('Error: $error');
-      // Handle error
-    }
-  }*/
-  void _submitForm(cardId, token) async {
-    final String pin = '12345';
-
-    final Map<String, dynamic> requestBody = {
-      "data": {
-        "attributes": {
-          "pin": pin,
-        }
-      }
-    };
-
-    final String apiUrl = '$SANDBOX_LIVE_URL/cards/$cardId/secure-data/pin';
-
-    final http.Response response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {
-        "Content-Type": "application/vnd.api+json",
-        'Authorization': 'Bearer $TESTING_TOKEN',
-        // "Authorization": "Bearer $token",
-      },
-      body: jsonEncode(requestBody),
-    );
-
-    if (response.statusCode == 200) {
-      print("PIN set successfully!");
-      print(response.body);
-    } else {
-      print("Failed to set PIN");
-      print(response.body);
-    }
-  }
-
-  Future<String?> dummy(customerToken, String cardID) async {
-    debugPrint('========== CUSTOMER TOKEN URL ================');
-    final url = Uri.parse('$SANDBOX_LIVE_URL/cards/$cardID/secure-data/pin');
-    if (kDebugMode) {
-      print(url);
-    }
-    debugPrint('==========================================');
-
-    // Define custom headers
-    Map<String, String> headers = {
-      'Content-Type': 'application/vnd.api+json',
-      'Authorization': 'Bearer $TESTING_TOKEN',
-      // 'Authorization': 'Bearer $customerToken',
-    };
-
-    // Define the request body
-    Map<String, dynamic> requestBody = {
-      "data": {
-        'attributes': {
-          "scope": "cards-sensitive-write",
-          'pin': '1234',
-        }
-      }
-    };
-
-    try {
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(requestBody),
-      );
-      if (kDebugMode) {
-        print(response.statusCode);
-      }
-      if (response.statusCode == 201) {
-        // If the server returns a 201 Created response
-        if (kDebugMode) {
-          debugPrint('========== CUSTOMER TOKEN ================');
-          print(json.decode(response.body));
-          debugPrint('===================================================');
-        }
-        final responseData = json.decode(response.body);
-        return responseData['data']['attributes']['token'];
-      } else {
-        if (kDebugMode) {
-          final jsonData = json.decode(response.body);
-          print('Error creating customer token: $jsonData');
-        }
-        return null;
-      }
-    } catch (error) {
-      // Handle any errors that occur during the HTTP request
-      print('Error: $error');
-      return null;
-    }
-  }
-
-  ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  Future<String?> getCustomerToken(token, String customerID) async {
-    debugPrint('========== CUSTOMER TOKEN URL 2.0 ================');
-    print(token);
-    final url = Uri.parse('$SANDBOX_LIVE_URL/customers/$customerID/token');
-
-    if (kDebugMode) {
-      print(url);
-    }
-    debugPrint('==========================================');
-
-    // Define custom headers
-    Map<String, String> headers = {
-      'Content-Type': 'application/vnd.api+json',
-      'Authorization': 'Bearer $TESTING_TOKEN',
-    };
-
-    // Define the request body
-    Map<String, dynamic> requestBody = {
-      "data": {
-        "type": 'customerToken',
-        "attributes": {
-          "scope": "cards-sensitive",
-          "verificationToken": token,
-          "verificationCode": "203130",
-          // "scope": "cards-sensitive-write",
-        },
-      }
-    };
-
-    try {
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(requestBody),
-      );
-      if (kDebugMode) {
-        print(response.statusCode);
-      }
-      if (response.statusCode == 201) {
-        // If the server returns a 201 Created response
-        if (kDebugMode) {
-          debugPrint('========== CUSTOMER TOKEN ================');
-          print(json.decode(response.body));
-          debugPrint('===================================================');
-        }
-        final responseData = json.decode(response.body);
-        return responseData['data']['attributes']['token'];
-      } else {
-        if (kDebugMode) {
-          final jsonData = json.decode(response.body);
-          print('Error creating customer token: $jsonData');
-        }
-        return null;
-      }
-    } catch (error) {
-      // Handle any errors that occur during the HTTP request
-      print('Error: $error');
-      return null;
-    }
-  }
-
-  Future<void> fetchSensitiveData(token, cardID) async {
-    // Replace <CUSTOMER TOKEN> and <CARD ID> with your actual customer token and card ID
-    final customerToken = token;
-    final cardId = cardID;
-    print(cardId);
-
-    final cardNumberResponse = await http.get(
-        Uri.parse('https://js.verygoodvault.com/cards/$cardId/secure-data/pan'),
-        headers: {'Authorization': 'Bearer $customerToken'});
-
-    final cvv2Response = await http.get(
-        Uri.parse(
-            'https://js.verygoodvault.com/cards/$cardId/secure-data/cvv2'),
-        headers: {'Authorization': 'Bearer $customerToken'});
-    print(cardNumberResponse.body);
-    print(cvv2Response.body);
-    setState(() {
-      // cardNumber = cardNumberResponse.body;
-      // cvv2 = cvv2Response.body;
-    });
   }
 }

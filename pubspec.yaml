@@ -69,6 +69,7 @@ dependencies:
   page_view_dot_indicator: ^2.3.0
   shimmer:
   firebase_auth_platform_interface: ^7.4.0
+  url_launcher: ^6.3.0
   
 
 dev_dependencies:
