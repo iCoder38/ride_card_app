@@ -7,7 +7,9 @@ import 'package:ride_card_app/classes/common/utils/utils.dart';
 // import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/all_accounts/card_details/alert/alert.dart';
-import 'package:ride_card_app/classes/screens/all_accounts/card_details/service/service.dart';
+import 'package:ride_card_app/classes/service/UNIT/CARD/close_card/close_card.dart';
+
+import 'package:ride_card_app/classes/service/UNIT/CARD/freeze_unfreeze_card/freeze_unfreeze_card.dart';
 
 // import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
 import 'package:ride_card_app/classes/service/UNIT/CARD/pin_status/pin_status.dart';
@@ -38,6 +40,8 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
   //
   var strCardStatus = '';
   //
+  late final WebViewController webViewController;
+  late final WebViewCookieManager cookieManager = WebViewCookieManager();
   late WebViewController _controller;
   //
   @override
@@ -48,19 +52,67 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
       print(widget.cardData['id']);
       print('=================================');
     }
-    _controller = WebViewController();
-    _controller.loadFlutterAsset('assets/images/display_card_details.html');
+    // _controller = WebViewController();
+    // _controller.loadFlutterAsset('assets/images/display_card_details.html');
     //
+    /*_controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadHtmlString('assets/images/display_card_details.html');*/
+    // ..loadRequest(
+    //   Uri.parse('https://www.instagram.com'),
+    // );
     storeCardId = widget.cardData['id'].toString();
     strCardStatus = widget.cardData['attributes']['status'].toString();
     if (kDebugMode) {
       print(strCardStatus);
     }
+    //  _passValuesToWebView();
+    if (strCardStatus != 'ClosedByCustomer') {
+      fetchProfileData();
+    }
 
-    fetchProfileData();
     //
     super.initState();
   }
+
+  /*void _passValuesToWebView() {
+    String customerToken = '';
+    String cardId = '2067451';
+    _injectJavaScript(customerToken, cardId);
+  }
+
+  void _injectJavaScript(String customerToken, String cardId) {
+    String script = """
+      const show = VGSShow.create('tntazhyknp1');
+      const customerToken = "$customerToken";
+      const cardId = "$cardId";
+
+      const cvv2iframe = show.request({
+        name: 'data-text',
+        method: 'GET',
+        path: '/cards/' + cardId + '/secure-data/cvv2',
+        headers: {
+          "Authorization": "Bearer " + customerToken
+        },
+        htmlWrapper: 'text',
+        jsonPathSelector: 'data.attributes.cvv2'
+      });
+      cvv2iframe.render('#cvv2');
+
+      const cardNumberIframe = show.request({
+        name: 'data-text',
+        method: 'GET',
+        path: '/cards/' + cardId + '/secure-data/pan',
+        headers: {
+          "Authorization": "Bearer " + customerToken
+        },
+        htmlWrapper: 'text',
+        jsonPathSelector: 'data.attributes.pan'
+      });
+      cardNumberIframe.render('#cardNumber');
+    """;
+    _controller.runJavaScript(script);
+  }*/
 
   Future<void> fetchProfileData() async {
     await sendRequestToProfileDynamic().then((v) async {
@@ -204,154 +256,144 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(18.0),
-          child: Row(
-            children: [
-              if (pinStatusLoader == true) ...[
-                textFontPOOPINS(
-                  'Pin: ...',
-                  Colors.white,
-                  14.0,
-                )
-              ] else ...[
-                if (strPinStatus == 'NotSet') ...[
-                  Row(
-                    children: [
+        strCardStatus == 'ClosedByCustomer'
+            ? const SizedBox()
+            : Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Row(
+                  children: [
+                    if (pinStatusLoader == true) ...[
                       textFontPOOPINS(
-                        'Pin: ',
+                        'Pin: ...',
                         Colors.white,
                         14.0,
                       ),
-                      GestureDetector(
-                        onTap: () {
+                      IconButton(
+                        onPressed: () {
                           //
-                          strSelectType = '1';
-                          if (kDebugMode) {
-                            print('CLICKED ==> NOT SET');
-                          }
-                          /*if (kDebugMode) {
+                          setState(() {
+                            pinStatusLoader = true;
+                          });
+                          fetchCardPinStatus(storeCardId);
+                        },
+                        icon: const Icon(
+                          Icons.refresh,
+                          color: Colors.white,
+                          size: 18.0,
+                        ),
+                      )
+                    ] else ...[
+                      if (strPinStatus == 'NotSet') ...[
+                        Row(
+                          children: [
+                            textFontPOOPINS(
+                              'Pin: ',
+                              Colors.white,
+                              14.0,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                //
+                                strSelectType = '1';
+                                if (kDebugMode) {
+                                  print('CLICKED ==> NOT SET');
+                                }
+                                /*if (kDebugMode) {
                             print(widget.cardData['id']);
                             print(storeCustomerToken);
                           }*/
-                          showLoadingUI(context, 'please wait...');
-                          fetchCustomerToken(
-                            storeCustomerFullData['data']['customerId']
-                                .toString(),
-                          );
-                        },
-                        child: Text(
-                          'Not Set',
-                          style: GoogleFonts.poppins(
-                            color: Colors.blue,
-                            textStyle: const TextStyle(
-                              fontSize: 14,
-                              decoration: TextDecoration.underline,
-                              decorationColor: Colors.blue,
-                              decorationThickness: 2.0,
+                                showLoadingUI(context, 'please wait...');
+                                fetchCustomerToken(
+                                  storeCustomerFullData['data']['customerId']
+                                      .toString(),
+                                );
+                              },
+                              child: Text(
+                                'Not Set',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.blue,
+                                  textStyle: const TextStyle(
+                                    fontSize: 14,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: Colors.blue,
+                                    decorationThickness: 2.0,
+                                  ),
+                                ),
+                              ),
                             ),
+                            IconButton(
+                              onPressed: () {
+                                //
+                                setState(() {
+                                  pinStatusLoader = true;
+                                });
+                                fetchCardPinStatus(storeCardId);
+                              },
+                              icon: const Icon(
+                                Icons.refresh,
+                                color: Colors.white,
+                                size: 18.0,
+                              ),
+                            )
+                          ],
+                        ),
+                      ] else ...[
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.verified,
+                                color: Colors.green,
+                                size: 14.0,
+                              ),
+                              const SizedBox(width: 10.0),
+                              textFontPOOPINS(
+                                'Pin status: $strPinStatus',
+                                Colors.green,
+                                14.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 10.0),
-                    ],
-                  ),
-                ] else ...[
-                  textFontPOOPINS(
-                    'Pin status: $strPinStatus',
-                    Colors.white,
-                    14.0,
-                  ),
-                ]
-              ]
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(18.0),
-          child: Row(
-            children: [
-              textFontPOOPINS(
-                'Display card number: ',
-                Colors.white,
-                14.0,
-              ),
-              GestureDetector(
-                onTap: () {
-                  //
-                  if (kDebugMode) {
-                    print('CLICKED ==> CHECK CARD NUMBER');
-                  }
-
-                  if (kDebugMode) {
-                    print(widget.cardData['id']);
-                    print(storeCustomerToken);
-                  }
-                  strSelectType = '2';
-                  //
-                  showLoadingUI(context, 'please wait...');
-                  fetchCustomerToken(
-                    storeCustomerFullData['data']['customerId'].toString(),
-                  );
-                },
-                child: Text(
-                  'Display',
-                  style: GoogleFonts.poppins(
-                    color: Colors.blue,
-                    textStyle: const TextStyle(
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Colors.blue,
-                      decorationThickness: 2.0,
-                    ),
-                  ),
+                      ]
+                    ]
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-        //
-        Padding(
-          padding: const EdgeInsets.all(18.0),
-          child: Row(
-            children: [
-              textFontPOOPINS(
-                'Freeze card: ',
-                Colors.white,
-                14.0,
-              ),
-              GestureDetector(
-                onTap: () {
-                  //
-                  if (kDebugMode) {
-                    print('CLICKED ==> CHECK CARD NUMBER');
-                  }
-
-                  //
-                  if (strCardStatus == 'Frozen') {
-                    showUnfreezeCardDialog(context);
-                  } else {
-                    showFreezeCardDialog(context);
-                  }
-                },
-                child: Column(
+        strCardStatus == 'ClosedByCustomer'
+            ? const SizedBox()
+            : Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Row(
                   children: [
-                    if (strCardStatus == 'Frozen') ...[
-                      Text(
-                        'Unfreeze',
-                        style: GoogleFonts.poppins(
-                          color: Colors.red,
-                          textStyle: const TextStyle(
-                            fontSize: 14,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Colors.blue,
-                            decorationThickness: 2.0,
-                          ),
-                        ),
-                      ),
-                    ] else ...[
-                      Text(
-                        'Freeze',
+                    textFontPOOPINS(
+                      'Display card number: ',
+                      Colors.white,
+                      14.0,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        //
+                        if (kDebugMode) {
+                          print('CLICKED ==> CHECK CARD NUMBER');
+                        }
+
+                        if (kDebugMode) {
+                          print(widget.cardData['id']);
+                          print(storeCustomerToken);
+                        }
+                        strSelectType = '2';
+                        //
+                        showLoadingUI(context, 'please wait...');
+                        fetchCustomerToken(
+                          storeCustomerFullData['data']['customerId']
+                              .toString(),
+                        );
+                      },
+                      child: Text(
+                        'Display',
                         style: GoogleFonts.poppins(
                           color: Colors.blue,
                           textStyle: const TextStyle(
@@ -362,38 +404,157 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                           ),
                         ),
                       ),
-                    ]
+                    ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-        Container(
+        //
+        strCardStatus == 'ClosedByCustomer'
+            ? const SizedBox()
+            : Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Row(
+                  children: [
+                    textFontPOOPINS(
+                      'Freeze card: ',
+                      Colors.white,
+                      14.0,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        //
+                        if (kDebugMode) {
+                          print('CLICKED ==> CHECK CARD NUMBER');
+                        }
+
+                        //
+                        if (strCardStatus == 'Frozen') {
+                          showUnfreezeCardDialog(context);
+                        } else {
+                          showFreezeCardDialog(context);
+                        }
+                      },
+                      child: Column(
+                        children: [
+                          if (strCardStatus == 'Frozen') ...[
+                            Text(
+                              'Unfreeze',
+                              style: GoogleFonts.poppins(
+                                color: Colors.red,
+                                textStyle: const TextStyle(
+                                  fontSize: 14,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: Colors.blue,
+                                  decorationThickness: 2.0,
+                                ),
+                              ),
+                            ),
+                          ] else ...[
+                            Text(
+                              'Freeze',
+                              style: GoogleFonts.poppins(
+                                color: Colors.blue,
+                                textStyle: const TextStyle(
+                                  fontSize: 14,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: Colors.blue,
+                                  decorationThickness: 2.0,
+                                ),
+                              ),
+                            ),
+                          ]
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+        //
+        strCardStatus == 'ClosedByCustomer'
+            ? const SizedBox()
+            : const Divider(thickness: 0.2),
+        strCardStatus == 'ClosedByCustomer'
+            ? const SizedBox()
+            : Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Row(
+                  children: [
+                    textFontPOOPINS(
+                      'Close this card: ',
+                      Colors.white,
+                      14.0,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        //
+                        if (kDebugMode) {
+                          print('CLICKED ==> CLOSE CARD');
+                        }
+
+                        closeCard(context);
+                      },
+                      child: Text(
+                        'Close',
+                        style: GoogleFonts.poppins(
+                          color: Colors.redAccent,
+                          textStyle: const TextStyle(
+                            fontSize: 14,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.red,
+                            decorationThickness: 2.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+        //
+        /*Container(
           height: 500.0, // Set your desired height
           width: 400.0, // Set your desired width
           decoration: BoxDecoration(
             border: Border.all(color: Colors.blueAccent),
           ),
-          child: WebViewWidget(controller: _controller),
-          /*WebView(
+          child: /* WebViewWidget(
+            controller: _controller,
+          ),*/
+              WebView(
             initialUrl: '',
             onWebViewCreated: (WebViewController webViewController) {
               _controller = webViewController;
               _loadHtmlFromAssets();
             },
             javascriptMode: JavaScriptMode.unrestricted,
-          ),*/
-        ),
+          ),
+        ),*/
         //
       ],
     );
   }
 
-  _loadHtmlFromAssets() async {
+  /*_loadHtmlFromAssets() async {
     String fileText = await DefaultAssetBundle.of(context)
         .loadString('assets/images/display_card_details.html');
     _controller.loadHtmlString(fileText);
+  }*/
+
+  // close card
+  void closeCard(BuildContext context) {
+    areYouSureCloseCardPopup(context,
+        message: 'Are you sure you want to close this card permanently ?',
+        onDismiss: () {
+      debugPrint('Dismiss');
+    }, onFreeze: () async {
+      debugPrint('close card');
+      showLoadingUI(context, 'please wait...');
+      bool closeStatus = await CardCloseService.closeMyCard(storeCardId);
+      if (kDebugMode) {
+        print(closeStatus);
+      }
+      Navigator.pop(context);
+      Navigator.pop(context, 'reload_screen');
+    });
   }
 
   void showFreezeCardDialog(BuildContext context) {
@@ -406,6 +567,8 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         if (kDebugMode) {
           print('Card freeze dismissed');
         }
+
+        Navigator.pop(context);
       },
       onFreeze: () async {
         // Your freeze action here
@@ -519,13 +682,13 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
   openBrowserToShowCardDetails() {
     Navigator.pop(context);
     debugPrint(strSelectType);
+    if (kDebugMode) {
+      print('clicked');
+      print('Customer id ==>$storeCustomerId');
+      print('Card id ==>${widget.cardData['id']}');
+      print('Customer Token after all ==> $storeCustomerToken');
+    }
     if (strSelectType == '1') {
-      if (kDebugMode) {
-        print('clicked');
-        print('Customer id ==>$storeCustomerId');
-        print('Card id ==>${widget.cardData['id']}');
-        print('Customer Token after all ==> $storeCustomerToken');
-      }
       _launchURL(
         '$SET_PIN_URL$storeCustomerId&cardid=${widget.cardData['id']}&customertoken=$storeCustomerToken',
       );
