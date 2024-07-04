@@ -1,12 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:neopop/neopop.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 // import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/all_accounts/card_details/alert/alert.dart';
+import 'package:ride_card_app/classes/service/UNIT/CARD/check_limit/check_limit.dart';
 import 'package:ride_card_app/classes/service/UNIT/CARD/close_card/close_card.dart';
 
 import 'package:ride_card_app/classes/service/UNIT/CARD/freeze_unfreeze_card/freeze_unfreeze_card.dart';
@@ -145,10 +148,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
           fit: BoxFit.cover,
         ),
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: _UIKitCardDetailsAfterBG(context),
-      ),
+      child: _UIKitCardDetailsAfterBG(context),
     );
   }
 
@@ -366,178 +366,176 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
             ? const SizedBox()
             : Padding(
                 padding: const EdgeInsets.all(18.0),
-                child: Row(
-                  children: [
-                    textFontPOOPINS(
-                      'Display card number: ',
-                      Colors.white,
+                child: NeoPopTiltedButton(
+                  isFloating: true,
+                  onTapUp: () {
+                    if (kDebugMode) {
+                      print('CLICKED ==> CHECK CARD NUMBER');
+                      print(widget.cardData['id']);
+                      print(storeCustomerToken);
+                    }
+                    strSelectType = '2';
+                    //
+                    showLoadingUI(context, 'please wait...');
+                    fetchCustomerToken(
+                      storeCustomerFullData['data']['customerId'].toString(),
+                    );
+                  },
+                  decoration: NeoPopTiltedButtonDecoration(
+                    color: const Color.fromRGBO(255, 235, 52, 1),
+                    plunkColor: hexToColor(appORANGEcolorHexCode),
+                    shadowColor: const Color.fromRGBO(36, 36, 36, 1),
+                    showShimmer: true,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 70.0,
+                      vertical: 15,
+                    ),
+                    child: textFontPOOPINS(
+                      'Display card number ',
+                      Colors.black,
                       14.0,
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        //
-                        if (kDebugMode) {
-                          print('CLICKED ==> CHECK CARD NUMBER');
-                        }
-
-                        if (kDebugMode) {
-                          print(widget.cardData['id']);
-                          print(storeCustomerToken);
-                        }
-                        strSelectType = '2';
-                        //
-                        showLoadingUI(context, 'please wait...');
-                        fetchCustomerToken(
-                          storeCustomerFullData['data']['customerId']
-                              .toString(),
-                        );
-                      },
-                      child: Text(
-                        'Display',
-                        style: GoogleFonts.poppins(
-                          color: Colors.blue,
-                          textStyle: const TextStyle(
-                            fontSize: 14,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Colors.blue,
-                            decorationThickness: 2.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
         //
+        const Spacer(),
+        const Divider(thickness: 0.2),
+
         strCardStatus == 'ClosedByCustomer'
             ? const SizedBox()
             : Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: Row(
-                  children: [
-                    textFontPOOPINS(
-                      'Freeze card: ',
-                      Colors.white,
-                      14.0,
+                padding: const EdgeInsets.only(top: 6.0, bottom: 6.0),
+                child: NeoPopTiltedButton(
+                  color: Colors.blue[100],
+                  onTapUp: () {
+                    if (kDebugMode) {
+                      print('CLICKED ==> CHECK LIMITS');
+                    }
+                    fetchCardsLimits();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 80.0,
+                      vertical: 15,
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        //
-                        if (kDebugMode) {
-                          print('CLICKED ==> CHECK CARD NUMBER');
-                        }
-
-                        //
-                        if (strCardStatus == 'Frozen') {
-                          showUnfreezeCardDialog(context);
-                        } else {
-                          showFreezeCardDialog(context);
-                        }
-                      },
-                      child: Column(
-                        children: [
-                          if (strCardStatus == 'Frozen') ...[
-                            Text(
-                              'Unfreeze',
-                              style: GoogleFonts.poppins(
-                                color: Colors.red,
-                                textStyle: const TextStyle(
-                                  fontSize: 14,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: Colors.blue,
-                                  decorationThickness: 2.0,
-                                ),
-                              ),
-                            ),
-                          ] else ...[
-                            Text(
-                              'Freeze',
-                              style: GoogleFonts.poppins(
-                                color: Colors.blue,
-                                textStyle: const TextStyle(
-                                  fontSize: 14,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: Colors.blue,
-                                  decorationThickness: 2.0,
-                                ),
-                              ),
-                            ),
-                          ]
-                        ],
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        svgImage(
+                          'lock',
+                          16.0,
+                          16.0,
+                        ),
+                        const SizedBox(width: 10.0),
+                        textFontPOOPINS(
+                          'Check Limits and Spends',
+                          Colors.black,
+                          12.0,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
+
+        const Divider(thickness: 0.2),
+
+        strCardStatus == 'ClosedByCustomer'
+            ? const SizedBox()
+            : Padding(
+                padding: const EdgeInsets.only(top: 6.0, bottom: 6.0),
+                child: NeoPopTiltedButton(
+                  color: strCardStatus == 'Frozen'
+                      ? hexToColor(appORANGEcolorHexCode)
+                      : Colors.greenAccent,
+                  onTapUp: () {
+                    if (kDebugMode) {
+                      print('CLICKED ==> FREEZE UNFREEZE CARD');
+                    }
+                    if (strCardStatus == 'Frozen') {
+                      showUnfreezeCardDialog(context);
+                    } else {
+                      showFreezeCardDialog(context);
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 80.0,
+                      vertical: 15,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        svgImage(
+                          'card',
+                          16.0,
+                          16.0,
+                        ),
+                        const SizedBox(width: 10.0),
+                        Column(
+                          children: [
+                            if (strCardStatus == 'Frozen') ...[
+                              textFontPOOPINS(
+                                  'Unfreeze card', Colors.black, 12.0),
+                            ] else ...[
+                              textFontPOOPINS(
+                                  'Freeze card', Colors.black, 12.0),
+                            ]
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
         //
+        // const Spacer(),
         strCardStatus == 'ClosedByCustomer'
             ? const SizedBox()
             : const Divider(thickness: 0.2),
         strCardStatus == 'ClosedByCustomer'
             ? const SizedBox()
             : Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: Row(
-                  children: [
-                    textFontPOOPINS(
-                      'Close this card: ',
-                      Colors.white,
-                      14.0,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        //
-                        if (kDebugMode) {
-                          print('CLICKED ==> CLOSE CARD');
-                        }
+                padding: const EdgeInsets.only(top: 6.0, bottom: 14.0),
+                child: NeoPopTiltedButton(
+                  color: const Color.fromARGB(255, 231, 123, 116),
+                  onTapUp: () {
+                    if (kDebugMode) {
+                      print('CLICKED ==> CLOSE CARD');
+                    }
 
-                        closeCard(context);
-                      },
-                      child: Text(
-                        'Close',
-                        style: GoogleFonts.poppins(
-                          color: Colors.redAccent,
-                          textStyle: const TextStyle(
-                            fontSize: 14,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Colors.red,
-                            decorationThickness: 2.0,
-                          ),
-                        ),
-                      ),
+                    closeCard(context);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 80.0,
+                      vertical: 15,
                     ),
-                  ],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        svgImage(
+                          'card',
+                          16.0,
+                          16.0,
+                        ),
+                        const SizedBox(width: 10.0),
+                        textFontPOOPINS('Close card', Colors.black, 14.0)
+                      ],
+                    ),
+                  ),
                 ),
               ),
+
         //
-        /*Container(
-          height: 500.0, // Set your desired height
-          width: 400.0, // Set your desired width
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.blueAccent),
-          ),
-          child: /* WebViewWidget(
-            controller: _controller,
-          ),*/
-              WebView(
-            initialUrl: '',
-            onWebViewCreated: (WebViewController webViewController) {
-              _controller = webViewController;
-              _loadHtmlFromAssets();
-            },
-            javascriptMode: JavaScriptMode.unrestricted,
-          ),
-        ),*/
-        //
+        const SizedBox(height: 20),
       ],
     );
   }
-
-  /*_loadHtmlFromAssets() async {
-    String fileText = await DefaultAssetBundle.of(context)
-        .loadString('assets/images/display_card_details.html');
-    _controller.loadHtmlString(fileText);
-  }*/
 
   // close card
   void closeCard(BuildContext context) {
@@ -568,7 +566,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
           print('Card freeze dismissed');
         }
 
-        Navigator.pop(context);
+        // Navigator.pop(context);
       },
       onFreeze: () async {
         // Your freeze action here
@@ -638,6 +636,270 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
 
     // create for token verification
     createCustomerTokenForVerification(customerID);
+  }
+
+  // card limit
+  Future<void> fetchCardsLimits() async {
+    showLoadingUI(context, 'fetching...');
+    final response = await CheckCardLimitService.checkCardLimit(storeCardId);
+    if (kDebugMode) {
+      print('============= CARD LIMIT ==============');
+      print(response);
+      print('===================================');
+    }
+    Navigator.pop(context);
+    _showBottomSheet(response);
+  }
+
+  void _showBottomSheet(Map<String, dynamic> response) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  textFontPOOPINS(
+                    'Card Limits',
+                    Colors.black,
+                    20.0,
+                    fontWeight: FontWeight.w800,
+                  ),
+                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      textFontPOOPINS('Daily Withdrawal', Colors.black, 14.0),
+                      const Spacer(),
+                      textFontPOOPINS(
+                        COUNTRY_CURRENCY +
+                            response['data']['attributes']['limits']
+                                    ['dailyWithdrawal']
+                                .toString(),
+                        Colors.black,
+                        14.0,
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 0.4),
+                  Row(
+                    children: [
+                      textFontPOOPINS('Daily Purchase', Colors.black, 14.0),
+                      const Spacer(),
+                      textFontPOOPINS(
+                        COUNTRY_CURRENCY +
+                            response['data']['attributes']['limits']
+                                    ['dailyPurchase']
+                                .toString(),
+                        Colors.black,
+                        14.0,
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 0.4),
+                  Row(
+                    children: [
+                      textFontPOOPINS('Monthly Withdrawal', Colors.black, 14.0),
+                      const Spacer(),
+                      textFontPOOPINS(
+                        COUNTRY_CURRENCY +
+                            response['data']['attributes']['limits']
+                                    ['monthlyWithdrawal']
+                                .toString(),
+                        Colors.black,
+                        14.0,
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 0.4),
+                  Row(
+                    children: [
+                      textFontPOOPINS('Monthly Purchase', Colors.black, 14.0),
+                      const Spacer(),
+                      textFontPOOPINS(
+                        COUNTRY_CURRENCY +
+                            response['data']['attributes']['limits']
+                                    ['monthlyPurchase']
+                                .toString(),
+                        Colors.black,
+                        14.0,
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 0.4),
+                  const SizedBox(height: 20),
+                  textFontPOOPINS(
+                    'Daily Totals',
+                    Colors.black,
+                    20.0,
+                    fontWeight: FontWeight.w800,
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      textFontPOOPINS('Withdrawals', Colors.black, 14.0),
+                      const Spacer(),
+                      textFontPOOPINS(
+                        COUNTRY_CURRENCY +
+                            response['data']['attributes']['dailyTotals']
+                                    ['withdrawals']
+                                .toString(),
+                        Colors.black,
+                        14.0,
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 0.4),
+                  Row(
+                    children: [
+                      textFontPOOPINS('Deposits', Colors.black, 14.0),
+                      const Spacer(),
+                      textFontPOOPINS(
+                        COUNTRY_CURRENCY +
+                            response['data']['attributes']['dailyTotals']
+                                    ['deposits']
+                                .toString(),
+                        Colors.black,
+                        14.0,
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 0.4),
+                  Row(
+                    children: [
+                      textFontPOOPINS('Purchases', Colors.black, 14.0),
+                      const Spacer(),
+                      textFontPOOPINS(
+                        COUNTRY_CURRENCY +
+                            response['data']['attributes']['dailyTotals']
+                                    ['purchases']
+                                .toString(),
+                        Colors.black,
+                        14.0,
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 0.4),
+                  Row(
+                    children: [
+                      textFontPOOPINS('Card Transactions', Colors.black, 14.0),
+                      const Spacer(),
+                      textFontPOOPINS(
+                        COUNTRY_CURRENCY +
+                            response['data']['attributes']['dailyTotals']
+                                    ['cardTransactions']
+                                .toString(),
+                        Colors.black,
+                        14.0,
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 0.4),
+                  // monthly spents
+                  const SizedBox(height: 20),
+                  textFontPOOPINS(
+                    'Monthly Totals',
+                    Colors.black,
+                    20.0,
+                    fontWeight: FontWeight.w800,
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      textFontPOOPINS('Withdrawals', Colors.black, 14.0),
+                      const Spacer(),
+                      textFontPOOPINS(
+                        COUNTRY_CURRENCY +
+                            response['data']['attributes']['monthlyTotals']
+                                    ['withdrawals']
+                                .toString(),
+                        Colors.black,
+                        14.0,
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 0.4),
+                  Row(
+                    children: [
+                      textFontPOOPINS('Deposits', Colors.black, 14.0),
+                      const Spacer(),
+                      textFontPOOPINS(
+                        COUNTRY_CURRENCY +
+                            response['data']['attributes']['monthlyTotals']
+                                    ['deposits']
+                                .toString(),
+                        Colors.black,
+                        14.0,
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 0.4),
+                  Row(
+                    children: [
+                      textFontPOOPINS('Purchases', Colors.black, 14.0),
+                      const Spacer(),
+                      textFontPOOPINS(
+                        COUNTRY_CURRENCY +
+                            response['data']['attributes']['monthlyTotals']
+                                    ['purchases']
+                                .toString(),
+                        Colors.black,
+                        14.0,
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 0.4),
+                  Row(
+                    children: [
+                      textFontPOOPINS('Card Transactions', Colors.black, 14.0),
+                      const Spacer(),
+                      textFontPOOPINS(
+                        COUNTRY_CURRENCY +
+                            response['data']['attributes']['monthlyTotals']
+                                    ['cardTransactions']
+                                .toString(),
+                        Colors.black,
+                        14.0,
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 0.4),
+                  const SizedBox(height: 10),
+                  NeoPopTiltedButton(
+                    isFloating: true,
+                    onTapUp: () {
+                      Navigator.pop(context);
+                    },
+                    decoration: NeoPopTiltedButtonDecoration(
+                      color: const Color.fromRGBO(255, 235, 52, 1),
+                      plunkColor: hexToColor(appORANGEcolorHexCode),
+                      shadowColor: const Color.fromRGBO(36, 36, 36, 1),
+                      showShimmer: true,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 70.0,
+                        vertical: 15,
+                      ),
+                      child: textFontPOOPINS(
+                        'Dismiss',
+                        Colors.black,
+                        14.0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   //

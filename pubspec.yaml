@@ -71,6 +71,7 @@ dependencies:
   firebase_auth_platform_interface: ^7.4.0
   url_launcher: ^6.3.0
   webview_flutter: ^4.8.0
+  neopop: ^1.0.2
   
 
 dev_dependencies:
