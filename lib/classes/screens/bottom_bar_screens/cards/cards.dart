@@ -729,7 +729,7 @@ class _CardsScreenState extends State<CardsScreen> {
     }
   }*/
 
-  Future<void> getCustomerById(customerId) async {
+  /*Future<void> getCustomerById(customerId) async {
     final url = Uri.parse(
         'https://api.s.unit.sh/customers/$customerId'); // get all customer
 
@@ -767,7 +767,7 @@ class _CardsScreenState extends State<CardsScreen> {
         print('Error: $error');
       }
     }
-  }
+  }*/
 
   void updateCustomerData(customerId) async {
     debugPrint('====> UPDATE CUSTOMER DATA');

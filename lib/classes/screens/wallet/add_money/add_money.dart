@@ -8,6 +8,7 @@ import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/all_accounts/all_accounts.dart';
 import 'package:ride_card_app/classes/screens/all_cards/add_card/add_card.dart';
 import 'package:ride_card_app/classes/screens/all_cards/service/service.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
@@ -359,6 +360,46 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                   ),
                 ],
               ),
+              const Divider(
+                thickness: 0.4,
+              ),
+              ListTile(
+                title: textFontPOOPINS(
+                  //
+                  'Bank account cards',
+                  hexToColor(appORANGEcolorHexCode),
+                  16.0,
+                  fontWeight: FontWeight.w600,
+                ),
+                /*subtitle: textFontPOOPINS(
+                  //
+                  TEXT_SELECT_CARD_SUB_TITLE,
+                  Colors.white,
+                  12.0,
+                  fontWeight: FontWeight.w400,
+                ),*/
+                trailing: IconButton(
+                  onPressed: () {
+                    //
+
+                    // pushToAddCardScreen(context);
+                  },
+                  icon: const Icon(
+                    Icons.chevron_right,
+                    color: Colors.amber,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AllAccountsScreen()),
+                  );
+                },
+              ),
+              const Divider(
+                thickness: 0.4,
+              ),
               ListTile(
                 title: textFontPOOPINS(
                   //
@@ -560,7 +601,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                   // evs api: add money
                   _addMoney(context, firstValue, 'dummy_1');
                 },
-                child: Text('Submit'),
+                child: const Text('Submit'),
               ),
             ],
           ),

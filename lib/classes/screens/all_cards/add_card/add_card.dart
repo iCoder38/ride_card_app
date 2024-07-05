@@ -347,21 +347,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
-/*
-action:cardadd
-userId:
-cardId:///optional
-cardNumber:
-nameOnCard:
-Bank:
-Expiry_Month:
-Expiry_Year:
-cardType:
-apply_add:
-set_pin:
-block:
-notification:
-*/
+
     final parameters = {
       'action': 'cardadd',
       'userId': userId,
@@ -370,6 +356,13 @@ notification:
       'Expiry_Month': _contCardExpMonth.text.toString(),
       'Expiry_Year': _contCardExpYear.text.toString(),
       'cardType': 'Debit Card'.toString(),
+      // unit
+      'card_group': '1',
+      'unit_card_id': '',
+      'bank_id': '',
+      'bank_number': '',
+      'relationship_card_type': '',
+      'customerID': '',
     };
     if (kDebugMode) {
       print(parameters);

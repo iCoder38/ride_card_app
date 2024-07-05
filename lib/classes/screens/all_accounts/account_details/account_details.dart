@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
@@ -9,12 +10,15 @@ import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
 import 'package:ride_card_app/classes/screens/all_accounts/card_details/card_details.dart';
+import 'package:ride_card_app/classes/screens/all_cards/service/service.dart';
 import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/all_customer_cards/all_customer_cards.dart';
 import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/close_account/close_account.dart';
 import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/freeze_account/freeze_account.dart';
 import 'package:ride_card_app/classes/service/UNIT/CARD/issue_card/issue_card.dart';
 import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/open_account/open_account.dart';
 import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/un_freeze/unfreeze_account.dart';
+import 'package:ride_card_app/classes/service/service/service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountDetailsScreen extends StatefulWidget {
   const AccountDetailsScreen({super.key, this.accountData});
@@ -27,9 +31,11 @@ class AccountDetailsScreen extends StatefulWidget {
 
 class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   //
+  final ApiService _apiService = ApiService();
   bool accountLimitsLoader = true;
   bool cardsLoader = true;
   var bankAccountId = '';
+  var bankAccountNumber = '';
   var accountBalance = '0';
 
   bool? cardCreated;
@@ -38,9 +44,12 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   @override
   void initState() {
     if (kDebugMode) {
+      print('======== BANK ===========');
       print(widget.accountData);
     }
     bankAccountId = widget.accountData['id'].toString();
+    bankAccountNumber =
+        widget.accountData['attributes']['accountNumber'].toString();
     // cents to dollar
     convertCentsToDollar();
     // checkMyAccountDetails();
@@ -474,7 +483,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   Widget _listOfAllIssuedCardsUIKit(context) {
     return Column(
       children: [
-        for (int i = 0; i < allCards!.length; i++) ...[
+        for (int i = 0; i < allCards!.reversed.toList().length; i++) ...[
           Padding(
             padding: const EdgeInsets.only(
               left: 16.0,
@@ -508,14 +517,14 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                 ),
                 title: textFontPOOPINS(
                   //
-                  '**** **** **** ${allCards![i]['attributes']['last4Digits'].toString()}',
+                  '**** **** **** ${allCards!.reversed.toList()[i]['attributes']['last4Digits'].toString()}',
                   Colors.black,
                   16.0,
                   fontWeight: FontWeight.w600,
                 ),
                 subtitle: textFontPOOPINS(
                   //
-                  'Exp. date: ${allCards![i]['attributes']['expirationDate']}',
+                  'Exp. date: ${allCards!.reversed.toList()[i]['attributes']['expirationDate']}',
                   Colors.grey,
                   10.0,
                 ),
@@ -525,21 +534,28 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                     const Icon(
                       Icons.chevron_right_outlined,
                     ),
-                    if (allCards![i]['attributes']['status'].toString() ==
+                    if (allCards!.reversed
+                            .toList()[i]['attributes']['status']
+                            .toString() ==
                         'Active') ...[
                       textFontPOOPINS(
                         //
-                        allCards![i]['attributes']['status'].toString(),
+                        allCards!.reversed
+                            .toList()[i]['attributes']['status']
+                            .toString(),
                         Colors.green,
                         10.0,
                         fontWeight: FontWeight.w700,
                       )
-                    ] else if (allCards![i]['attributes']['status']
+                    ] else if (allCards!.reversed
+                            .toList()[i]['attributes']['status']
                             .toString() ==
                         'Frozen') ...[
                       textFontPOOPINS(
                         //
-                        allCards![i]['attributes']['status'].toString(),
+                        allCards!.reversed
+                            .toList()[i]['attributes']['status']
+                            .toString(),
                         Colors.orange,
                         10.0,
                         fontWeight: FontWeight.w700,
@@ -557,7 +573,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                 ),
                 onTap: () {
                   //
-                  pushToCardDetails(context, allCards![i]);
+                  pushToCardDetails(context, allCards!.reversed.toList()[i]);
                 },
               ),
             ),
@@ -804,7 +820,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                         //
                         Navigator.pop(context);
                         //
-                        _handleOpenAccount();
+                        handleOpenAccount();
                       },
                       child: Container(
                         height: 40,
@@ -1097,7 +1113,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
     }
   }
 
-  Future<void> _handleOpenAccount() async {
+  Future<void> handleOpenAccount() async {
     String accountId = bankAccountId;
     bool success = await ReopenAccountService.reopenMyAccount(accountId);
 
@@ -1320,17 +1336,133 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   // ISSUE CARD FROM UNIT
   void _issueCard() async {
     Navigator.pop(context);
-    bool result = await IssueCardService.issueCard(bankAccountId);
-    setState(() {
-      cardCreated = result;
-    });
+    Map<String, dynamic>? response =
+        await IssueCardService.issueCard(bankAccountId);
 
-    // Print the result to check it
-    if (result) {
-      debugPrint('Card issued successfully.');
-      fetchAllCardsDetails();
+    if (response != null) {
+      if (kDebugMode) {
+        debugPrint('Card issued successfully.');
+        debugPrint('Card details');
+        print('Response: $response');
+      }
+      // add card
+      /*if (kDebugMode) {
+        print(
+          'LAST 4 DIGITS ==> ${response['data']['attributes']['last4Digits']}',
+        );
+        print('CARD ID ==> ${response['data']['id']}');
+        print(
+            'EXP YEAR MONTH ==> ${response['data']['attributes']['expirationDate']}');
+        print(
+            'CUST ID ==> ${response['data']['relationships']['customer']['data']['id']}');
+        print(
+            'BANK ID ==> ${response['data']['relationships']['account']['data']['id']}');
+      }*/
+
+      // add and save card in evs server
+      _addCardInEvsServer(
+          context,
+          response['data']['attributes']['last4Digits'].toString(),
+          response['data']['id'].toString(),
+          response['data']['relationships']['account']['data']['id'].toString(),
+          response['data']['attributes']['expirationDate'].toString(),
+          response['data']['relationships']['customer']['data']['id']);
     } else {
-      debugPrint('Failed to issue Card.');
+      if (kDebugMode) {
+        print('Failed to issue card');
+      }
+    }
+  }
+
+  void _addCardInEvsServer(
+    context,
+    String cardNumber,
+    String unitCardId,
+    String unitBankId,
+    String expYearMonth,
+    String customerId,
+  ) async {
+    debugPrint('API ==> ADD CARD');
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+
+    final parameters = {
+      'action': 'cardadd',
+      'userId': userId,
+      'cardNumber': cardNumber.toString(),
+      'nameOnCard': FirebaseAuth.instance.currentUser!.email,
+      'Expiry_Month': expYearMonth,
+      'Expiry_Year': expYearMonth,
+      'cardType': 'Debit Card'.toString(),
+      // unit
+      'card_group': '2',
+      'unit_card_id': unitCardId,
+      'bank_id': unitBankId,
+      'bank_number': bankAccountNumber,
+      'relationship_card_type': 'depositAccount',
+      'customerID': customerId,
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+
+    // return;
+
+    try {
+      final response = await _apiService.postRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+      if (kDebugMode) {
+        print('STATUS ==> $successStatus');
+        print(successMessage);
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          apiServiceGT
+              .generateToken(
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            'Member',
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            _addCardInEvsServer(
+              context,
+              cardNumber,
+              unitCardId,
+              unitBankId,
+              expYearMonth,
+              customerId,
+            );
+          });
+        } else {
+          if (successStatus.toLowerCase() == 'success') {
+            //
+          }
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
     }
   }
 }

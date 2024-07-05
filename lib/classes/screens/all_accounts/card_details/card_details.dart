@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -374,6 +377,16 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                       print(widget.cardData['id']);
                       print(storeCustomerToken);
                     }
+                    // depositMoney(
+                    //   'cardNumber',
+                    //   'expiryDate',
+                    //   'cvv',
+                    //   10,
+                    //   'currency',
+                    //   'accountId',
+                    // );
+                    // makePurchase();
+
                     strSelectType = '2';
                     //
                     showLoadingUI(context, 'please wait...');
@@ -407,7 +420,12 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         strCardStatus == 'ClosedByCustomer'
             ? const SizedBox()
             : Padding(
-                padding: const EdgeInsets.only(top: 6.0, bottom: 6.0),
+                padding: const EdgeInsets.only(
+                  top: 6.0,
+                  bottom: 4.0,
+                  left: 10.0,
+                  right: 10.0,
+                ),
                 child: NeoPopTiltedButton(
                   color: Colors.blue[100],
                   onTapUp: () {
@@ -446,7 +464,12 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         strCardStatus == 'ClosedByCustomer'
             ? const SizedBox()
             : Padding(
-                padding: const EdgeInsets.only(top: 6.0, bottom: 6.0),
+                padding: const EdgeInsets.only(
+                  top: 6.0,
+                  bottom: 4.0,
+                  left: 10.0,
+                  right: 10.0,
+                ),
                 child: NeoPopTiltedButton(
                   color: strCardStatus == 'Frozen'
                       ? hexToColor(appORANGEcolorHexCode)
@@ -479,10 +502,18 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                           children: [
                             if (strCardStatus == 'Frozen') ...[
                               textFontPOOPINS(
-                                  'Unfreeze card', Colors.black, 12.0),
+                                'Unfreeze card',
+                                Colors.black,
+                                12.0,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ] else ...[
                               textFontPOOPINS(
-                                  'Freeze card', Colors.black, 12.0),
+                                'Freeze card',
+                                Colors.black,
+                                12.0,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ]
                           ],
                         )
@@ -500,7 +531,12 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         strCardStatus == 'ClosedByCustomer'
             ? const SizedBox()
             : Padding(
-                padding: const EdgeInsets.only(top: 6.0, bottom: 14.0),
+                padding: const EdgeInsets.only(
+                  top: 6.0,
+                  bottom: 14.0,
+                  left: 10.0,
+                  right: 10.0,
+                ),
                 child: NeoPopTiltedButton(
                   color: const Color.fromARGB(255, 231, 123, 116),
                   onTapUp: () {
@@ -535,6 +571,109 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         const SizedBox(height: 20),
       ],
     );
+  }
+
+  Future<void> makePurchase() async {
+    try {
+      var url = Uri.parse('https://api.s.unit.sh/sandbox/purchases');
+      var token = TESTING_TOKEN;
+
+      var payload = json.encode({
+        'data': {
+          'type': 'purchaseTransaction',
+          'attributes': {
+            'amount': 1000,
+            'direction': 'Debit',
+            'merchantName': 'Apple Inc.',
+            'merchantType': 1000,
+            'merchantLocation': 'Cupertino, CA',
+            'coordinates': {
+              'longitude': -77.0364,
+              'latitude': 38.8951,
+            },
+            'last4Digits': '9146',
+            'recurring': false,
+          },
+          'relationships': {
+            'account': {
+              'data': {
+                'type': 'depositAccount',
+                'id': '3485680',
+              },
+            },
+          },
+        },
+      });
+
+      var response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/vnd.api+json',
+          'Authorization': 'Bearer $token',
+        },
+        body: payload,
+      );
+
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Purchase successful!');
+          print(response.body);
+        }
+        // Handle the response data
+      } else {
+        if (kDebugMode) {
+          print('Purchase failed with status code: ${response.statusCode}');
+          print(response.body);
+        }
+        // Handle error response
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error making purchase: $e');
+      }
+    }
+  }
+
+  Future<void> depositMoney(String cardNumber, String expiryDate, String cvv,
+      double amount, String currency, String accountId) async {
+    try {
+      var url = Uri.parse('https://api.s.unit.sh/payments');
+      if (kDebugMode) {
+        print(url);
+      }
+
+      var payload = {
+        'card_number': 4242424242424242,
+        'expiry_date': expiryDate,
+        'cvv': cvv,
+        'amount': amount,
+        'currency': currency,
+        'account_id': accountId
+      };
+
+      var response = await http.post(url, body: json.encode(payload), headers: {
+        'Content-Type': 'application/vnd.api+json',
+        'Authorization': 'Bearer $TESTING_TOKEN',
+      });
+
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Deposit successful!');
+          print(response.body);
+        }
+        // Handle the response data
+      } else {
+        if (kDebugMode) {
+          print('Deposit failed with status code: ${response.statusCode}');
+          print(response.body);
+        }
+        // Handle error response
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error depositing money: $e');
+      }
+    }
   }
 
   // close card
