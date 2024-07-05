@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/foundation.dart';
@@ -8,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:neopop/neopop.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 // import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
@@ -21,6 +24,9 @@ import 'package:ride_card_app/classes/service/UNIT/CARD/freeze_unfreeze_card/fre
 import 'package:ride_card_app/classes/service/UNIT/CARD/pin_status/pin_status.dart';
 import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/customer_token/customer_token.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
+import 'package:ride_card_app/classes/service/service/service.dart';
+import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -36,6 +42,8 @@ class CardDetailsScreen extends StatefulWidget {
 
 class _CardDetailsScreenState extends State<CardDetailsScreen> {
   //
+  final ApiService _apiService = ApiService();
+  GenerateTokenService apiServiceGT = GenerateTokenService();
   var storeCardId = '';
   var strPinStatus = '';
   bool pinStatusLoader = true;
@@ -573,7 +581,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
     );
   }
 
-  Future<void> makePurchase() async {
+  /*Future<void> makePurchase() async {
     try {
       var url = Uri.parse('https://api.s.unit.sh/sandbox/purchases');
       var token = TESTING_TOKEN;
@@ -632,9 +640,9 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         print('Error making purchase: $e');
       }
     }
-  }
+  }*/
 
-  Future<void> depositMoney(String cardNumber, String expiryDate, String cvv,
+  /*Future<void> depositMoney(String cardNumber, String expiryDate, String cvv,
       double amount, String currency, String accountId) async {
     try {
       var url = Uri.parse('https://api.s.unit.sh/payments');
@@ -674,7 +682,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         print('Error depositing money: $e');
       }
     }
-  }
+  }*/
 
   // close card
   void closeCard(BuildContext context) {
@@ -691,8 +699,84 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
       }
       Navigator.pop(context);
       Navigator.pop(context, 'reload_screen');
+      // _deleteCard(context, storeCardId);
     });
   }
+
+  /*void _deleteCard(context, String cardId) async {
+    debugPrint('API ==> DELETE CARD');
+    showLoadingUI(context, 'deleting...');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+
+    final parameters = {
+      'action': 'carddelete',
+      'userId': userId,
+      'cardId': cardId,
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+
+    try {
+      final response = await _apiService.postRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = '';
+      if (jsonResponse['msg'] == null) {
+        //
+        successMessage = '';
+        if (kDebugMode) {
+          print('STATUS ==> $successStatus');
+          print(successMessage);
+        }
+      } else {
+        successMessage = jsonResponse['msg'];
+        if (kDebugMode) {
+          print('STATUS ==> $successStatus');
+          print(successMessage);
+        }
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          apiServiceGT
+              .generateToken(
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            'Member',
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            _deleteCard(context, cardId);
+          });
+        } else {
+          //
+          Navigator.pop(context);
+          Navigator.pop(context, 'reload_screen');
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }
+  }*/
 
   void showFreezeCardDialog(BuildContext context) {
     areYouSureFreezeCardPopup(
@@ -719,8 +803,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         if (kDebugMode) {
           print(freezeStatus);
         }
-        Navigator.pop(context);
-        Navigator.pop(context, 'reload_screen');
+        freezeUnfreezeCardInEVSApi(context, '0');
       },
     );
   }
@@ -749,10 +832,94 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         if (kDebugMode) {
           print(freezeStatus);
         }
-        Navigator.pop(context);
-        Navigator.pop(context, 'reload_screen');
+        freezeUnfreezeCardInEVSApi(context, '1');
       },
     );
+  }
+
+  void freezeUnfreezeCardInEVSApi(
+    context,
+    String type,
+  ) async {
+    debugPrint('API ==> FREEZE UNFREEZE CARD BY EVS API');
+    // showLoadingUI(context, 'deleting...');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+
+    final parameters = {
+      'action': 'cardedit',
+      'userId': userId,
+      'unit_card_id': storeCardId.toString(),
+      'status': type, // 0 = freeze by evs
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+
+    // return;
+
+    try {
+      final response = await _apiService.postRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = '';
+      if (jsonResponse['msg'] == null) {
+        //
+        successMessage = '';
+        if (kDebugMode) {
+          print('STATUS ==> $successStatus');
+          print(successMessage);
+        }
+      } else {
+        successMessage = jsonResponse['msg'];
+        if (kDebugMode) {
+          print('STATUS ==> $successStatus');
+          print(successMessage);
+        }
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          apiServiceGT
+              .generateToken(
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            'Member',
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            if (type == '1') {
+              freezeUnfreezeCardInEVSApi(context, '1');
+            } else {
+              freezeUnfreezeCardInEVSApi(context, '0');
+            }
+          });
+        } else {
+          //
+          Navigator.pop(context);
+          Navigator.pop(context, 'reload_screen');
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }
   }
 
   Future<void> _launchURL(String url) async {
@@ -885,9 +1052,9 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                       const Spacer(),
                       textFontPOOPINS(
                         COUNTRY_CURRENCY +
-                            response['data']['attributes']['dailyTotals']
-                                    ['withdrawals']
-                                .toString(),
+                            convertCentsToDollarsAndCents(response['data']
+                                    ['attributes']['dailyTotals']['withdrawals']
+                                .toString()),
                         Colors.black,
                         14.0,
                       ),
@@ -900,9 +1067,9 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                       const Spacer(),
                       textFontPOOPINS(
                         COUNTRY_CURRENCY +
-                            response['data']['attributes']['dailyTotals']
-                                    ['deposits']
-                                .toString(),
+                            convertCentsToDollarsAndCents(response['data']
+                                    ['attributes']['dailyTotals']['deposits']
+                                .toString()),
                         Colors.black,
                         14.0,
                       ),
@@ -915,9 +1082,9 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                       const Spacer(),
                       textFontPOOPINS(
                         COUNTRY_CURRENCY +
-                            response['data']['attributes']['dailyTotals']
-                                    ['purchases']
-                                .toString(),
+                            convertCentsToDollarsAndCents(response['data']
+                                    ['attributes']['dailyTotals']['purchases']
+                                .toString()),
                         Colors.black,
                         14.0,
                       ),
@@ -930,9 +1097,10 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                       const Spacer(),
                       textFontPOOPINS(
                         COUNTRY_CURRENCY +
-                            response['data']['attributes']['dailyTotals']
+                            convertCentsToDollarsAndCents(response['data']
+                                        ['attributes']['dailyTotals']
                                     ['cardTransactions']
-                                .toString(),
+                                .toString()),
                         Colors.black,
                         14.0,
                       ),
@@ -954,9 +1122,10 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                       const Spacer(),
                       textFontPOOPINS(
                         COUNTRY_CURRENCY +
-                            response['data']['attributes']['monthlyTotals']
+                            convertCentsToDollarsAndCents(response['data']
+                                        ['attributes']['monthlyTotals']
                                     ['withdrawals']
-                                .toString(),
+                                .toString()),
                         Colors.black,
                         14.0,
                       ),
@@ -969,9 +1138,9 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                       const Spacer(),
                       textFontPOOPINS(
                         COUNTRY_CURRENCY +
-                            response['data']['attributes']['monthlyTotals']
-                                    ['deposits']
-                                .toString(),
+                            convertCentsToDollarsAndCents(response['data']
+                                    ['attributes']['monthlyTotals']['deposits']
+                                .toString()),
                         Colors.black,
                         14.0,
                       ),
@@ -984,9 +1153,9 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                       const Spacer(),
                       textFontPOOPINS(
                         COUNTRY_CURRENCY +
-                            response['data']['attributes']['monthlyTotals']
-                                    ['purchases']
-                                .toString(),
+                            convertCentsToDollarsAndCents(response['data']
+                                    ['attributes']['monthlyTotals']['purchases']
+                                .toString()),
                         Colors.black,
                         14.0,
                       ),
@@ -999,9 +1168,10 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                       const Spacer(),
                       textFontPOOPINS(
                         COUNTRY_CURRENCY +
-                            response['data']['attributes']['monthlyTotals']
+                            convertCentsToDollarsAndCents(response['data']
+                                        ['attributes']['monthlyTotals']
                                     ['cardTransactions']
-                                .toString(),
+                                .toString()),
                         Colors.black,
                         14.0,
                       ),
@@ -1141,4 +1311,6 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
       // Handle the error as needed
     }
   }
+
+  //
 }

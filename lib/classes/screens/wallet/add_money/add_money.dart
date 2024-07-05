@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -7,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:neopop/neopop.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/all_accounts/all_accounts.dart';
@@ -37,6 +39,8 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
   var strUserSelectAmount = '0';
   var strUserSelectCardType = '0';
   var strUserSelectCardNumber = '';
+  var strUserSelectedCardLast4Digits = '';
+  var strUserSelectedCardBankId = '';
   //
   @override
   void initState() {
@@ -363,46 +367,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                   ),
                 ],
               ),
-              const Divider(
-                thickness: 0.4,
-              ),
-              ListTile(
-                title: textFontPOOPINS(
-                  //
-                  'Bank account cards',
-                  hexToColor(appORANGEcolorHexCode),
-                  16.0,
-                  fontWeight: FontWeight.w600,
-                ),
-                /*subtitle: textFontPOOPINS(
-                  //
-                  TEXT_SELECT_CARD_SUB_TITLE,
-                  Colors.white,
-                  12.0,
-                  fontWeight: FontWeight.w400,
-                ),*/
-                trailing: IconButton(
-                  onPressed: () {
-                    //
 
-                    // pushToAddCardScreen(context);
-                  },
-                  icon: const Icon(
-                    Icons.chevron_right,
-                    color: Colors.amber,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AllAccountsScreen()),
-                  );
-                },
-              ),
-              const Divider(
-                thickness: 0.4,
-              ),
               ListTile(
                 title: textFontPOOPINS(
                   //
@@ -443,7 +408,6 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                           title: cards[i]['card_group'].toString() == '2'
                               ? textFontPOOPINS(
                                   // sv
-
                                   // ignore: prefer_interpolation_to_compose_strings
                                   '**** **** ****' + cards[i]['cardNumber'],
                                   Colors.black,
@@ -471,6 +435,12 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                           onTap: () {
                             debugPrint('USER CLICK LIST TILE');
                             debugPrint('CG: ${cards[i]['card_group']}');
+                            debugPrint('CN: ${cards[i]['cardNumber']}');
+                            strUserSelectedCardLast4Digits =
+                                cards[i]['cardNumber'].toString();
+                            strUserSelectedCardBankId =
+                                cards[i]['bank_id'].toString();
+                            //
                             cards[i]['card_group'].toString() == '2'
                                 ? strUserSelectCardType = '2' // unit
                                 : strUserSelectCardType = '1'; // external
@@ -562,7 +532,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(
+              /*Padding(
                 padding: const EdgeInsets.all(18.0),
                 child: NeoPopTiltedButton(
                   isFloating: true,
@@ -589,7 +559,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                     ),
                   ),
                 ),
-              ),
+              ),*/
               Padding(
                 padding: const EdgeInsets.all(18.0),
                 child: NeoPopTiltedButton(
@@ -608,12 +578,29 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                     } else {
                       debugPrint('=======================');
                       debugPrint('USER SELECT SOME AMOUNT');
+                      debugPrint(strUserSelectAmount);
                       debugPrint('=======================');
-                      showCustomPopup(
+                      /*showCustomPopup(
                         context,
                         '500',
                         '1234',
-                      );
+                      );*/
+                      if (strUserSelectAmount == '1') {
+                        openPopupWithoutCVV(
+                          context,
+                          '100',
+                        );
+                      } else if (strUserSelectAmount == '2') {
+                        openPopupWithoutCVV(
+                          context,
+                          '500',
+                        );
+                      } else {
+                        openPopupWithoutCVV(
+                          context,
+                          '1',
+                        );
+                      }
                     }
                   },
                   decoration: NeoPopTiltedButtonDecoration(
@@ -676,6 +663,78 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
     // print(responseBody);
   }
 
+  void openPopupWithoutCVV(
+    BuildContext context,
+    String amount,
+  ) {
+    debugPrint('TWO');
+    debugPrint(strUserSelectCardType);
+    TextEditingController firstController = TextEditingController(text: amount);
+    // TextEditingController secondController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: textFontPOOPINS(
+            'Add money',
+            Colors.black,
+            16.0,
+            fontWeight: FontWeight.w600,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const SizedBox(height: 10.0),
+              textFontPOOPINS(
+                'Card number: **** $strUserSelectCardNumber',
+                Colors.black,
+                10.0,
+              ),
+              const SizedBox(height: 10.0),
+              TextField(
+                controller: firstController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(hintText: 'Enter price'),
+              ),
+              /*const TextField(
+                // controller: firstController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(hintText: 'cvv'),
+                maxLength: 3,
+              ),
+              const SizedBox(height: 20),*/
+              ElevatedButton(
+                onPressed: () {
+                  // Handle button press
+                  String firstValue = firstController.text;
+                  // String secondValue = secondController.text;
+
+                  if (kDebugMode) {
+                    print('First value: $firstValue');
+                    debugPrint(strUserSelectCardType);
+                  }
+
+                  Navigator.pop(context);
+
+                  if (strUserSelectCardType == '2') {
+                    // payment unit
+                    debugPrint('UNIT PAYMENT');
+                    addMoneyViaUnit(firstValue);
+                  } else {
+                    // evs api: add money
+                    _addMoney(context, firstValue, 'dummy_1');
+                  }
+                },
+                child: const Text('Submit'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   //
   void showCustomPopup(BuildContext context, String amount, String cardNumber) {
     debugPrint('TWO');
@@ -731,6 +790,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                   if (strUserSelectCardType == '2') {
                     // payment unit
                     debugPrint('UNIT PAYMENT');
+                    addMoneyViaUnit(firstValue);
                   } else {
                     // evs api: add money
                     _addMoney(context, firstValue, 'dummy_1');
@@ -822,38 +882,110 @@ amount:
 transactionId:
 */
 
-  addMoneyViaUnit() {
-    /*
-  curl -X POST 'https://api.s.unit.sh/sandbox/purchases'
--H 'Content-Type: application/vnd.api+json'
--H 'Authorization: Bearer ${TOKEN}'
---data-raw '{
-  "data": {
-    "type": "purchaseTransaction",
-    "attributes": {
-      "amount": 1000,
-      "direction": "Debit",
-      "merchantName": "Apple Inc.",
-      "merchantType": 1000,
-      "merchantLocation": "Cupertino, CA",
-      "coordinates": {
-        "longitude": -77.0364,
-        "latitude": 38.8951
-      },
-      "last4Digits": "1234",
-      "recurring": false
-    },
-    "relationships": {
-      "account": {
-        "data": {
-          "type": "depositAccount",
-          "id": "10000"
+  Future<void> addMoneyViaUnit(
+    String amount,
+  ) async {
+    showLoadingUI(context, 'please wait...');
+    final url = Uri.parse('https://api.s.unit.sh/sandbox/purchases');
+    final headers = {
+      'Content-Type': 'application/vnd.api+json',
+      'Authorization': 'Bearer $TESTING_TOKEN',
+    };
+    final body = jsonEncode({
+      "data": {
+        "type": "purchaseTransaction",
+        "attributes": {
+          "amount": int.parse(convertDollarsToCentsAsString(amount)),
+          "direction": "Debit",
+          "merchantName": "My wallet",
+          "merchantType": 1000,
+          "merchantLocation": "Cupertino, CA",
+          "coordinates": {"longitude": -77.0364, "latitude": 38.8951},
+          "last4Digits": strUserSelectedCardLast4Digits.toString(),
+          "recurring": false
+        },
+        "relationships": {
+          "account": {
+            "data": {
+              "type": "depositAccount",
+              "id": strUserSelectedCardBankId.toString(),
+            }
+          }
         }
       }
+    });
+
+    if (kDebugMode) {
+      print(body);
+    }
+
+    try {
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: body,
+      );
+
+      if (response.statusCode == 201) {
+        if (kDebugMode) {
+          print('Transaction created successfully');
+          print(jsonDecode(response.body));
+        }
+        String title = getTransactionIdFromResponse(response.body);
+        if (kDebugMode) {
+          print('Transaction Id: ====> $title');
+        }
+        Navigator.pop(context);
+        _addMoney(context, amount, title.toString());
+      } else if (response.statusCode == 400) {
+        if (kDebugMode) {
+          print('Bad request');
+          print('Status code: ${response.statusCode}');
+          print('Response body: ${response.body}');
+        }
+        Navigator.pop(context);
+        String title = getTitleFromErrorResponse(response.body);
+        customToast(title, Colors.red, ToastGravity.BOTTOM);
+      } else {
+        if (kDebugMode) {
+          print('Failed to create transaction');
+          print('Status code: ${response.statusCode}');
+          print('Response body: ${response.body}');
+        }
+        Navigator.pop(context);
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error: $error');
+      }
+      Navigator.pop(context);
     }
   }
-}'
- */
+
+  String getTransactionIdFromResponse(String jsonResponse) {
+    final decodedResponse = json.decode(jsonResponse);
+
+    if (decodedResponse.containsKey('data') &&
+        decodedResponse['data'].containsKey('attributes') &&
+        decodedResponse['data'].containsKey('id')) {
+      return decodedResponse['data']['id'].toString();
+    }
+
+    return 'Amount not found';
+  }
+
+  String getTitleFromErrorResponse(String jsonResponse) {
+    final decodedResponse = json.decode(jsonResponse);
+
+    if (decodedResponse.containsKey('errors') &&
+        decodedResponse['errors'] is List) {
+      final errors = decodedResponse['errors'];
+      if (errors.isNotEmpty && errors[0].containsKey('title')) {
+        return errors[0]['title'];
+      }
+    }
+
+    return 'Title not found';
   }
 
   // API
@@ -861,7 +993,7 @@ transactionId:
     debugPrint('API ==> ADD MONEY');
     showLoadingUI(context, 'adding...');
     // customToast('adding please wait...', Colors.green, ToastGravity.BOTTOM);
-    return;
+    // return;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();

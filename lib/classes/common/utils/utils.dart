@@ -1,5 +1,4 @@
 var BASE_URL = 'https://demo4.evirtualservices.net/ridewallet/services/index';
-
 //
 var COUNTRY_US = 'US';
 var COUNTRY_CURRENCY = '\$';

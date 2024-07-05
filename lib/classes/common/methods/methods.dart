@@ -73,3 +73,35 @@ String formatDate(String inputDateStr) {
 
   return formattedDate;
 }
+
+String convertCentsToDollarsAndCents(String centsString) {
+  // Parse the cents value from string to integer
+  int cents = int.tryParse(centsString) ?? 0;
+
+  // Calculate dollars and cents
+  int dollars = cents ~/ 100;
+  int remainingCents = cents % 100;
+
+  // Build the result string
+  String result =
+      // '${dollars.toString()} dollars and ${remainingCents.toString()} cents';
+      '${dollars.toString()}.${remainingCents.toString()}';
+
+  return result;
+}
+
+String convertDollarsToCentsAsString(String dollarString) {
+  // Remove any commas or currency symbols if present
+  dollarString = dollarString.replaceAll(',', '').replaceAll('\$', '');
+
+  // Parse the dollar amount from string to double
+  double dollars = double.tryParse(dollarString) ?? 0.0;
+
+  // Convert dollars to cents (multiply by 100 and round to nearest integer)
+  int cents = (dollars * 100).round();
+
+  // Format cents as a string
+  String centsString = cents.toString();
+
+  return centsString;
+}

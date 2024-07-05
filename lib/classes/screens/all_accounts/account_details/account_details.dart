@@ -1415,6 +1415,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       'bank_number': bankAccountNumber,
       'relationship_card_type': 'depositAccount',
       'customerID': customerId,
+      'status': '1' // 1 == active, 2 = not active
     };
     if (kDebugMode) {
       print(parameters);
