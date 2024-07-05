@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
@@ -1383,18 +1384,29 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
     String customerId,
   ) async {
     debugPrint('API ==> ADD CARD');
-
+    //
+    showLoadingUI(context, 'please wait...');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
+
+    // split year and month
+    List<String> parts = expYearMonth.split('-');
+    String year = parts[0];
+    String month = parts[1];
+
+    if (kDebugMode) {
+      print('Year: $year');
+      print('Month: $month');
+    }
 
     final parameters = {
       'action': 'cardadd',
       'userId': userId,
       'cardNumber': cardNumber.toString(),
       'nameOnCard': FirebaseAuth.instance.currentUser!.email,
-      'Expiry_Month': expYearMonth,
-      'Expiry_Year': expYearMonth,
+      'Expiry_Month': month,
+      'Expiry_Year': year,
       'cardType': 'Debit Card'.toString(),
       // unit
       'card_group': '2',
@@ -1407,8 +1419,6 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
     if (kDebugMode) {
       print(parameters);
     }
-
-    // return;
 
     try {
       final response = await _apiService.postRequest(parameters, token);
@@ -1453,6 +1463,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         } else {
           if (successStatus.toLowerCase() == 'success') {
             //
+            Navigator.pop(context);
+            fetchAllCardsDetails();
           }
         }
       } else {

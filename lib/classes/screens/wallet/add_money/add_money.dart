@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:neopop/neopop.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
@@ -34,6 +35,8 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
   final apiService = ApiServiceForListOfAllCards();
   List<dynamic> cards = [];
   var strUserSelectAmount = '0';
+  var strUserSelectCardType = '0';
+  var strUserSelectCardNumber = '';
   //
   @override
   void initState() {
@@ -437,46 +440,80 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                         child: ListTile(
-                          title: textFontPOOPINS(
-                            // sv
-                            cards[i]['cardNumber'],
-                            Colors.black,
-                            18.0,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          title: cards[i]['card_group'].toString() == '2'
+                              ? textFontPOOPINS(
+                                  // sv
+
+                                  // ignore: prefer_interpolation_to_compose_strings
+                                  '**** **** ****' + cards[i]['cardNumber'],
+                                  Colors.black,
+                                  18.0,
+                                  fontWeight: FontWeight.w600,
+                                )
+                              : textFontPOOPINS(
+                                  // sv
+                                  cards[i]['cardNumber'],
+                                  Colors.black,
+                                  18.0,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           subtitle: textFontPOOPINS(
                             // sv
-                            cards[i]['Expiry_Month'] +
-                                '/' +
-                                cards[i]['Expiry_Year'],
-                            Colors.black,
+                            cards[i]['Expiry_Year'] +
+                                '-' +
+                                cards[i]['Expiry_Month'],
+                            Colors.grey,
                             12.0,
                           ),
+                          trailing: cards[i]['card_group'].toString() == '2'
+                              ? textFontPOOPINS('RCS', Colors.grey, 8.0)
+                              : textFontPOOPINS('External', Colors.grey, 8.0),
                           onTap: () {
+                            debugPrint('USER CLICK LIST TILE');
+                            debugPrint('CG: ${cards[i]['card_group']}');
+                            cards[i]['card_group'].toString() == '2'
+                                ? strUserSelectCardType = '2' // unit
+                                : strUserSelectCardType = '1'; // external
+                            debugPrint(strUserSelectCardType.toString());
+                            // check
                             if (strUserSelectAmount == '0') {
                               //
-                              customToast(
-                                'Please select amount first',
-                                Colors.orange,
-                                ToastGravity.BOTTOM,
-                              );
+                              cards[i]['card_group'].toString() == '2'
+                                  ? showBottomSheet(context)
+                                  : customToast(
+                                      'Please select amount first',
+                                      Colors.orange,
+                                      ToastGravity.BOTTOM,
+                                    );
                             } else if (strUserSelectAmount == '3') {
-                              showCustomPopupForCustom(
-                                context,
-                                cards[i]['cardNumber'],
-                              );
+                              strUserSelectCardNumber =
+                                  cards[i]['cardNumber'].toString();
+                              cards[i]['card_group'].toString() == '2'
+                                  ? showBottomSheet(context)
+                                  : showCustomPopupForCustom(
+                                      context,
+                                      cards[i]['cardNumber'],
+                                    );
                             } else if (strUserSelectAmount == '2') {
-                              showCustomPopup(
-                                context,
-                                '500',
-                                cards[i]['cardNumber'],
-                              );
+                              strUserSelectCardNumber =
+                                  cards[i]['cardNumber'].toString();
+                              cards[i]['card_group'].toString() == '2'
+                                  ? showBottomSheet(context)
+                                  : showCustomPopup(
+                                      context,
+                                      '500',
+                                      cards[i]['cardNumber'],
+                                    );
                             } else {
-                              showCustomPopup(
-                                context,
-                                '100',
-                                cards[i]['cardNumber'],
-                              );
+                              strUserSelectCardNumber =
+                                  cards[i]['cardNumber'].toString();
+                              cards[i]['card_group'].toString() == '2'
+                                  ? showBottomSheet(context)
+                                  : showCustomPopup(
+                                      context,
+                                      '100',
+                                      cards[i]['cardNumber'],
+                                    );
                             }
                           },
                         ),
@@ -515,6 +552,97 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
           );
   }
 
+  void showBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: NeoPopTiltedButton(
+                  isFloating: true,
+                  onTapUp: () {
+                    if (kDebugMode) {
+                      print('CLICKED ==> CVV');
+                    }
+                  },
+                  decoration: NeoPopTiltedButtonDecoration(
+                    color: const Color.fromRGBO(255, 235, 52, 1),
+                    plunkColor: hexToColor(appORANGEcolorHexCode),
+                    shadowColor: const Color.fromRGBO(36, 36, 36, 1),
+                    showShimmer: true,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 70.0,
+                      vertical: 15,
+                    ),
+                    child: textFontPOOPINS(
+                      'Show CVV',
+                      Colors.black,
+                      14.0,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: NeoPopTiltedButton(
+                  isFloating: true,
+                  onTapUp: () {
+                    if (kDebugMode) {
+                      print('CLICKED ==> ADD MONEY TO WALLET');
+                    }
+                    Navigator.pop(context);
+                    if (strUserSelectAmount == '0') {
+                      customToast(
+                        'Please select amount first',
+                        Colors.orange,
+                        ToastGravity.BOTTOM,
+                      );
+                    } else {
+                      debugPrint('=======================');
+                      debugPrint('USER SELECT SOME AMOUNT');
+                      debugPrint('=======================');
+                      showCustomPopup(
+                        context,
+                        '500',
+                        '1234',
+                      );
+                    }
+                  },
+                  decoration: NeoPopTiltedButtonDecoration(
+                    color: const Color.fromRGBO(255, 235, 52, 1),
+                    plunkColor: hexToColor(appORANGEcolorHexCode),
+                    shadowColor: const Color.fromRGBO(36, 36, 36, 1),
+                    showShimmer: true,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 70.0,
+                      vertical: 15,
+                    ),
+                    child: textFontPOOPINS(
+                      'Add money to wallet',
+                      Colors.black,
+                      14.0,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8.0),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void fetchCards(status) async {
     debugPrint('FETCH ALL CARDS');
     List<dynamic> fetchedCards = await apiService.listOfAllCards(context);
@@ -550,6 +678,8 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
 
   //
   void showCustomPopup(BuildContext context, String amount, String cardNumber) {
+    debugPrint('TWO');
+    debugPrint(strUserSelectCardType);
     TextEditingController firstController = TextEditingController(text: amount);
     // TextEditingController secondController = TextEditingController();
 
@@ -568,9 +698,9 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
             children: <Widget>[
               const SizedBox(height: 10.0),
               textFontPOOPINS(
-                'Card number: $cardNumber',
+                'Card number: **** $strUserSelectCardNumber',
                 Colors.black,
-                12.0,
+                10.0,
               ),
               const SizedBox(height: 10.0),
               TextField(
@@ -593,13 +723,18 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
 
                   if (kDebugMode) {
                     print('First value: $firstValue');
-                    // print('Second value: $secondValue');
+                    debugPrint(strUserSelectCardType);
                   }
 
                   Navigator.pop(context);
 
-                  // evs api: add money
-                  _addMoney(context, firstValue, 'dummy_1');
+                  if (strUserSelectCardType == '2') {
+                    // payment unit
+                    debugPrint('UNIT PAYMENT');
+                  } else {
+                    // evs api: add money
+                    _addMoney(context, firstValue, 'dummy_1');
+                  }
                 },
                 child: const Text('Submit'),
               ),
@@ -612,6 +747,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
 
   //
   void showCustomPopupForCustom(BuildContext context, String cardNumber) {
+    debugPrint('ONE');
     // Create controllers for text fields
     TextEditingController firstController = TextEditingController();
     // TextEditingController secondController = TextEditingController();
@@ -631,7 +767,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
             children: <Widget>[
               const SizedBox(height: 10.0),
               textFontPOOPINS(
-                'Card number: $cardNumber',
+                'Card number: $strUserSelectCardNumber',
                 Colors.black,
                 12.0,
               ),
@@ -661,10 +797,15 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
 
                   Navigator.pop(context);
 
-                  // evs api: add money
-                  _addMoney(context, firstValue, 'dummy_1');
+                  if (strUserSelectCardType == '2') {
+                    // payment unit
+                    debugPrint('UNIT PAYMENT');
+                  } else {
+                    // evs api: add money
+                    _addMoney(context, firstValue, 'dummy_1');
+                  }
                 },
-                child: Text('Submit'),
+                child: const Text('Submit'),
               ),
             ],
           ),
@@ -681,12 +822,46 @@ amount:
 transactionId:
 */
 
+  addMoneyViaUnit() {
+    /*
+  curl -X POST 'https://api.s.unit.sh/sandbox/purchases'
+-H 'Content-Type: application/vnd.api+json'
+-H 'Authorization: Bearer ${TOKEN}'
+--data-raw '{
+  "data": {
+    "type": "purchaseTransaction",
+    "attributes": {
+      "amount": 1000,
+      "direction": "Debit",
+      "merchantName": "Apple Inc.",
+      "merchantType": 1000,
+      "merchantLocation": "Cupertino, CA",
+      "coordinates": {
+        "longitude": -77.0364,
+        "latitude": 38.8951
+      },
+      "last4Digits": "1234",
+      "recurring": false
+    },
+    "relationships": {
+      "account": {
+        "data": {
+          "type": "depositAccount",
+          "id": "10000"
+        }
+      }
+    }
+  }
+}'
+ */
+  }
+
   // API
   void _addMoney(context, String amount, String transactionId) async {
     debugPrint('API ==> ADD MONEY');
     showLoadingUI(context, 'adding...');
     // customToast('adding please wait...', Colors.green, ToastGravity.BOTTOM);
-
+    return;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
