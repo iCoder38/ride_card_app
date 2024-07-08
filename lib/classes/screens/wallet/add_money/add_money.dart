@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_credit_card/flutter_credit_card.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,6 +21,8 @@ import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:flutter_stripe/flutter_stripe.dart';
+
 class AddMoneyScreen extends StatefulWidget {
   const AddMoneyScreen({super.key});
 
@@ -31,6 +34,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
   //
   final ApiService _apiService = ApiService();
   GenerateTokenService apiServiceGT = GenerateTokenService();
+
   bool screenLoader = true;
   var myFullData;
   var myCurrentBalance;
@@ -44,9 +48,23 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
   //
   @override
   void initState() {
-    //
     fetchProfileData('0');
     super.initState();
+  }
+
+  createPaymentToken() async {
+    final paymentIntent = await Stripe.instance.confirmPlatformPayPaymentIntent(
+        clientSecret: 'clientSecret',
+        confirmParams: PlatformPayConfirmParams.googlePay(
+          googlePay: GooglePayParams(
+            testEnv: true,
+            merchantName: 'Example Merchant Name',
+            merchantCountryCode: 'Es',
+            currencyCode: 'EUR',
+          ),
+        ));
+    print(paymentIntent);
+    // PaymentIntentParams(clientSecret: 'your_client_secret', paymentMethodId: paymentMethod.id),
   }
 
   @override
@@ -436,6 +454,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                             debugPrint('USER CLICK LIST TILE');
                             debugPrint('CG: ${cards[i]['card_group']}');
                             debugPrint('CN: ${cards[i]['cardNumber']}');
+                            debugPrint('CN: ${cards[i]}');
                             strUserSelectedCardLast4Digits =
                                 cards[i]['cardNumber'].toString();
                             strUserSelectedCardBankId =
@@ -463,6 +482,8 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                                   : showCustomPopupForCustom(
                                       context,
                                       cards[i]['cardNumber'],
+                                      cards[i]['Expiry_Month'],
+                                      cards[i]['Expiry_Year'],
                                     );
                             } else if (strUserSelectAmount == '2') {
                               strUserSelectCardNumber =
@@ -473,6 +494,8 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                                       context,
                                       '500',
                                       cards[i]['cardNumber'],
+                                      cards[i]['Expiry_Month'],
+                                      cards[i]['Expiry_Year'],
                                     );
                             } else {
                               strUserSelectCardNumber =
@@ -483,6 +506,8 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                                       context,
                                       '100',
                                       cards[i]['cardNumber'],
+                                      cards[i]['Expiry_Month'],
+                                      cards[i]['Expiry_Year'],
                                     );
                             }
                           },
@@ -687,7 +712,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
             children: <Widget>[
               const SizedBox(height: 10.0),
               textFontPOOPINS(
-                'Card number: **** $strUserSelectCardNumber',
+                'Card number: $strUserSelectCardNumber',
                 Colors.black,
                 10.0,
               ),
@@ -722,8 +747,9 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                     debugPrint('UNIT PAYMENT');
                     addMoneyViaUnit(firstValue);
                   } else {
-                    // evs api: add money
-                    _addMoney(context, firstValue, 'dummy_1');
+                    debugPrint('STRIPE PAYMENT 1');
+
+                    // _addMoney(context, firstValue, 'dummy_1');
                   }
                 },
                 child: const Text('Submit'),
@@ -736,11 +762,17 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
   }
 
   //
-  void showCustomPopup(BuildContext context, String amount, String cardNumber) {
+  void showCustomPopup(
+    BuildContext context,
+    String amount,
+    String cardNumber,
+    String expMonth,
+    String expYear,
+  ) {
     debugPrint('TWO');
     debugPrint(strUserSelectCardType);
     TextEditingController firstController = TextEditingController(text: amount);
-    // TextEditingController secondController = TextEditingController();
+    TextEditingController cvvController = TextEditingController();
 
     showDialog(
       context: context,
@@ -757,7 +789,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
             children: <Widget>[
               const SizedBox(height: 10.0),
               textFontPOOPINS(
-                'Card number: **** $strUserSelectCardNumber',
+                'Card number: $strUserSelectCardNumber',
                 Colors.black,
                 10.0,
               ),
@@ -767,10 +799,10 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(hintText: 'Enter price'),
               ),
-              const TextField(
-                // controller: firstController,
+              TextField(
+                controller: cvvController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(hintText: 'cvv'),
+                decoration: const InputDecoration(hintText: 'cvv'),
                 maxLength: 3,
               ),
               const SizedBox(height: 20),
@@ -792,8 +824,15 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                     debugPrint('UNIT PAYMENT');
                     addMoneyViaUnit(firstValue);
                   } else {
-                    // evs api: add money
-                    _addMoney(context, firstValue, 'dummy_1');
+                    debugPrint('STRIPE PAYMENT 2');
+                    generateStripeToken(
+                      cardNumber: strUserSelectCardNumber,
+                      expMonth: expMonth,
+                      expYear: expYear,
+                      cvv: cvvController.text.toString(),
+                      amount: firstController.text.toString(),
+                    ); // generateStripeToken
+                    // _addMoney(context, firstValue, 'dummy_1');
                   }
                 },
                 child: const Text('Submit'),
@@ -806,10 +845,16 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
   }
 
   //
-  void showCustomPopupForCustom(BuildContext context, String cardNumber) {
+  void showCustomPopupForCustom(
+    BuildContext context,
+    String cardNumber,
+    String expMonth,
+    String expYear,
+  ) {
     debugPrint('ONE');
     // Create controllers for text fields
     TextEditingController firstController = TextEditingController();
+    TextEditingController cvvController = TextEditingController();
     // TextEditingController secondController = TextEditingController();
 
     showDialog(
@@ -837,10 +882,10 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(hintText: 'Enter price'),
               ),
-              const TextField(
-                // controller: firstController,
+              TextField(
+                controller: cvvController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(hintText: 'cvv'),
+                decoration: const InputDecoration(hintText: 'cvv'),
                 maxLength: 3,
               ),
               const SizedBox(height: 20),
@@ -862,7 +907,15 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                     debugPrint('UNIT PAYMENT');
                   } else {
                     // evs api: add money
-                    _addMoney(context, firstValue, 'dummy_1');
+                    debugPrint('STRIPE PAYMENT 3');
+                    generateStripeToken(
+                      cardNumber: strUserSelectCardNumber,
+                      expMonth: expMonth,
+                      expYear: expYear,
+                      cvv: cvvController.text.toString(),
+                      amount: firstController.text.toString(),
+                    );
+                    // _addMoney(context, firstValue, 'dummy_1');
                   }
                 },
                 child: const Text('Submit'),
@@ -1077,4 +1130,248 @@ transactionId:
       fetchProfileData('0');
     }
   }
+
+  // STRIPE MONEY SYSTEM
+  Future<String?> generateStripeToken({
+    required String cardNumber,
+    required String expMonth,
+    required String expYear,
+    required String cvv,
+    required String amount,
+  }) async {
+    showLoadingUI(context, 'please wait...');
+    CardTokenParams cardParams = CardTokenParams(
+      type: TokenType.Card,
+      name: FirebaseAuth.instance.currentUser!.displayName,
+    );
+
+    await Stripe.instance.dangerouslyUpdateCardDetails(
+      CardDetails(
+        number: cardNumber.toString(),
+        cvc: cvv,
+        expirationMonth: int.tryParse(expMonth.toString()),
+        expirationYear: int.tryParse(expYear.toString()),
+      ),
+    );
+
+    if (kDebugMode) {
+      print('amount: $amount');
+      print('card number: $cardNumber');
+      print('cvv: $cvv');
+      print('exp month: $expMonth');
+      print('exp year: $expYear');
+    }
+
+    try {
+      TokenData token = await Stripe.instance.createToken(
+        CreateTokenParams.card(params: cardParams),
+      );
+      if (kDebugMode) {
+        print("Flutter Stripe token  ${token.toJson()}");
+        print(token.id.toString());
+      }
+
+      chargeMoneyFromStripe(
+        amount,
+        token.id.toString(),
+      );
+      // return token.id;
+    } on StripeException catch (e) {
+      // Utils.errorSnackBar(e.error.message);
+      if (kDebugMode) {
+        print("Flutter Stripe error ${e.error.message}");
+      }
+      Navigator.pop(context);
+      customToast(
+        '${e.error.message}',
+        Colors.redAccent,
+        ToastGravity.BOTTOM,
+      );
+    }
+    return null;
+  }
+
+  void chargeMoneyFromStripe(
+    String amount,
+    String stripeCardToken,
+  ) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+
+    String url = STRIPE_CHARGE_AMOUNT_URL;
+
+    //
+    var doubleParse = double.parse(amount.toString()) * 100;
+
+    // Example parameters
+    Map<String, dynamic> body = {
+      'action': 'chargeramount',
+      'userId': userId.toString(),
+      'amount': doubleParse,
+      'tokenID': stripeCardToken,
+    };
+    if (kDebugMode) {
+      print(body);
+    }
+
+    // Encode your parameters as JSON if needed
+    String jsonBody = json.encode(body);
+
+    // Define your headers
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Accept': 'application/json',
+      'token': token
+    };
+
+    // Make the POST request
+    http
+        .post(Uri.parse(url), headers: headers, body: jsonBody)
+        .then((response) {
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Response status: ${response.statusCode}');
+          print('Response body: ${response.body}');
+        }
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        String successStatus = jsonResponse['status'];
+        if (successStatus == 'Fail') {
+          Navigator.pop(context);
+          customToast(
+            jsonResponse['status'].toString(),
+            Colors.redAccent,
+            ToastGravity.BOTTOM,
+          );
+        } else if (successStatus == NOT_AUTHORIZED) {
+          //
+          apiServiceGT
+              .generateToken(
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            'Member',
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            chargeMoneyFromStripe(
+              amount,
+              stripeCardToken,
+            );
+          });
+        } else {
+          Navigator.pop(context);
+          _addMoney(context, amount, 'qwerty 1234');
+        }
+      } else {
+        if (kDebugMode) {
+          print('Request failed with status: ${response.statusCode}');
+        }
+        Navigator.pop(context);
+      }
+    }).catchError((error) {
+      if (kDebugMode) {
+        print('Error: $error');
+      }
+      Navigator.pop(context);
+    });
+  }
+
+  /*void _add(
+    context,
+    String cardNumber,
+    String unitCardId,
+    String unitBankId,
+    String expYearMonth,
+    String customerId,
+  ) async {
+    debugPrint('API ==> ADD CARD');
+    //
+    showLoadingUI(context, 'please wait...');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+ 
+
+    final parameters = {
+      'action': 'cardadd',
+      'userId': userId,
+      'cardNumber': cardNumber.toString(),
+      'nameOnCard': FirebaseAuth.instance.currentUser!.email,
+      'Expiry_Month': month,
+      'Expiry_Year': year,
+      'cardType': 'Debit Card'.toString(),
+      // unit
+      'card_group': '2',
+      'unit_card_id': unitCardId,
+      'bank_id': unitBankId,
+      'bank_number': bankAccountNumber,
+      'relationship_card_type': 'depositAccount',
+      'customerID': customerId,
+      'status': '1' // 1 == active, 2 = not active
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+
+    try {
+      final response = await _apiService.postRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+      if (kDebugMode) {
+        print('STATUS ==> $successStatus');
+        print(successMessage);
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          apiServiceGT
+              .generateToken(
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            'Member',
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            _addCardInEvsServer(
+              context,
+              cardNumber,
+              unitCardId,
+              unitBankId,
+              expYearMonth,
+              customerId,
+            );
+          });
+        } else {
+          if (successStatus.toLowerCase() == 'success') {
+            //
+            Navigator.pop(context);
+            // fetchAllCardsDetails();
+          }
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }
+  }*/
 }

@@ -851,7 +851,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
       'action': 'cardedit',
       'userId': userId,
       'unit_card_id': storeCardId.toString(),
-      'status': type, // 0 = freeze by evs
+      'status': type, // 0 = freeze
     };
     if (kDebugMode) {
       print(parameters);
@@ -1311,6 +1311,4 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
       // Handle the error as needed
     }
   }
-
-  //
 }

@@ -8,15 +8,17 @@ import 'package:ride_card_app/classes/screens/splash/splash.dart';
 import 'firebase_options.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
-// Import the generated adapter
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 RemoteMessage? initialMessage;
 
 void main() async {
   //
   WidgetsFlutterBinding.ensureInitialized();
-  // HIVE
-// Register Hive adapter
+  //
+  Stripe.publishableKey =
+      'pk_test_51POkgbCc4YwUErYBvQc176lx095ArTfNS4U5xhIKaAcAhK1SsvURDV3KUXEnTLFqOn4O6slM4v2BLZwshUZTCu7f00ga5PNA2O';
+  //
   // Register Hive adapter
   Hive.registerAdapter(MyDataAdapter());
 
