@@ -73,6 +73,8 @@ dependencies:
   webview_flutter: ^4.8.0
   neopop: ^1.0.2
   flutter_stripe: ^10.2.0
+  device_info_plus: ^10.1.0
+  network_info_plus: ^5.0.3
   # stripe_flutter:
   
 

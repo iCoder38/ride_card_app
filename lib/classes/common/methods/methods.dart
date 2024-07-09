@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 
 clearCache() {
   debugPrint('========');
@@ -119,4 +120,12 @@ String loginUserId() {
 String loginUserEmail() {
   String email = FirebaseAuth.instance.currentUser!.email.toString();
   return email;
+}
+
+// ip address of device
+Future<String?> getIPAddress() async {
+  final info = NetworkInfo();
+  String? ipAddress = await info.getWifiIP();
+  ipAddress ??= await info.getWifiIPv6();
+  return ipAddress;
 }
