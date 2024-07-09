@@ -10,8 +10,6 @@ import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 // import 'package:flutter_credit_card/flutter_credit_card.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
-import 'package:ride_card_app/classes/screens/all_cards/widgets/widgets.dart';
-import 'package:ride_card_app/classes/screens/manage_cards/manage_cards.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -128,6 +126,7 @@ class _AllCardsScreenState extends State<AllCardsScreen> {
     final parameters = {
       'action': 'cardlist',
       'userId': userId,
+      'card_group': '1',
     };
     if (kDebugMode) {
       print(parameters);

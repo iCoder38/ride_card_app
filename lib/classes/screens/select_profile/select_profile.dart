@@ -66,8 +66,9 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const WelcomeScreen(
-                            // strProfileIs: widget.strProfileSelect,
-                            ),
+                          strProfileType: 'Member',
+                          // strProfileIs: widget.strProfileSelect,
+                        ),
                       ),
                     );
                   }
@@ -102,11 +103,15 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
               padding: const EdgeInsets.all(8.0),
               child: GestureDetector(
                 onTap: () {
-                  /*Navigator.push(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const LoginScreen()),
-                  );*/
+                      builder: (context) => const WelcomeScreen(
+                        strProfileType: 'Business',
+                        // strProfileIs: widget.strProfileSelect,
+                      ),
+                    ),
+                  );
                 },
                 child: Container(
                   height: 60,

@@ -105,3 +105,18 @@ String convertDollarsToCentsAsString(String dollarString) {
 
   return centsString;
 }
+
+String loginUserName() {
+  String userName = FirebaseAuth.instance.currentUser!.displayName.toString();
+  return userName;
+}
+
+String loginUserId() {
+  String userId = FirebaseAuth.instance.currentUser!.uid.toString();
+  return userId;
+}
+
+String loginUserEmail() {
+  String email = FirebaseAuth.instance.currentUser!.email.toString();
+  return email;
+}

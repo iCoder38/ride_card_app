@@ -3,11 +3,13 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/login/login.dart';
 import 'package:ride_card_app/classes/screens/register/register.dart';
-import 'package:ride_card_app/classes/screens/select_profile/select_profile.dart';
+import 'package:ride_card_app/classes/screens/register_complete_profile/business/business_complete_profile.dart';
 import 'package:ride_card_app/classes/screens/welcome/widgets/widgets.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({super.key});
+  const WelcomeScreen({super.key, this.strProfileType});
+
+  final strProfileType;
 
   @override
   Widget build(BuildContext context) {
@@ -89,14 +91,24 @@ class WelcomeScreen extends StatelessWidget {
               child: GestureDetector(
                 onTap: () {
                   debugPrint('==> CREATE AN ACCOUNT <==');
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const RegisterScreen(
-                        strProfileIs: '2',
+                  if (strProfileType == 'Business') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const BusinessCompleteProfileScreen(),
                       ),
-                    ),
-                  );
+                    );
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RegisterScreen(
+                          strProfileIs: strProfileType,
+                        ),
+                      ),
+                    );
+                  }
                 },
                 child: Container(
                   height: 60,

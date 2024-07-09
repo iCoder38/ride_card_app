@@ -17,7 +17,7 @@ import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/register_complete_profile/register_complete_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key, required this.strProfileIs});
@@ -39,6 +39,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _contPassword = TextEditingController();
   File? imageFile;
   //
+  @override
+  void initState() {
+    debugPrint(widget.strProfileIs);
+    super.initState();
+  }
+
   @override
   void dispose() {
     // Dispose the controller when the widget is disposed
