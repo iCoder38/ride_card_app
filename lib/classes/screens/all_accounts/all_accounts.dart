@@ -32,6 +32,7 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
   bool? accountCreated;
   var myFullData;
   var accountStatusMessage = 'No account added yet. Click plus to add.';
+  var customerType = '';
   //
   @override
   void initState() {
@@ -436,6 +437,8 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
           print(jsonData);
           debugPrint('=======================================================');
         }
+        // Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        customerType = jsonData['data']['type'].toString();
         setState(() {
           screenLoader = false;
           floatingVisibility = true;
@@ -469,6 +472,7 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
         MaterialPageRoute(
           builder: (context) => AccountDetailsScreen(
             accountData: data,
+            bankType: customerType,
           ),
         ));
 

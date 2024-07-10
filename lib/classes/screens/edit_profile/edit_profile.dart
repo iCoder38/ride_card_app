@@ -46,6 +46,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   File? imageFile;
   var myFullData;
   bool isImageSelect = false;
+  var userRole = '';
   //
   @override
   void initState() {
@@ -57,7 +58,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> fetchProfileData() async {
     await sendRequestToProfileDynamic().then((v) {
       myFullData = v;
-      print(myFullData);
+      if (kDebugMode) {
+        print(myFullData);
+      }
       parseValue();
     });
     // print(responseBody);
@@ -69,6 +72,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _contLastName.text = myFullData['data']['lastName'];
     _contEmail.text = myFullData['data']['email'];
     _contPhone.text = myFullData['data']['contactNumber'];
+    userRole = myFullData['data']['role'];
 
     setState(() {
       screenLoader = false;
@@ -617,12 +621,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       'lastName': _contLastName.text,
       'email': _contEmail.text,
       'contactNumber': _contPhone.text,
-      'role': RESPONSE_ROLE,
+      'role': userRole,
       'device': parseDevice,
     };
     if (kDebugMode) {
       print(parameters);
     }
+    // return;
 
     try {
       final response = await _apiService.postRequest(parameters, token);
@@ -645,7 +650,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           //
           apiServiceGT
               .generateToken(
-                  userId, FirebaseAuth.instance.currentUser!.email, 'Member')
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            userRole.toString(),
+          )
               .then((v) {
             //
             if (kDebugMode) {
@@ -692,7 +700,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     request.fields['action'] = 'editprofile';
     request.fields['userId'] = userId.toString();
-    request.fields['role'] = RESPONSE_ROLE;
+    request.fields['role'] = userRole;
     request.fields['fullName'] = _contFirstName.text;
     request.fields['lastName'] = _contLastName.text;
     request.fields['contactNumber'] = _contPhone.text;
@@ -757,7 +765,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         debugPrint('NA');
         apiServiceGT
             .generateToken(
-                userId, FirebaseAuth.instance.currentUser!.email, 'Member')
+          userId,
+          FirebaseAuth.instance.currentUser!.email,
+          userRole.toString(),
+        )
             .then((v) {
           //
           if (kDebugMode) {

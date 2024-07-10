@@ -846,7 +846,8 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
-
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
     final parameters = {
       'action': 'cardedit',
       'userId': userId,
@@ -892,7 +893,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
               .generateToken(
             userId,
             FirebaseAuth.instance.currentUser!.email,
-            'Member',
+            roleIs,
           )
               .then((v) {
             //

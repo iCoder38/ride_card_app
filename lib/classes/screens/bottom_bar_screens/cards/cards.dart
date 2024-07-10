@@ -369,7 +369,8 @@ class _CardsScreenState extends State<CardsScreen> {
 
     // print(prefs.getString('key_save_token_locally'));
     var userId = prefs.getString('Key_save_login_user_id').toString();
-
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
     final parameters = {'action': 'profile', 'userId': userId};
     if (kDebugMode) {
       print(parameters);
@@ -394,7 +395,7 @@ class _CardsScreenState extends State<CardsScreen> {
               .generateToken(
             userId,
             FirebaseAuth.instance.currentUser!.email,
-            'Member',
+            roleIs,
           )
               .then((v) {
             //

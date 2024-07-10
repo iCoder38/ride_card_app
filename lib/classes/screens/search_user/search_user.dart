@@ -357,7 +357,8 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
 
     // print(prefs.getString('key_save_token_locally'));
     var userId = prefs.getString('Key_save_login_user_id').toString();
-
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
     final parameters = {
       'action': 'userlist',
       'userId': userId,
@@ -398,7 +399,10 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
           //
           apiServiceGT
               .generateToken(
-                  userId, FirebaseAuth.instance.currentUser!.email, 'Member')
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            roleIs,
+          )
               .then((v) {
             //
             if (kDebugMode) {

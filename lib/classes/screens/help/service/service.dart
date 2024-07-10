@@ -16,6 +16,8 @@ Future<dynamic> helpApi() async {
   debugPrint('API ==> HELP');
   SharedPreferences prefs2 = await SharedPreferences.getInstance();
   var userID = prefs2.getString('Key_save_login_user_id').toString();
+  var roleIs = '';
+  roleIs = prefs2.getString('key_save_user_role').toString();
   final parameters = {
     'action': 'help',
   };
@@ -39,8 +41,11 @@ Future<dynamic> helpApi() async {
       }
 
       if (successMessage == NOT_AUTHORIZED) {
-        await _apiServiceGT.generateToken(userID.toString(),
-            FirebaseAuth.instance.currentUser!.email, 'Member');
+        await _apiServiceGT.generateToken(
+          userID.toString(),
+          FirebaseAuth.instance.currentUser!.email,
+          roleIs,
+        );
         return await helpApi();
       } else {
         debugPrint('PROFILE: RESPONSE ==> SUCCESS');

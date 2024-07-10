@@ -23,6 +23,8 @@ class ApiServiceForListOfAllCards {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
 
     final parameters = {
       'action': 'cardlist',
@@ -51,7 +53,10 @@ class ApiServiceForListOfAllCards {
         debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
         if (successMessage == NOT_AUTHORIZED) {
           await apiServiceGT.generateToken(
-              userId, FirebaseAuth.instance.currentUser!.email, 'Member');
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            roleIs,
+          );
           return await listOfAllCards(context);
         } else {
           var arrAllCards = jsonResponse['data'] ?? [];

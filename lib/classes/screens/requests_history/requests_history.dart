@@ -404,7 +404,8 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
-
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
     final parameters = {
       'action': 'requestmoneyaccept',
       'userId': userId,
@@ -436,7 +437,10 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
           //
           apiServiceGT
               .generateToken(
-                  userId, FirebaseAuth.instance.currentUser!.email, 'Member')
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            roleIs,
+          )
               .then((v) {
             //
             if (kDebugMode) {

@@ -309,6 +309,10 @@ class _LoginScreenState extends State<LoginScreen> {
             SharedPreferences prefs2 = await SharedPreferences.getInstance();
             prefs2.setString('Key_save_login_user_id',
                 jsonResponse['data']['userId'].toString());
+            prefs2.setString(
+              'key_save_user_role',
+              jsonResponse['data']['role'].toString(),
+            );
             //
             evsRegistered = true;
             _loginViaFirebase(

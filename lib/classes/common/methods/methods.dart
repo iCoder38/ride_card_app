@@ -7,6 +7,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:network_info_plus/network_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 clearCache() {
   debugPrint('========');
@@ -120,6 +121,18 @@ String loginUserId() {
 String loginUserEmail() {
   String email = FirebaseAuth.instance.currentUser!.email.toString();
   return email;
+}
+
+Future<String> loginUserType() async {
+  var roleIs = '';
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  roleIs = prefs.getString('key_save_user_role').toString();
+
+  return getUserRole2();
+}
+
+String getUserRole2() {
+  return 'test';
 }
 
 // ip address of device

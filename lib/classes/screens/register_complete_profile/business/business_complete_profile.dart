@@ -2010,12 +2010,11 @@ class _BusinessCompleteProfileScreenState
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     // SharedPreferences prefs2 = await SharedPreferences.getInstance();
     // prefs2.setString('Key_save_login_user_id', widget.userId);
-    var mergeName =
-        '${_contName.text.toString()} ${_contLastName.text.toString()}';
     final parameters = {
       'action': 'registration',
       // 'userId': widget.userId,
-      'fullName': mergeName,
+      'fullName': _contName.text.toString(),
+      'lastName': _contLastName.text.toString(),
       'email': _contEmail.text.toString(),
       'contactNumber': _contPhone.text.toString(),
       'password': _contPassword.text.toString(),
@@ -2060,6 +2059,13 @@ class _BusinessCompleteProfileScreenState
           SharedPreferences prefs2 = await SharedPreferences.getInstance();
           prefs2.setString('Key_save_login_user_id',
               jsonResponse['data']['userId'].toString());
+          // save user role
+
+          prefs2.setString(
+            'key_save_user_role',
+            jsonResponse['data']['role'].toString(),
+          );
+
           debugPrint('SUCCESS');
           createAnAccountInFirebase();
           // createAnAccountInFirebaseFirst(context);

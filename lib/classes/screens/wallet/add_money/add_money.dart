@@ -48,6 +48,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
   //
   @override
   void initState() {
+    // print(loginUserType().toString());
     fetchProfileData('0');
     super.initState();
   }
@@ -1080,21 +1081,7 @@ transactionId:
         //
         if (successMessage == NOT_AUTHORIZED) {
           //
-          apiServiceGT
-              .generateToken(
-            userId,
-            FirebaseAuth.instance.currentUser!.email,
-            'Member',
-          )
-              .then((v) {
-            //
-            if (kDebugMode) {
-              print('TOKEN ==> $v');
-            }
-            // again click api
-            _addMoney(context, amount, transactionId);
-          });
-          //
+          setAndCallRole(userId, amount, transactionId);
         } else {
           //
           fetchProfileData('1');
@@ -1108,6 +1095,26 @@ transactionId:
         print(error);
       }
     }
+  }
+
+  setAndCallRole(userId, amount, transactionId) async {
+    var roleIs = '';
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    roleIs = prefs.getString('key_save_user_role').toString();
+    apiServiceGT
+        .generateToken(
+      userId,
+      FirebaseAuth.instance.currentUser!.email,
+      roleIs,
+    )
+        .then((v) {
+      //
+      if (kDebugMode) {
+        print('TOKEN ==> $v');
+      }
+      // again click api
+      _addMoney(context, amount, transactionId);
+    });
   }
 
   Future<void> pushToAddCardScreen(BuildContext context) async {
@@ -1191,6 +1198,28 @@ transactionId:
     return null;
   }
 
+  setAndCallRole2(userId, amount, stripeCardToken) async {
+    var roleIs = '';
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    roleIs = prefs.getString('key_save_user_role').toString();
+    debugPrint('==============================================');
+    debugPrint(roleIs);
+    debugPrint('==============================================');
+    apiServiceGT
+        .generateToken(userId, FirebaseAuth.instance.currentUser!.email, roleIs)
+        .then((v) {
+      //
+      if (kDebugMode) {
+        print('TOKEN ==> $v');
+      }
+      // again click
+      chargeMoneyFromStripe(
+        amount,
+        stripeCardToken,
+      );
+    });
+  }
+
   void chargeMoneyFromStripe(
     String amount,
     String stripeCardToken,
@@ -1245,23 +1274,7 @@ transactionId:
           );
         } else if (successStatus == NOT_AUTHORIZED) {
           //
-          apiServiceGT
-              .generateToken(
-            userId,
-            FirebaseAuth.instance.currentUser!.email,
-            'Member',
-          )
-              .then((v) {
-            //
-            if (kDebugMode) {
-              print('TOKEN ==> $v');
-            }
-            // again click
-            chargeMoneyFromStripe(
-              amount,
-              stripeCardToken,
-            );
-          });
+          setAndCallRole2(userId, amount, stripeCardToken);
         } else {
           Navigator.pop(context);
           _addMoney(context, amount, 'qwerty 1234');

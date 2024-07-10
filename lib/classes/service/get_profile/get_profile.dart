@@ -19,6 +19,8 @@ Future<dynamic> sendRequestToProfileDynamic() async {
   // var myData = box.getAt(0);
   SharedPreferences prefs2 = await SharedPreferences.getInstance();
   var userID = prefs2.getString('Key_save_login_user_id').toString();
+  var roleIs = '';
+  roleIs = prefs2.getString('key_save_user_role').toString();
   final parameters = {
     'action': 'profile',
     'userId': userID.toString(),
@@ -44,7 +46,7 @@ Future<dynamic> sendRequestToProfileDynamic() async {
 
       if (successMessage == NOT_AUTHORIZED) {
         await _apiServiceGT.generateToken(userID.toString(),
-            FirebaseAuth.instance.currentUser!.email, 'Member');
+            FirebaseAuth.instance.currentUser!.email, roleIs);
         return await sendRequestToProfileDynamic();
       } else {
         debugPrint('PROFILE: RESPONSE ==> SUCCESS');

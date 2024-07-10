@@ -18,13 +18,16 @@ import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/freeze_account/freeze
 import 'package:ride_card_app/classes/service/UNIT/CARD/issue_card/issue_card.dart';
 import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/open_account/open_account.dart';
 import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/un_freeze/unfreeze_account.dart';
+import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountDetailsScreen extends StatefulWidget {
-  const AccountDetailsScreen({super.key, this.accountData});
+  const AccountDetailsScreen(
+      {super.key, this.accountData, required this.bankType});
 
   final accountData;
+  final String bankType;
 
   @override
   State<AccountDetailsScreen> createState() => _AccountDetailsScreenState();
@@ -47,6 +50,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
     if (kDebugMode) {
       print('======== BANK ===========');
       print(widget.accountData);
+      print(widget.bankType);
     }
     bankAccountId = widget.accountData['id'].toString();
     bankAccountNumber =
@@ -1187,13 +1191,21 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                           width: MediaQuery.of(context).size.width,
                           color: Colors.white,
                           child: Center(
-                            child: textFontPOOPINS(
-                              //
-                              CARD_INDIVIDUAL_VIRTUAL_DEBIT_CARD,
-                              Colors.black,
-                              16.0,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            child: widget.bankType == 'businessCustomer'
+                                ? textFontPOOPINS(
+                                    //
+                                    CARD_BUSINESS_VIRTUAL_DEBIT_CARD_NAME,
+                                    Colors.black,
+                                    16.0,
+                                    fontWeight: FontWeight.w500,
+                                  )
+                                : textFontPOOPINS(
+                                    //
+                                    CARD_INDIVIDUAL_VIRTUAL_DEBIT_CARD,
+                                    Colors.black,
+                                    16.0,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                           ),
                         ),
                       ),
@@ -1337,17 +1349,72 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   // ISSUE CARD FROM UNIT
   void _issueCard() async {
     Navigator.pop(context);
-    Map<String, dynamic>? response =
-        await IssueCardService.issueCard(bankAccountId);
 
-    if (response != null) {
-      if (kDebugMode) {
-        debugPrint('Card issued successfully.');
-        debugPrint('Card details');
-        print('Response: $response');
-      }
-      // add card
-      /*if (kDebugMode) {
+    if (widget.bankType == 'businessCustomer') {
+      showLoadingUI(context, 'please wait...');
+      await sendRequestToProfileDynamic().then((v) async {
+        if (kDebugMode) {
+          print(v);
+        }
+
+        if (v['data']['fullName'].toString() == '') {
+          customToast(
+            'something went wrong with your name. Please check your name in edit profile section',
+            Colors.redAccent,
+            ToastGravity.TOP,
+          );
+          return;
+        } else if (v['data']['lastName'].toString() == '') {
+          customToast(
+            'something went wrong with your name. Please check your name in edit profile section',
+            Colors.redAccent,
+            ToastGravity.TOP,
+          );
+          return;
+        } else {
+          Map<String, dynamic>? businessResponse =
+              await IssueBusinessCardService.issueBusinessCard(
+            bankAccountId.toString(),
+            v['data']['fullName'].toString(),
+            v['data']['lastName'].toString(),
+            v['data']['dob'].toString(),
+            v['data']['email'].toString(),
+            v['data']['contactNumber'].toString(),
+            v['data']['address'].toString(),
+            v['data']['City'].toString(),
+            v['data']['state'].toString(),
+            v['data']['zipcode'].toString(),
+            v['data']['country'].toString(),
+          );
+          if (kDebugMode) {
+            print('BUSINESS CARD REPONSE');
+            print(businessResponse);
+          }
+          Navigator.pop(context);
+          _addCardInEvsServer(
+              context,
+              businessResponse!['data']['attributes']['last4Digits'].toString(),
+              businessResponse['data']['id'].toString(),
+              businessResponse['data']['relationships']['account']['data']['id']
+                  .toString(),
+              businessResponse['data']['attributes']['expirationDate']
+                  .toString(),
+              businessResponse['data']['relationships']['customer']['data']
+                  ['id']);
+        }
+      });
+    } else {
+      Map<String, dynamic>? response =
+          await IssueCardService.issueCard(bankAccountId);
+
+      if (response != null) {
+        if (kDebugMode) {
+          debugPrint('Card issued successfully.');
+          debugPrint('Card details');
+          print('Response: $response');
+        }
+        // add card
+        /*if (kDebugMode) {
         print(
           'LAST 4 DIGITS ==> ${response['data']['attributes']['last4Digits']}',
         );
@@ -1360,17 +1427,19 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
             'BANK ID ==> ${response['data']['relationships']['account']['data']['id']}');
       }*/
 
-      // add and save card in evs server
-      _addCardInEvsServer(
-          context,
-          response['data']['attributes']['last4Digits'].toString(),
-          response['data']['id'].toString(),
-          response['data']['relationships']['account']['data']['id'].toString(),
-          response['data']['attributes']['expirationDate'].toString(),
-          response['data']['relationships']['customer']['data']['id']);
-    } else {
-      if (kDebugMode) {
-        print('Failed to issue card');
+        // add and save card in evs server
+        _addCardInEvsServer(
+            context,
+            response['data']['attributes']['last4Digits'].toString(),
+            response['data']['id'].toString(),
+            response['data']['relationships']['account']['data']['id']
+                .toString(),
+            response['data']['attributes']['expirationDate'].toString(),
+            response['data']['relationships']['customer']['data']['id']);
+      } else {
+        if (kDebugMode) {
+          print('Failed to issue card');
+        }
       }
     }
   }
@@ -1389,7 +1458,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
-
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
     // split year and month
     List<String> parts = expYearMonth.split('-');
     String year = parts[0];
@@ -1444,7 +1514,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               .generateToken(
             userId,
             FirebaseAuth.instance.currentUser!.email,
-            'Member',
+            roleIs,
           )
               .then((v) {
             //

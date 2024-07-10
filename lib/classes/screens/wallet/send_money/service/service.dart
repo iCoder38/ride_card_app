@@ -22,7 +22,8 @@ class TransactionService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY) ?? '';
     var userId = prefs.getString('Key_save_login_user_id') ?? '';
-
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
     final parameters = {
       'action': 'recenthistory',
       'userId': userId,
@@ -46,7 +47,10 @@ class TransactionService {
 
         if (successMessage == NOT_AUTHORIZED) {
           await apiServiceGT.generateToken(
-              userId, FirebaseAuth.instance.currentUser!.email, 'Member');
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            roleIs,
+          );
           return recentTransaction(context); // Retry the request
         } else {
           arrAllUser = jsonResponse['data'] ?? [];
@@ -76,7 +80,8 @@ class TransactionService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY) ?? '';
     var userId = prefs.getString('Key_save_login_user_id') ?? '';
-
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
     final parameters = {
       'action': 'transactionhistory',
       'userId': userId,
@@ -101,7 +106,10 @@ class TransactionService {
 
         if (successMessage == NOT_AUTHORIZED) {
           await apiServiceGT.generateToken(
-              userId, FirebaseAuth.instance.currentUser!.email, 'Member');
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            roleIs,
+          );
           return transacctionHistory(context); // Retry the request
         } else {
           arrAllUser = jsonResponse['data'] ?? [];
@@ -134,7 +142,8 @@ class TransactionService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY) ?? '';
     var userId = prefs.getString('Key_save_login_user_id') ?? '';
-
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
     final parameters = {
       'action': 'transactionhistory',
       'userId': userId,
@@ -159,7 +168,10 @@ class TransactionService {
 
         if (successMessage == NOT_AUTHORIZED) {
           await apiServiceGT.generateToken(
-              userId, FirebaseAuth.instance.currentUser!.email, 'Member');
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            roleIs,
+          );
           return transacctionHistory(context); // Retry the request
         } else {
           arrAllUser = jsonResponse['data'] ?? [];

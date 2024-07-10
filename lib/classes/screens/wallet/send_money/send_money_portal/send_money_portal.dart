@@ -407,7 +407,8 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
-
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
     final parameters;
     widget.title == '1'
         ? parameters = {
@@ -451,7 +452,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
               .generateToken(
             userId,
             FirebaseAuth.instance.currentUser!.email,
-            'Member',
+            roleIs,
           )
               .then((v) {
             //
