@@ -85,9 +85,8 @@ class _CardsScreenState extends State<CardsScreen> {
       SharedPreferences prefs2 = await SharedPreferences.getInstance();
       prefs2.setString(
           'Key_save_login_profile_picture', v['data']['image'].toString());
+      prefs2.setString('key_save_user_role', v['data']['role'].toString());
     });
-    // delete this in production mode
-    getCustomerToken();
   }
 
   @override

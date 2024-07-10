@@ -415,6 +415,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'password': _contPassword.text,
       'role': RESPONSE_ROLE,
       'device': parseDevice,
+      //
     };
     if (kDebugMode) {
       print(parameters);

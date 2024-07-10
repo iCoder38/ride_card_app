@@ -18,6 +18,8 @@ import 'package:ride_card_app/classes/common/hive/hive.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/edit_profile/business_profile_show/business_profile_show.dart';
+import 'package:ride_card_app/classes/screens/register_complete_profile/business/business_complete_profile.dart';
 import 'package:ride_card_app/classes/screens/show_complete_profile/show_complete_profile.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
@@ -434,12 +436,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: GestureDetector(
                 onTap: () async {
                   //
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
+                  if (userRole == 'Business') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BusinessProfileShowScreen(),
+                      ),
+                    );
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
                         builder: (context) =>
-                            const ShowCompleteProfileUserScreen()),
-                  );
+                            const ShowCompleteProfileUserScreen(),
+                      ),
+                    );
+                  }
                 },
                 child: Container(
                   height: 60,

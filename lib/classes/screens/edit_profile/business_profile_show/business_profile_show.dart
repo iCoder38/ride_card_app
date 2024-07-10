@@ -1,34 +1,24 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
-import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
-import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
+import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 
-class BusinessCompleteProfileScreen extends StatefulWidget {
-  const BusinessCompleteProfileScreen({super.key});
+class BusinessProfileShowScreen extends StatefulWidget {
+  const BusinessProfileShowScreen({super.key});
 
   @override
-  State<BusinessCompleteProfileScreen> createState() =>
-      _BusinessCompleteProfileScreenState();
+  State<BusinessProfileShowScreen> createState() =>
+      _BusinessProfileShowScreenState();
 }
 
-class _BusinessCompleteProfileScreenState
-    extends State<BusinessCompleteProfileScreen> {
+class _BusinessProfileShowScreenState extends State<BusinessProfileShowScreen> {
   //
   final ApiService _apiService = ApiService();
   GenerateTokenService apiServiceGT = GenerateTokenService();
@@ -66,116 +56,53 @@ class _BusinessCompleteProfileScreenState
   //
   var storeSystemIPaddress = '0';
   var createdCustomerId = '';
+  bool screenLoader = true;
   //
-  final List<String> occupations = [
-    "ArchitectOrEngineer",
-    "BusinessAnalystAccountantOrFinancialAdvisor",
-    "CommunityAndSocialServicesWorker",
-    "ConstructionMechanicOrMaintenanceWorker",
-    "Doctor",
-    "Educator",
-    "EntertainmentSportsArtsOrMedia",
-    "ExecutiveOrManager",
-    "FarmerFishermanForester",
-    "FoodServiceWorker",
-    "GigWorker",
-    "HospitalityOfficeOrAdministrativeSupportWorker",
-    "HouseholdManager",
-    "JanitorHousekeeperLandscaper",
-    "Lawyer",
-    "ManufacturingOrProductionWorker",
-    "MilitaryOrPublicSafety",
-    "NurseHealthcareTechnicianOrHealthcareSupport",
-    "PersonalCareOrServiceWorker",
-    "PilotDriverOperator",
-    "SalesRepresentativeBrokerAgent",
-    "ScientistOrTechnologist",
-    "Student",
-  ];
-  final List<String> _incomeSources = [
-    'EmploymentOrPayrollIncome',
-    'PartTimeOrContractorIncome',
-    'InheritancesAndGifts',
-    'PersonalInvestments',
-    'BusinessOwnershipInterests',
-    'GovernmentBenefits'
-  ];
-  final List<String> _annualIncome = [
-    'UpTo10k',
-    'Between10kAnd25k',
-    'Between25kAnd50k',
-    'Between50kAnd100k',
-    'Between100kAnd250k',
-    'Over250k'
-  ];
-  final List<String> _options = [
-    'LLC',
-    'Partnership',
-    'PubliclyTradedCorporation',
-    'PrivatelyHeldCorporation',
-    'NotForProfitOrganization',
-  ];
-  final List<String> _annualRevenueOptions = [
-    'UpTo250k',
-    'Between250kAnd500k',
-    'Between500kAnd1m',
-    'Between1mAnd5m',
-    'Over5m',
-  ];
-  final List<String> _numberOfEmployee = [
-    'UpTo10',
-    'Between10And50',
-    'Between50And100',
-    'Between100And500',
-    'Over500',
-  ];
-  final List<String> _cashFlow = [
-    "Predictable: I'm a new company / my cash flow fluctuates",
-    "Unpredictable: I'm an established company with predictable cash flows",
-  ];
-  final List<String> _businessVerticalOptions = [
-    'AdultEntertainmentDatingOrEscortServices',
-    'AgricultureForestryFishingOrHunting',
-    'ArtsEntertainmentAndRecreation',
-    'BusinessSupportOrBuildingServices',
-    'Cannabis',
-    'Construction',
-    'DirectMarketingOrTelemarketing',
-    'EducationalServices',
-    'FinancialServicesCryptocurrency',
-    'FinancialServicesDebitCollectionOrConsolidation',
-    'FinancialServicesMoneyServicesBusinessOrCurrencyExchange',
-    'FinancialServicesOther',
-    'FinancialServicesPaydayLending',
-    'GamingOrGambling',
-    'HealthCareAndSocialAssistance',
-    'HospitalityAccommodationOrFoodServices',
-    'LegalAccountingConsultingOrComputerProgramming',
-    'Manufacturing',
-    'Mining',
-    'Nutraceuticals',
-    'PersonalCareServices',
-    'PublicAdministration',
-    'RealEstate',
-    'ReligiousCivicAndSocialOrganizations',
-    'RepairAndMaintenance',
-    'RetailTrade',
-    'TechnologyMediaOrTelecom',
-    'TransportationOrWarehousing',
-    'Utilities',
-    'WholesaleTrade',
-  ];
+  var fullData;
   @override
   void initState() {
-    // sendBusinessApplication();
-    _fetchIPAddress();
+    fetchProfileData();
     super.initState();
   }
 
-  Future<void> _fetchIPAddress() async {
-    String? ipAddress = await getIPAddress();
-    debugPrint(ipAddress);
-    storeSystemIPaddress = ipAddress.toString();
+  Future<void> fetchProfileData() async {
+    await sendRequestToProfileDynamic().then((v) async {
+      fullData = v;
+      if (kDebugMode) {
+        print(fullData);
+      }
+      _contCashFlow.text = fullData['data']['businessCashflow'].toString();
+      _contBusinessVertical.text =
+          fullData['data']['businessVertical'].toString();
+      _contYearOfIncorporation.text =
+          fullData['data']['businessYear'].toString();
+      _contNumberOfEmployees.text =
+          fullData['data']['businessEmployees'].toString();
+      _contAnnualRevenue.text = fullData['data']['businessRevenue'].toString();
+      _contWebsite.text = fullData['data']['businessWebsite'].toString();
+      _contEntityType.text = fullData['data']['businessType'].toString();
+      _contEIN.text = fullData['data']['businessyear2'].toString();
+      //
+      _contName.text = fullData['data']['fullName'].toString();
+      _contLastName.text = fullData['data']['lastName'].toString();
+      _contPhone.text = fullData['data']['businessyear2'].toString();
+      _contEmail.text = fullData['data']['email'].toString();
+      _contOccupation.text = fullData['data']['occupation'].toString();
+      _contDOB.text = fullData['data']['dob'].toString();
+      _contAnnualIncome.text = fullData['data']['Salary'].toString();
+      _contSourceOfIncome.text = fullData['data']['PlaceOfWork'].toString();
+      //
+      _contCountry.text = COUNTRY_US;
+      _contAddress.text = fullData['data']['address'].toString();
+      _contCity.text = fullData['data']['City'].toString();
+      _contState.text = fullData['data']['state'].toString();
+      _contPostalCode.text = fullData['data']['zipcode'].toString();
+      _contSSN.text = fullData['data']['ssn'].toString();
+
+      setState(() {
+        screenLoader = false;
+      });
+    });
   }
 
   @override
@@ -233,10 +160,12 @@ class _BusinessCompleteProfileScreenState
           fit: BoxFit.cover,
         ),
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: _UIKitCompleteProfileAfterBG(context),
-      ),
+      child: screenLoader == true
+          ? const SizedBox()
+          : SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: _UIKitCompleteProfileAfterBG(context),
+            ),
     );
   }
 
@@ -295,6 +224,7 @@ class _BusinessCompleteProfileScreenState
               ),
               child: Center(
                 child: TextFormField(
+                  readOnly: true,
                   controller: _contName,
                   decoration: const InputDecoration(
                     hintText: 'First Name ',
@@ -347,6 +277,7 @@ class _BusinessCompleteProfileScreenState
               ),
               child: Center(
                 child: TextFormField(
+                  readOnly: true,
                   controller: _contLastName,
                   decoration: const InputDecoration(
                     hintText: 'Last Name ',
@@ -400,6 +331,7 @@ class _BusinessCompleteProfileScreenState
               ),
               child: Center(
                 child: TextFormField(
+                  readOnly: true,
                   keyboardType: TextInputType.emailAddress,
                   controller: _contEmail,
                   decoration: const InputDecoration(
@@ -425,59 +357,7 @@ class _BusinessCompleteProfileScreenState
             ),
           ),
           // phone
-          Padding(
-            padding: const EdgeInsets.only(top: 10.0, left: 16.0),
-            child: Row(
-              children: [
-                textFontPOOPINS(
-                  'Password',
-                  Colors.white,
-                  14.0,
-                  fontWeight: FontWeight.w600,
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-              left: 16.0,
-              right: 16.0,
-              top: 0,
-            ),
-            child: Container(
-              height: 60,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(
-                  12.0,
-                ),
-              ),
-              child: Center(
-                child: TextFormField(
-                  obscureText: true,
-                  controller: _contPassword,
-                  decoration: const InputDecoration(
-                    hintText: 'Password ',
-                    border: InputBorder.none, // Remove the border
-                    filled: false,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 0,
-                      horizontal: 10.0,
-                    ),
-                  ),
-                  style: GoogleFonts.poppins(
-                    fontSize: 14.0,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return TEXT_FIELD_EMPTY_TEXT;
-                    }
-                    return null;
-                  },
-                ),
-              ),
-            ),
-          ),
+
           // phone
           Padding(
             padding: const EdgeInsets.only(top: 10.0, left: 16.0),
@@ -508,6 +388,7 @@ class _BusinessCompleteProfileScreenState
               ),
               child: Center(
                 child: TextFormField(
+                  readOnly: true,
                   controller: _contPhone,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
@@ -679,6 +560,7 @@ class _BusinessCompleteProfileScreenState
               ),
               child: Center(
                 child: TextFormField(
+                  readOnly: true,
                   controller: _contAddress,
                   decoration: const InputDecoration(
                     hintText: 'Street ',
@@ -731,6 +613,7 @@ class _BusinessCompleteProfileScreenState
               ),
               child: Center(
                 child: TextFormField(
+                  readOnly: true,
                   controller: _contCity,
                   decoration: const InputDecoration(
                     hintText: 'City',
@@ -783,6 +666,7 @@ class _BusinessCompleteProfileScreenState
               ),
               child: Center(
                 child: TextFormField(
+                  readOnly: true,
                   controller: _contState,
                   decoration: const InputDecoration(
                     hintText: 'State( Ex. LA )',
@@ -836,6 +720,7 @@ class _BusinessCompleteProfileScreenState
               ),
               child: Center(
                 child: TextFormField(
+                  readOnly: true,
                   keyboardType: TextInputType.number,
                   controller: _contPostalCode,
                   decoration: const InputDecoration(
@@ -891,6 +776,7 @@ class _BusinessCompleteProfileScreenState
               ),
               child: Center(
                 child: TextFormField(
+                  readOnly: true,
                   obscureText: true,
                   keyboardType: TextInputType.number,
                   controller: _contSSN,
@@ -1014,6 +900,7 @@ class _BusinessCompleteProfileScreenState
               ),
               child: Center(
                 child: TextFormField(
+                  readOnly: true,
                   keyboardType: TextInputType.number,
                   controller: _contEIN,
                   decoration: const InputDecoration(
@@ -1091,7 +978,6 @@ class _BusinessCompleteProfileScreenState
                     }
                     return null;
                   },
-                  onTap: () => _showBottomSheetEntity(context),
                 ),
               ),
             ),
@@ -1148,7 +1034,6 @@ class _BusinessCompleteProfileScreenState
                     }
                     return null;
                   },
-                  onTap: () => _showBottomSheetAnnualRevenue(context),
                 ),
               ),
             ),
@@ -1205,7 +1090,6 @@ class _BusinessCompleteProfileScreenState
                     }
                     return null;
                   },
-                  onTap: () => _showBottomSheetNumberOfEmployee(context),
                 ),
               ),
             ),
@@ -1241,6 +1125,7 @@ class _BusinessCompleteProfileScreenState
               ),
               child: Center(
                 child: TextFormField(
+                  readOnly: true,
                   keyboardType: TextInputType.number,
                   controller: _contYearOfIncorporation,
                   decoration: const InputDecoration(
@@ -1318,7 +1203,6 @@ class _BusinessCompleteProfileScreenState
                     }
                     return null;
                   },
-                  onTap: () => _showBottomSheetCashflow(context),
                 ),
               ),
             ),
@@ -1375,70 +1259,6 @@ class _BusinessCompleteProfileScreenState
                     }
                     return null;
                   },
-                  onTap: () => _showBottomSheetBusinessVertical(context),
-                ),
-              ),
-            ),
-          ),
-          /*Padding(
-            padding: const EdgeInsets.only(top: 10.0, left: 16.0),
-            child: Row(
-              children: [
-                textFontPOOPINS(
-                  'Country',
-                  Colors.white,
-                  14.0,
-                  fontWeight: FontWeight.w600,
-                ),
-              ],
-            ),
-          ),*/
-          // _textFieldSalary(),
-          //  _textFieldAddress(),
-          // _textFieldPostalCode(),
-          // _textFieldPEP(),
-          /*Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: textFontPOOPINS(
-              //
-              TEXT_FIELD_KYC,
-              Colors.white,
-              14.0,
-            ),
-          ),*/
-          //  _textFieldPassport(),
-          // _textFieldPassportVerification(),
-          Padding(
-            padding: const EdgeInsets.only(
-              left: 16.0,
-              right: 16.0,
-              top: 16.0,
-            ),
-            child: GestureDetector(
-              onTap: () {
-                if (_formKey.currentState!.validate()) {
-                  showLoadingUI(context, PLEASE_WAIT);
-                  //
-                  sendBusinessApplication();
-                }
-              },
-              child: Container(
-                height: 60,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: appREDcolor,
-                  borderRadius: BorderRadius.circular(
-                    12.0,
-                  ),
-                ),
-                child: Center(
-                  child: textFontPOOPINS(
-                    //
-                    TEXT_CREATE_AN_ACCOUNT,
-                    Colors.white,
-                    18.0,
-                    fontWeight: FontWeight.w600,
-                  ),
                 ),
               ),
             ),
@@ -1479,9 +1299,6 @@ class _BusinessCompleteProfileScreenState
             style: GoogleFonts.poppins(
               fontSize: 14.0,
             ),
-            onTap: () {
-              _showAnnualIncomePicker(context);
-            },
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return TEXT_FIELD_EMPTY_TEXT;
@@ -1491,128 +1308,6 @@ class _BusinessCompleteProfileScreenState
           ),
         ),
       ),
-    );
-  }
-
-  void _showBottomSheetBusinessVertical(
-    BuildContext context,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return ListView.builder(
-          itemCount: _businessVerticalOptions.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Text(_businessVerticalOptions[index]),
-              onTap: () {
-                setState(() {
-                  _contBusinessVertical.text = _businessVerticalOptions[index];
-                });
-                Navigator.pop(context);
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _showBottomSheetAnnualRevenue(
-    BuildContext context,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return ListView.builder(
-          itemCount: _annualRevenueOptions.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Text(_annualRevenueOptions[index]),
-              onTap: () {
-                setState(() {
-                  _contAnnualRevenue.text = _annualRevenueOptions[index];
-                });
-                Navigator.pop(context);
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _showBottomSheetCashflow(
-    BuildContext context,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return ListView.builder(
-          itemCount: _cashFlow.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Text(_cashFlow[index]),
-              onTap: () {
-                setState(() {
-                  if (index == 0) {
-                    _contCashFlow.text = 'Predictable';
-                  } else {
-                    _contCashFlow.text = 'Unpredictable';
-                  }
-                });
-                Navigator.pop(context);
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _showBottomSheetNumberOfEmployee(
-    BuildContext context,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return ListView.builder(
-          itemCount: _numberOfEmployee.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Text(_numberOfEmployee[index]),
-              onTap: () {
-                setState(() {
-                  _contNumberOfEmployees.text = _numberOfEmployee[index];
-                });
-                Navigator.pop(context);
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _showAnnualIncomePicker(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return ListView.builder(
-          itemCount: _annualIncome.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Text(_annualIncome[index]),
-              onTap: () {
-                setState(() {
-                  _contAnnualIncome.text = _annualIncome[index];
-                });
-                Navigator.pop(context);
-              },
-            );
-          },
-        );
-      },
     );
   }
 
@@ -1646,9 +1341,7 @@ class _BusinessCompleteProfileScreenState
             style: GoogleFonts.poppins(
               fontSize: 14.0,
             ),
-            onTap: () {
-              _showOccupationPicker(context);
-            },
+
             readOnly: true, // Make the TextFormField read-only
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -1659,50 +1352,6 @@ class _BusinessCompleteProfileScreenState
           ),
         ),
       ),
-    );
-  }
-
-  void _showBottomSheetEntity(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: _options.map((String option) {
-            return ListTile(
-              title: Text(option),
-              onTap: () {
-                setState(() {
-                  _contEntityType.text = option;
-                });
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
-
-  void _showOccupationPicker(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return ListView.builder(
-          itemCount: occupations.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Text(occupations[index]),
-              onTap: () {
-                setState(() {
-                  _contOccupation.text = occupations[index];
-                });
-                Navigator.pop(context);
-              },
-            );
-          },
-        );
-      },
     );
   }
 
@@ -1736,7 +1385,7 @@ class _BusinessCompleteProfileScreenState
             style: GoogleFonts.poppins(
               fontSize: 14.0,
             ),
-            onTap: () => _showIncomeSourceOptions(context),
+
             readOnly: true, // Make the TextFormField read-only
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -1747,28 +1396,6 @@ class _BusinessCompleteProfileScreenState
           ),
         ),
       ),
-    );
-  }
-
-  void _showIncomeSourceOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return ListView.builder(
-          itemCount: _incomeSources.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Text(_incomeSources[index]),
-              onTap: () {
-                setState(() {
-                  _contSourceOfIncome.text = _incomeSources[index];
-                });
-                Navigator.pop(context);
-              },
-            );
-          },
-        );
-      },
     );
   }
 
@@ -1807,389 +1434,9 @@ class _BusinessCompleteProfileScreenState
               }
               return null;
             },
-            onTap: () async {
-              DateTime? pickedDate = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime(1900),
-                lastDate: DateTime.now(),
-              );
-
-              if (pickedDate != null) {
-                setState(() {
-                  _contDOB.text = "${pickedDate.toLocal()}".split(' ')[0];
-                });
-              }
-            },
           ),
         ),
       ),
-    );
-  }
-
-  Future<void> sendBusinessApplication() async {
-    var generateUUID = const Uuid().v4();
-    /*_sendRequestToCompleteProfile(generateUUID);
-    return;*/
-
-    final headers = {
-      'Content-Type': 'application/vnd.api+json',
-      'Authorization': 'Bearer $TESTING_TOKEN',
-    };
-    final body = jsonEncode({
-      "data": {
-        "type": "businessApplication",
-        "attributes": {
-          "name": _contName.text.toString(),
-          "address": {
-            "street": _contAddress.text.toString(),
-            "city": _contCity.text.toString(),
-            "state": _contState.text.toString(),
-            "postalCode": _contPostalCode.text.toString(),
-            "country": COUNTRY_US,
-          },
-          "phone": {
-            "countryCode": COUNTRY_US_PHONE_CODE,
-            "number": _contPhone.text.toString(),
-          },
-          "stateOfIncorporation": _contState.text.toString(), // state name
-          "ein": _contEIN.text.toString(), //"123456789",
-          "entityType": _contEntityType.text.toString(), //"Corporation",
-          // "entityType": "Corporation",
-          "ip": storeSystemIPaddress.toString(),
-          "annualRevenue":
-              _contAnnualRevenue.text.toString(), // "Between500kAnd1m",
-          "numberOfEmployees":
-              _contNumberOfEmployees.text.toString(), // "Between50And100",
-          "cashFlow": _contCashFlow.text.toString(),
-          "yearOfIncorporation": _contYearOfIncorporation.text.toString(),
-          "countriesOfOperation": ["US", "CA"],
-          // "stockSymbol": "", //"PPI",
-          "businessVertical": _contBusinessVertical.text.toString(),
-          "website": _contWebsite.text.toString(),
-          "contact": {
-            "fullName": {
-              "first": _contName.text.toString(),
-              "last": _contLastName.text.toString(),
-            },
-            "email": _contEmail.text.toString(),
-            "phone": {
-              "countryCode": COUNTRY_US_PHONE_CODE,
-              "number": _contPhone.text.toString(),
-            },
-          },
-          "officer": {
-            "fullName": {
-              "first": _contName.text.toString(),
-              "last": _contLastName.text.toString(),
-            },
-            "dateOfBirth": _contDOB.text.toString(),
-            "title": "CEO",
-            "ssn": _contSSN.text.toString(),
-            "email": _contEmail.text.toString(),
-            "phone": {
-              "countryCode": COUNTRY_US_PHONE_CODE,
-              "number": _contPhone.text.toString(),
-            },
-            "address": {
-              "street": _contAddress.text.toString(),
-              "city": _contCity.text.toString(),
-              "state": _contState.text.toString(),
-              "postalCode": _contPostalCode.text.toString(),
-              "country": COUNTRY_US,
-            },
-            "occupation": _contOccupation.text.toString(),
-            "annualIncome": _contAnnualIncome.text,
-            "sourceOfIncome": _contSourceOfIncome.text,
-          },
-          "beneficialOwners": [
-            /*{
-              "fullName": {
-                "first": _contName.text.toString(),
-                "last": _contLastName.text.toString(),
-              },
-              "dateOfBirth": _contDOB.text.toString(),
-              "ssn": _contSSN.text.toString(),
-              "email": _contEmail.text.toString(),
-              "percentage": 50,
-              "phone": {
-                "countryCode": COUNTRY_US_PHONE_CODE,
-                "number": _contPhone.text.toString(),
-              },
-              "address": {
-                "street": _contAddress.text.toString(),
-                "city": _contCity.text.toString(),
-                "state": _contState.text.toString(),
-                "postalCode": _contPostalCode.text.toString(),
-                "country": COUNTRY_US,
-              },
-              "occupation": _contOccupation.text.toString(),
-              "annualIncome": _contAnnualIncome.text,
-              "sourceOfIncome": _contSourceOfIncome.text,
-            }*/
-          ],
-          "tags": {
-            "userId": generateUUID,
-          },
-          "idempotencyKey": generateUUID
-        }
-      }
-    });
-    if (kDebugMode) {
-      print(body);
-    }
-    // return;
-
-    final response = await http.post(
-      Uri.parse(CREATE_APPLICATION_URL),
-      headers: headers,
-      body: body,
-    );
-
-    if (response.statusCode == 201) {
-      if (kDebugMode) {
-        print('===================================');
-        print('Success: ${response.body}');
-        print('===================================');
-      }
-      final jsonData = json.decode(response.body);
-      if (jsonData['data']['attributes']['status'] == 'Denied') {
-        //
-        dismissKeyboard(context);
-        Navigator.pop(context);
-        customToast(
-          jsonData['data']['attributes']['message'].toString(),
-          Colors.redAccent,
-          ToastGravity.BOTTOM,
-        );
-        return;
-      } else if (jsonData['data']['attributes']['status'] ==
-          'AwaitingDocuments') {
-        debugPrint('======> AWAITED DOCUMENTS <=======');
-        //
-        createdCustomerId = jsonData['included'][0]['id'].toString();
-        if (kDebugMode) {
-          print('CUSTOMER ID ==> $createdCustomerId');
-        }
-        customToast(
-          'You Id has been created but your document is not verified. Please contact support and upload your documents.',
-          Colors.redAccent,
-          ToastGravity.BOTTOM,
-        );
-        _sendRequestToCompleteProfile(generateUUID.toString());
-      } else {
-        debugPrint('======> APPROVED <=======');
-        // if (kDebugMode) {
-        //   print('CUSTOMER ID ==> $createdCustomerId');
-        // }
-        createdCustomerId = jsonData['data']['relationships']['customer']
-                ['data']['id']
-            .toString();
-        _sendRequestToCompleteProfile(generateUUID.toString());
-      }
-    } else {
-      if (kDebugMode) {
-        print('Failed: ${response.body}');
-      }
-      Navigator.pop(context);
-      customToast(
-        'Something went wrong with your details. Please check again',
-        Colors.redAccent,
-        ToastGravity.TOP,
-      );
-    }
-  }
-
-  // API
-  void _sendRequestToCompleteProfile(
-    String uuid,
-  ) async {
-    debugPrint(
-        '===============================================================');
-    debugPrint(
-        '============= API: COMPLETE PROFILE ===========================');
-
-    // var box = await Hive.openBox<MyData>('myBox1');
-    // var myData = box.getAt(0);
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    // print(prefs.getString('key_save_token_locally'));
-    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
-    // SharedPreferences prefs2 = await SharedPreferences.getInstance();
-    // prefs2.setString('Key_save_login_user_id', widget.userId);
-    final parameters = {
-      'action': 'registration',
-      // 'userId': widget.userId,
-      'fullName': _contName.text.toString(),
-      'lastName': _contLastName.text.toString(),
-      'email': _contEmail.text.toString(),
-      'contactNumber': _contPhone.text.toString(),
-      'password': _contPassword.text.toString(),
-      'role': 'Business',
-      'City': _contCity.text.toString(),
-      'zipcode': _contPostalCode.text.toString(),
-      'country': COUNTRY_US,
-      'state': _contState.text.toString(),
-      'ssn': _contSSN.text.toString(),
-      'dob': _contDOB.text.toString(),
-      'Salary': _contAnnualIncome.text.toString(),
-      'PlaceOfWork': _contSourceOfIncome.text.toString(),
-      'address': _contAddress.text.toString(),
-      'occupation': _contOccupation.text.toString(),
-      'key_data': uuid,
-      'firebaseId': '',
-      'customerId': createdCustomerId,
-      // business profile
-      'businessState': _contState.text.toString(),
-      'businessYear': _contYearOfIncorporation.text.toString(),
-      'businessType': _contEntityType.text.toString(),
-      'businessIP': storeSystemIPaddress.toString(),
-      'businessRevenue': _contAnnualRevenue.text.toString(),
-      'businessEmployees': _contNumberOfEmployees.text.toString(),
-      'businessCashflow': _contCashFlow.text.toString(),
-      'businessyear2': _contEIN.text.toString(),
-      'businessVertical': _contBusinessVertical.text.toString(),
-      'businessWebsite': _contWebsite.text.toString(),
-    };
-    if (kDebugMode) {
-      print(parameters);
-    }
-    // await box.close();
-
-    try {
-      final response = await _apiService.postRequest(parameters, token);
-      if (kDebugMode) {
-        print(response.body);
-      }
-      //
-      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-      String successStatus = jsonResponse['status'];
-      String successMessage = jsonResponse['msg'];
-      if (kDebugMode) {
-        print('STATUS ==> $successStatus');
-        print(successMessage);
-      }
-
-      if (response.statusCode == 200) {
-        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
-        //
-        if (successStatus.toLowerCase() == 'success'.toLowerCase()) {
-          SharedPreferences prefs2 = await SharedPreferences.getInstance();
-          prefs2.setString('Key_save_login_user_id',
-              jsonResponse['data']['userId'].toString());
-          // save user role
-
-          prefs2.setString(
-            'key_save_user_role',
-            jsonResponse['data']['role'].toString(),
-          );
-
-          debugPrint('SUCCESS');
-          createAnAccountInFirebase();
-          // createAnAccountInFirebaseFirst(context);
-          successStatus.toLowerCase() == 'success'
-              ? successfullyCreatedAccount(successStatus, successMessage)
-              : Navigator.pop(context);
-          customToast(
-            successStatus,
-            hexToColor(appREDcolorHexCode),
-            ToastGravity.TOP,
-          );
-        } else {
-          customToast(
-            successMessage,
-            hexToColor(appREDcolorHexCode),
-            ToastGravity.TOP,
-          );
-          /*String status = jsonResponse['data']['attributes']['status'];
-          String message = jsonResponse['data']['attributes']['message'];
-          print('Status: $status');
-          print('Message: $message');*/
-        }
-
-        // }
-      } else {
-        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
-        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
-      }
-    } catch (error) {
-      if (kDebugMode) {
-        print(error);
-      }
-    }
-  }
-
-  // REGISTER THIS USER IN FIREBASE NOW
-  createAnAccountInFirebase() async {
-    //
-    debugPrint('==================================================');
-    debugPrint('============= FIREBASE ===========================');
-    // showLoadingUI(context, PLEASE_WAIT);
-    try {
-      await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-            email: _contEmail.text.toString(),
-            password: 'firebase_password_rca_!',
-          )
-          .then((value) => {
-                //
-                // debugPrint('REGISTERED IN FIREBASE'),
-                updateUserName(context)
-                //
-              });
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        /*Navigator.pop(context);
-        customToast(
-          'The password provided is too weak.',
-          Colors.redAccent,
-          ToastGravity.TOP,
-        );*/
-      } else if (e.code == 'email-already-in-use') {
-        /*Navigator.pop(context);
-        FocusScope.of(context).unfocus();
-        customToast(
-          //
-          TEXT_ALREADY_BEEN_EXIST,
-          hexToColor(appREDcolorHexCode),
-          ToastGravity.TOP,
-        );*/
-      } else {
-        debugPrint('Error');
-        /*Navigator.pop(context);
-        customToast(
-          //
-          TEXT_F_ERROR,
-          Colors.redAccent,
-          ToastGravity.TOP,
-        );*/
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-      Navigator.pop(context);
-    }
-  }
-
-  updateUserName(context) async {
-    var mergeName =
-        '${_contName.text.toString()} ${_contLastName.text.toString()}';
-    debugPrint(mergeName);
-    await FirebaseAuth.instance.currentUser!
-        .updateDisplayName(mergeName)
-        .then((v) {
-      debugPrint('REGISTERED NAME ALSO');
-      // _sendRequestToCompleteProfile();
-    });
-  }
-
-  successfullyCreatedAccount(status, message) {
-    //
-    customToast(message, Colors.green, ToastGravity.BOTTOM);
-    Navigator.pop(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => BottomBar(selectedIndex: 0)),
     );
   }
 }
