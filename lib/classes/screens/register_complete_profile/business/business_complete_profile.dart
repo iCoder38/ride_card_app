@@ -1832,6 +1832,10 @@ class _BusinessCompleteProfileScreenState
     /*_sendRequestToCompleteProfile(generateUUID);
     return;*/
 
+    if (storeSystemIPaddress == "0") {
+      storeSystemIPaddress = "192.168.1.1";
+    }
+
     final headers = {
       'Content-Type': 'application/vnd.api+json',
       'Authorization': 'Bearer $TESTING_TOKEN',
@@ -1856,7 +1860,7 @@ class _BusinessCompleteProfileScreenState
           "ein": _contEIN.text.toString(), //"123456789",
           "entityType": _contEntityType.text.toString(), //"Corporation",
           // "entityType": "Corporation",
-          "ip": storeSystemIPaddress.toString(),
+          // "ip": storeSystemIPaddress.toString(),
           "annualRevenue":
               _contAnnualRevenue.text.toString(), // "Between500kAnd1m",
           "numberOfEmployees":
@@ -2016,6 +2020,7 @@ class _BusinessCompleteProfileScreenState
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     // SharedPreferences prefs2 = await SharedPreferences.getInstance();
     // prefs2.setString('Key_save_login_user_id', widget.userId);
+
     final parameters = {
       'action': 'registration',
       // 'userId': widget.userId,
