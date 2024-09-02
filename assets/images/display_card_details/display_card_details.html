@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charSet="utf-8">
+    <title></title>
+    <style>
+        iframe {
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+<h2>Sensitive Data example</h2>
+<label>Card Number:</label>
+<div id="cardNumber"></div>
+<label>CVV2:</label>
+<div id="cvv2"></div>
+
+<script type="text/javascript" src="https://js.verygoodvault.com/vgs-show/1.5/ACh8JJTM42LYxwe2wfGQxwj5.js"></script>
+<script type="text/javascript">
+    const show = VGSShow.create('tntazhyknp1');
+
+    function loadSecureData(customerToken, cardId) {
+        const cvv2iframe = show.request({
+            name: 'data-text',
+            method: 'GET',
+            path: '/cards/' + cardId + '/secure-data/cvv2',
+            headers: {
+                "Authorization": "Bearer " + customerToken
+            },
+            htmlWrapper: 'text',
+            jsonPathSelector: 'data.attributes.cvv2'
+        });
+        cvv2iframe.render('#cvv2');
+
+        const cardNumberIframe = show.request({
+            name: 'data-text',
+            method: 'GET',
+            path: '/cards/' + cardId + '/secure-data/pan',
+            headers: {
+                "Authorization": "Bearer " + customerToken
+            },
+            htmlWrapper: 'text',
+            jsonPathSelector: 'data.attributes.pan'
+        });
+        cardNumberIframe.render('#cardNumber');
+    }
+</script>
+</body>
+</html>
