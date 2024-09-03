@@ -162,7 +162,7 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
                                   arrAllUser[i]['amount'].toString(),
                                   Colors.green,
                                   18.0,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ],
                             ),
@@ -174,16 +174,16 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
                                         // sv
                                         '',
                                         Colors.grey,
-                                        12.0,
-                                        fontWeight: FontWeight.w500,
+                                        10.0,
+                                        fontWeight: FontWeight.w200,
                                       )
                                     : textFontPOOPINS(
                                         // sv
                                         formatDate(arrAllUser[i]['trn_date']
                                             .toString()),
                                         Colors.grey,
-                                        12.0,
-                                        fontWeight: FontWeight.w500,
+                                        10.0,
+                                        fontWeight: FontWeight.w200,
                                       ),
                               ],
                             ),
@@ -213,7 +213,7 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
                         fontWeight: FontWeight.w500,
                       ),
                       trailing: Container(
-                        width: 120,
+                        width: 130,
                         color: Colors.transparent,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -226,7 +226,7 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
                                   size: 16.0,
                                   color: Colors.redAccent,
                                 ),
-                                const SizedBox(width: 4.0),
+                                // const SizedBox(width: 4.0),
                                 textFontORBITRON(
                                   //
                                   arrAllUser[i]['amount'].toString(),
@@ -244,16 +244,16 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
                                         // sv
                                         '',
                                         Colors.grey,
-                                        12.0,
-                                        fontWeight: FontWeight.w500,
+                                        10.0,
+                                        fontWeight: FontWeight.w200,
                                       )
                                     : textFontPOOPINS(
                                         // sv
                                         formatDate(arrAllUser[i]['trn_date']
                                             .toString()),
                                         Colors.grey,
-                                        12.0,
-                                        fontWeight: FontWeight.w500,
+                                        10.0,
+                                        fontWeight: FontWeight.w200,
                                       ),
                               ],
                             ),
@@ -311,16 +311,16 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
                                         // sv
                                         '',
                                         Colors.grey,
-                                        12.0,
-                                        fontWeight: FontWeight.w500,
+                                        10.0,
+                                        fontWeight: FontWeight.w200,
                                       )
                                     : textFontPOOPINS(
                                         // sv
                                         formatDate(arrAllUser[i]['trn_date']
                                             .toString()),
                                         Colors.grey,
-                                        12.0,
-                                        fontWeight: FontWeight.w500,
+                                        10.0,
+                                        fontWeight: FontWeight.w200,
                                       ),
                               ],
                             ),

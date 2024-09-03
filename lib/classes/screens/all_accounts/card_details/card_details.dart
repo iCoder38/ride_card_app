@@ -24,6 +24,7 @@ import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/firebase/service/save_and_get_cart/model/model.dart';
 import 'package:ride_card_app/classes/firebase/service/save_and_get_cart/save_get_card.dart';
 import 'package:ride_card_app/classes/screens/all_accounts/card_details/alert/alert.dart';
+import 'package:ride_card_app/classes/screens/convenience_fee/convenience_fees.dart';
 import 'package:ride_card_app/classes/service/UNIT/CARD/check_limit/check_limit.dart';
 import 'package:ride_card_app/classes/service/UNIT/CARD/close_card/close_card.dart';
 
@@ -1423,7 +1424,12 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
     }, onFreeze: () async {
       debugPrint('close card');
       // showLoadingUI(context, 'please wait...');
-      openCardBottomSheet(context);
+      // openCardBottomSheet(context);
+      pushToConvenienceFeeScreen(
+        context,
+        'Close card',
+        'cardCloseFee',
+      );
       /**/
       // _deleteCard(context, storeCardId);
     });
@@ -1638,7 +1644,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         debugPrint('======================================');
         if (strWhatUserSelect == 'close_card') {
           // close card
-          closeCardFromUnit();
+          // closeCardFromUnit();
         } else if (strWhatUserSelect == 'unfreeze_card') {
           // unfreeze bank account
           //  _handleUnfreezeAccount();
@@ -1655,7 +1661,35 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
     if (kDebugMode) {
       print(closeStatus);
     }
-    Navigator.pop(context);
+    // Navigator.pop(context);
     Navigator.pop(context, 'reload_screen');
+  }
+
+  Future<void> pushToConvenienceFeeScreen(
+    BuildContext context,
+    String title,
+    String feeType,
+  ) async {
+    //
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ConvenienceFeesChargesScreen(
+          title: title, //'Close my account',
+          feeType: feeType, // 'accountClosingFee',
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+    //
+    if (result == REFRESH_CONVENIENCE_FEES) {
+      if (kDebugMode) {
+        print(result);
+        print(feeType);
+      }
+
+      closeCardFromUnit();
+    }
   }
 }

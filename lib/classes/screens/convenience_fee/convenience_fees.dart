@@ -344,7 +344,7 @@ class _ConvenienceFeesChargesScreenState
                   );
                 }*/
                 },
-                child: const Text('Submit'),
+                child: const Text('Submit & Pay'),
               ),
             ],
           ),
@@ -482,7 +482,7 @@ class _ConvenienceFeesChargesScreenState
                   );
                 }*/
                 },
-                child: const Text('Submit'),
+                child: const Text('Submit & Pay'),
               ),
             ],
           ),
@@ -537,31 +537,63 @@ class _ConvenienceFeesChargesScreenState
           print(cardDetails.expYear);
           print(cardDetails.cvv);
         }
-        processPayment(
-          context,
-          loginUserName(),
-          cardDetails.cardNumber,
-          cardDetails.expMonth,
-          cardDetails.expYear,
-          cardDetails.cvv,
-          totalAmountAfterCalculateFee,
-          true,
-        );
+        // save card in firebase
+        saveCardInDbAndPay(cardDetails);
       } else {
         debugPrint("DO NOT SAVE THIS CARD AND PAY");
-        final cardDetails = SavedCardDetails(
+        /* final cardDetails = SavedCardDetails(
           cardNumber: savedCardDetailsInDictionary['cardNumber'],
           cardholderName: savedCardDetailsInDictionary['cardHolderName'],
           expMonth: savedCardDetailsInDictionary['cardExpMonth'],
           expYear: savedCardDetailsInDictionary['cardExpYear'],
-          cvv: '', // CVV will be input by the user
+          cvv: contCardCVV.text.toString(),
         );
         if (kDebugMode) {
           print(cardDetails.cardNumber);
-        }
+        }*/
+        showLoadingUI(context, 'please wait...');
+        processPayment(
+          context,
+          loginUserName(),
+          contCardNumber.text.toString(),
+          contCardExpMonth.text.toString(),
+          contCardExpYear.text.toString(),
+          contCardCVV.text.toString(),
+          totalAmountAfterCalculateFee,
+          false,
+        );
       }
 
       //processPayment();
+    }
+  }
+
+  saveCardInDbAndPay(cardDetails) async {
+    showLoadingUI(context, 'please wait...');
+    final card = CardModel(
+      userId: loginUserId(),
+      cardHolderName: loginUserName(),
+      cardNumber: cardDetails.cardNumber.toString(),
+      cardExpMonth: cardDetails.expMonth.toString(),
+      cardExpYear: cardDetails.expYear.toString(),
+      cardId: const Uuid().v4(),
+      cardStatus: true,
+    );
+    final success = await SavedCardService.saveUserCardInRealDB(card);
+    if (success) {
+      debugPrint('Firebase: Card saved successfully');
+      processPayment(
+        context,
+        loginUserName(),
+        cardDetails.cardNumber,
+        cardDetails.expMonth,
+        cardDetails.expYear,
+        cardDetails.cvv,
+        totalAmountAfterCalculateFee,
+        true,
+      );
+    } else {
+      debugPrint('Failed to save card');
     }
   }
 
@@ -662,6 +694,7 @@ class _ConvenienceFeesChargesScreenState
     cardSavedStatus,
   ) async {
     debugPrint('STRIPE: Create token hit');
+
     final token = await createStripeToken(
         cardNumber: number.toString(),
         expMonth: month.toString(),
@@ -671,29 +704,10 @@ class _ConvenienceFeesChargesScreenState
     // Use the token for further processing, such as making a payment
     if (kDebugMode) {
       print('Received token: $token');
-      print('Stripe amount to send: $amount');
-      print('Stripe amount to send: $cardSavedStatus');
+      // print('Stripe amount to send: $amount');
+      // print('Stripe amount to send: $cardSavedStatus');
     }
 
-    if (cardSavedStatus == true) {
-      final card = CardModel(
-        userId: loginUserId(),
-        cardHolderName: loginUserName(),
-        cardNumber: number.toString(),
-        cardExpMonth: month.toString(),
-        cardExpYear: year.toString(),
-        cardId: const Uuid().v4(),
-        cardStatus: true,
-      );
-
-      final success = await SavedCardService.saveUserCardInRealDB(card);
-      if (success) {
-        debugPrint('Firebase: Card saved successfully');
-        // API: Charge amount
-      } else {
-        debugPrint('Failed to save card');
-      }
-    } else {}
     chargeMoneyFromStripeAndAddToEvsServer(
       amount,
       token,
@@ -707,7 +721,7 @@ class _ConvenienceFeesChargesScreenState
     getCardSavedStatus,
   ) async {
     debugPrint('API: Charge amount: Send stripe data to server.');
-    showLoadingUI(context, 'Please wait...');
+    // showLoadingUI(context, 'Please wait...');
     //
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var userId = prefs.getString('Key_save_login_user_id').toString();
@@ -762,7 +776,7 @@ class _ConvenienceFeesChargesScreenState
           'Success: Payment deducted from stripe. Now create UNIT bank account',
         );
         Navigator.pop(context);
-        Navigator.pop(context, 'refreshAndCreateBankAccount');
+        Navigator.pop(context, REFRESH_CONVENIENCE_FEES);
         //
 
         // NOE CREATE A UNIT BANK ACCOUNT

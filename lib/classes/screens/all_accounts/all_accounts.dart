@@ -865,7 +865,7 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
 
         if (removePopLoader != false) {
           totalAmountAfterCalculateFee != 0.0
-              ? const SizedBox() //Navigator.pop(context)
+              ? const SizedBox() // Navigator.pop(context)
               : const SizedBox();
         }
 
@@ -928,7 +928,7 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
 
     if (!mounted) return;
     //
-    if (result == 'refreshAndCreateBankAccount') {
+    if (result == REFRESH_CONVENIENCE_FEES) {
       if (kDebugMode) {
         print(result);
       }

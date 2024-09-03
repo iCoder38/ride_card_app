@@ -23,6 +23,7 @@ import 'package:ride_card_app/classes/firebase/service/save_and_get_cart/save_ge
 import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
 import 'package:ride_card_app/classes/screens/all_accounts/card_details/card_details.dart';
 import 'package:ride_card_app/classes/screens/all_cards/service/service.dart';
+import 'package:ride_card_app/classes/screens/convenience_fee/convenience_fees.dart';
 import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/all_customer_cards/all_customer_cards.dart';
 import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/close_account/close_account.dart';
 import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/freeze_account/freeze_account.dart';
@@ -308,11 +309,17 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                   child: GestureDetector(
                     onTap: () {
                       //
-                      strWhatUserSelect = 'close_bank_account';
-                      showLoadingUI(context, 'please wait...');
-                      Timer(const Duration(milliseconds: 500), () {
-                        getFeesAndTaxes('accountClosingFee');
-                      });
+                      // strWhatUserSelect = 'close_bank_account';
+                      // showLoadingUI(context, 'please wait...');
+                      // Timer(const Duration(milliseconds: 500), () {
+                      //   getFeesAndTaxes('accountClosingFee');
+                      // });
+                      //
+                      pushToConvenienceFeeScreen(
+                        context,
+                        'Close bank account',
+                        'accountClosingFee',
+                      );
 
                       // getFeesAndTaxes(userSelectType)
                       //
@@ -350,12 +357,17 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                   child: GestureDetector(
                     onTap: () {
                       debugPrint('UNFREEZE BANK ACCOUNT');
+                      pushToConvenienceFeeScreen(
+                        context,
+                        'Unfreeze account',
+                        'accountUnfreeze', // unfreeze account
+                      );
                       // areYourSureUnfreezeAccountPopup(context);
-                      strWhatUserSelect = 'unfreeze_bank_account';
+                      /*strWhatUserSelect = 'unfreeze_bank_account';
                       showLoadingUI(context, 'please wait...');
                       Timer(const Duration(milliseconds: 500), () {
                         getFeesAndTaxes('accountUnfreeze');
-                      });
+                      });*/
                     },
                     child: Container(
                       height: 40.0,
@@ -488,7 +500,15 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                 onPressed: () {
                   //
                   if (widget.accountData['attributes']['status'] == 'Open') {
-                    addCardPopUp(context, 'message', 'content');
+                    if (allCards!.length == 5) {
+                      customToast(
+                        'You can not create more than 5 cards.',
+                        Colors.redAccent,
+                        ToastGravity.BOTTOM,
+                      );
+                    } else {
+                      addCardPopUp(context, 'message', 'content');
+                    }
                   } else {
                     customToast(
                       'Your account is not in Open status',
@@ -1268,9 +1288,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         Colors.green,
         ToastGravity.BOTTOM,
       );
-      Navigator.pop(
-        context,
-      );
+      // Navigator.pop(context);
       Navigator.pop(context, 'reload_screen');
     } else {
       // Handle failure (e.g., show an error message)
@@ -1296,7 +1314,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         Colors.redAccent,
         ToastGravity.BOTTOM,
       );
-      Navigator.pop(context);
+      // Navigator.pop(context);
       Navigator.pop(context, 'reload_screen');
     } else {
       // Handle failure (e.g., show an error message)
@@ -1593,11 +1611,18 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       });
     } else {
       debugPrint('Individual Customer: ISSUE VIRTUAL DEBIT CARD');
-      strWhatUserSelect = 'close_ind_virtual_card';
+
+      pushToConvenienceFeeScreen(
+        context,
+        'Virtual debit card',
+        'generateDebitCard',
+      );
+
+      /*strWhatUserSelect = 'close_ind_virtual_card';
       showLoadingUI(context, 'please wait...');
       Timer(const Duration(milliseconds: 500), () {
         getFeesAndTaxes('generateDebitCard');
-      });
+      });*/
     }
   }
 
@@ -1611,7 +1636,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         debugPrint('Card details');
         print('Response: $response');
       }
-      Navigator.pop(context);
+      // Navigator.pop(context);
       // add card
       /*if (kDebugMode) {
         print(
@@ -2043,11 +2068,45 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
           _handleUnfreezeAccount();
         } else if (strWhatUserSelect == 'close_ind_virtual_card') {
           // unfreeze bank account
-          createVirtualDebitCard();
+          // createVirtualDebitCard();
         }
       }
     } else {
       Navigator.pop(context);
+    }
+  }
+
+  Future<void> pushToConvenienceFeeScreen(
+    BuildContext context,
+    String title,
+    String feeType,
+  ) async {
+    //
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ConvenienceFeesChargesScreen(
+          title: title, //'Close my account',
+          feeType: feeType, // 'accountClosingFee',
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+    //
+    if (result == REFRESH_CONVENIENCE_FEES) {
+      if (kDebugMode) {
+        print(result);
+        print(feeType);
+        print(allCards!.length);
+      }
+      if (feeType == 'accountClosingFee') {
+        _handleCloseAccount();
+      } else if (feeType == 'generateDebitCard') {
+        createVirtualDebitCard();
+      } else {
+        _handleUnfreezeAccount();
+      }
     }
   }
 }

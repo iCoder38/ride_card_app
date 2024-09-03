@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
@@ -17,6 +18,7 @@ import 'package:ride_card_app/classes/common/tax_and_fees/get_price/model/model.
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/firebase/service/save_and_get_cart/model/model.dart';
 import 'package:ride_card_app/classes/firebase/service/save_and_get_cart/save_get_card.dart';
+import 'package:ride_card_app/classes/screens/convenience_fee/convenience_fees.dart';
 import 'package:ride_card_app/classes/screens/success/success.dart';
 import 'package:ride_card_app/classes/service/charge_money_from_stripe/charge_money_from_stripe.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
@@ -482,10 +484,12 @@ class _PaymentTaxAndFeesScreenState extends State<PaymentTaxAndFeesScreen> {
         GestureDetector(
           onTap: () {
             //
+            HapticFeedback.mediumImpact();
             debugPrint('===========================');
             debugPrint('Pay and Send button clicked');
             debugPrint('===========================');
-            openCardBottomSheet(context);
+            // openCardBottomSheet(context);
+            pushToConvenienceFeeScreen(context);
           },
           child: Container(
             height: 60,
@@ -794,12 +798,6 @@ class _PaymentTaxAndFeesScreenState extends State<PaymentTaxAndFeesScreen> {
         debugPrint('======================================');
         debugPrint('DO MAIN FUNCTION HERE AFTER EVERYTHING');
         debugPrint('======================================');
-
-        _sendMoney(
-          context,
-          widget.receiverData['userId'].toString(),
-          'Sent',
-        );
       }
     } else {
       Navigator.pop(context);
@@ -814,7 +812,7 @@ class _PaymentTaxAndFeesScreenState extends State<PaymentTaxAndFeesScreen> {
   ) async {
     debugPrint('API ==> SEND MONEY');
 
-    // showLoadingUI(context, 'sending...');
+    showLoadingUI(context, 'sending...');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
@@ -879,8 +877,11 @@ class _PaymentTaxAndFeesScreenState extends State<PaymentTaxAndFeesScreen> {
             Navigator.pop(context);
             dismissKeyboard(context);
             // Navigator.pop(context);
-            customToast(successMessage, hexToColor(appORANGEcolorHexCode),
-                ToastGravity.BOTTOM);
+            customToast(
+              successMessage,
+              hexToColor(appORANGEcolorHexCode),
+              ToastGravity.BOTTOM,
+            );
           } else {
             Navigator.pop(context);
             pushToSuccess(context, jsonResponse);
@@ -926,6 +927,31 @@ class _PaymentTaxAndFeesScreenState extends State<PaymentTaxAndFeesScreen> {
         print(result);
       }
       getFeesAndTaxes();
+    }
+  }
+
+  Future<void> pushToConvenienceFeeScreen(BuildContext context) async {
+    //
+    final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ConvenienceFeesChargesScreen(
+            title: 'Send money',
+            feeType: 'walletToWalletFee',
+          ),
+        ));
+
+    if (!mounted) return;
+    //
+    if (result == REFRESH_CONVENIENCE_FEES) {
+      if (kDebugMode) {
+        print(result);
+      }
+      _sendMoney(
+        context,
+        widget.receiverData['userId'].toString(),
+        'Sent',
+      );
     }
   }
 }

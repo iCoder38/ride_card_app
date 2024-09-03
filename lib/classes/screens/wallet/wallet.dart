@@ -283,7 +283,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 // sv
                                 '',
                                 Colors.grey,
-                                12.0,
+                                10.0,
                                 fontWeight: FontWeight.w500,
                               )
                             : textFontPOOPINS(
@@ -291,7 +291,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 formatDate(
                                     arrAllUser[i]['trn_date'].toString()),
                                 Colors.grey,
-                                12.0,
+                                10.0,
                                 fontWeight: FontWeight.w500,
                               ),
                       ],
@@ -365,7 +365,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 // sv
                                 '',
                                 Colors.grey,
-                                12.0,
+                                10.0,
                                 fontWeight: FontWeight.w500,
                               )
                             : textFontPOOPINS(
@@ -373,7 +373,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 formatDate(
                                     arrAllUser[i]['trn_date'].toString()),
                                 Colors.grey,
-                                12.0,
+                                10.0,
                                 fontWeight: FontWeight.w500,
                               ),
                       ],
@@ -444,7 +444,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 // sv
                                 '',
                                 Colors.grey,
-                                12.0,
+                                10.0,
                                 fontWeight: FontWeight.w500,
                               )
                             : textFontPOOPINS(
@@ -452,7 +452,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 formatDate(
                                     arrAllUser[i]['trn_date'].toString()),
                                 Colors.grey,
-                                12.0,
+                                10.0,
                                 fontWeight: FontWeight.w500,
                               ),
                       ],
