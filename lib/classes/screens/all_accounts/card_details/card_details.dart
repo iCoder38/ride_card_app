@@ -1655,13 +1655,108 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
     }
   }
 
+  void inactiveCardAfterCloseFromUnit(context) async {
+    debugPrint('API ==> ADD CARD');
+
+    // print(widget.cardData['attributes']['last4Digits']);
+    showLoadingUI(context, 'please wait...');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
+    //
+    // get customer id
+    // String customerId =
+    widget.cardData['relationships']['customer']['data']['id'].toString();
+    // bank id
+    // String bankId =
+    //  widget.cardData['relationships']['account']['data']['id'].toString();
+    // get expiry date and month
+    // String expiryDatAndMonth = widget.cardData['attributes']['expirationDate'];
+    // List<String> parts = expiryDatAndMonth.split('-');
+
+    // String year = parts[0];
+    // String month = parts[1];
+    //
+    final parameters = {
+      'action': 'cardedit',
+      'userId': userId,
+      // 'cardNumber': widget.cardData['attributes']['last4Digits'].toString(),
+      // 'nameOnCard': loginUserName(),
+      // 'Expiry_Month': month,
+      // 'Expiry_Year': year,
+      // 'cardType': 'Debit Card'.toString(),
+      // unit
+      // 'card_group': '2',
+      'unit_card_id': widget.cardData['id'].toString(),
+      // 'bank_id': bankId,
+      // 'bank_number': 'bankNumber',
+      // 'relationship_card_type': 'depositAccount',
+      // 'customerID': customerId,
+      'status': '0'
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+
+    try {
+      final response = await _apiService.postRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+      if (kDebugMode) {
+        print('STATUS ==> $successStatus');
+        print(successMessage);
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          apiServiceGT
+              .generateToken(
+            userId,
+            loginUserEmail(),
+            roleIs,
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            //  _addCardInEvsServer(context);
+            inactiveCardAfterCloseFromUnit(context);
+          });
+        } else {
+          //
+          debugPrint('Evs: Sucessfully closed now hit unit');
+          closeCardFromUnit();
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }
+  }
+
   // UNIT: Close card permanently
   closeCardFromUnit() async {
     bool closeStatus = await CardCloseService.closeMyCard(storeCardId);
     if (kDebugMode) {
       print(closeStatus);
     }
-    // Navigator.pop(context);
+    Navigator.pop(context);
     Navigator.pop(context, 'reload_screen');
   }
 
@@ -1689,7 +1784,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         print(feeType);
       }
 
-      closeCardFromUnit();
+      inactiveCardAfterCloseFromUnit(context);
     }
   }
 }
