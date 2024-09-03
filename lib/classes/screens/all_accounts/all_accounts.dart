@@ -325,9 +325,8 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
 
   successCreated() {
     removePopLoader = true;
-    totalAmountAfterCalculateFee != 0.0
-        ? const SizedBox()
-        : Navigator.pop(context);
+    totalAmountAfterCalculateFee != 0.0 ? const SizedBox() : const SizedBox();
+    //Navigator.pop(context);
     customToast('created', Colors.green, ToastGravity.BOTTOM);
     fetchAccountDetails();
   }
@@ -418,8 +417,11 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
   }
 
   // ALL ENTERED OR SAVED CARD DETAILS RETURN
-  Future<void> processCardPayment(BuildContext context,
-      CardDetailsForTaxAndFees cardDetails, bool saveCard) async {
+  Future<void> processCardPayment(
+    BuildContext context,
+    CardDetailsForTaxAndFees cardDetails,
+    bool saveCard,
+  ) async {
     if (kDebugMode) {
       print('Cardholder Name: ${cardDetails.cardholderName}');
       print('Card Number: ${cardDetails.cardNumber}');
@@ -863,7 +865,7 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
 
         if (removePopLoader != false) {
           totalAmountAfterCalculateFee != 0.0
-              ? Navigator.pop(context)
+              ? const SizedBox() //Navigator.pop(context)
               : const SizedBox();
         }
 
@@ -926,12 +928,12 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
 
     if (!mounted) return;
     //
-    if (result == 'reload_screen') {
+    if (result == 'refreshAndCreateBankAccount') {
       if (kDebugMode) {
         print(result);
       }
-      fetchAccountDetails();
-      // funcGetLocalDBdata();
+      // showLoadingUI(context, 'please wait...');
+      _createUnitBankAccount(context);
     }
   }
 }

@@ -3,15 +3,21 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/stripe/generate_token/generate_token.dart';
+import 'package:ride_card_app/classes/common/tax_and_fees/card_show/sheet/alreadySavedCardSheet.dart';
 import 'package:ride_card_app/classes/common/tax_and_fees/fee_calculator/fee_calculator.dart';
 import 'package:ride_card_app/classes/common/tax_and_fees/get_price/get_price.dart';
 import 'package:ride_card_app/classes/common/tax_and_fees/get_price/model/model.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/firebase/service/save_and_get_cart/model/model.dart';
 import 'package:ride_card_app/classes/firebase/service/save_and_get_cart/save_get_card.dart';
+import 'package:ride_card_app/classes/service/charge_money_from_stripe/charge_money_from_stripe.dart';
+import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class ConvenienceFeesChargesScreen extends StatefulWidget {
@@ -32,6 +38,9 @@ class _ConvenienceFeesChargesScreenState
   final TextEditingController contCardExpMonth = TextEditingController();
   final TextEditingController contCardExpYear = TextEditingController();
   final TextEditingController contCardCVV = TextEditingController();
+
+  final stripeService = ChargeMoneyStripeService();
+  final GenerateTokenService _apiServiceGT = GenerateTokenService();
 
   bool screenLoader = true;
   String feesAndTaxesType = '';
@@ -511,6 +520,48 @@ class _ConvenienceFeesChargesScreenState
       return;
     } else {
       debugPrint('Data is filled');
+      if (saveCard == true) {
+        debugPrint("SAVE THIS CARD AND PAY");
+        final cardDetails = SavedCardDetails(
+          cardNumber: contCardNumber.text.toString(),
+          cardholderName: loginUserName(),
+          expMonth: contCardExpMonth.text.toString(),
+          expYear: contCardExpYear.text.toString(),
+          cvv: contCardCVV.text.toString(),
+        );
+        if (kDebugMode) {
+          print(cardDetails.cardNumber);
+          print(loginUserName());
+          print(cardDetails.expMonth);
+          print(cardDetails.expYear);
+          print(cardDetails.expYear);
+          print(cardDetails.cvv);
+        }
+        processPayment(
+          context,
+          loginUserName(),
+          cardDetails.cardNumber,
+          cardDetails.expMonth,
+          cardDetails.expYear,
+          cardDetails.cvv,
+          totalAmountAfterCalculateFee,
+          true,
+        );
+      } else {
+        debugPrint("DO NOT SAVE THIS CARD AND PAY");
+        final cardDetails = SavedCardDetails(
+          cardNumber: savedCardDetailsInDictionary['cardNumber'],
+          cardholderName: savedCardDetailsInDictionary['cardHolderName'],
+          expMonth: savedCardDetailsInDictionary['cardExpMonth'],
+          expYear: savedCardDetailsInDictionary['cardExpYear'],
+          cvv: '', // CVV will be input by the user
+        );
+        if (kDebugMode) {
+          print(cardDetails.cardNumber);
+        }
+      }
+
+      //processPayment();
     }
   }
 
@@ -656,7 +707,7 @@ class _ConvenienceFeesChargesScreenState
     getCardSavedStatus,
   ) async {
     debugPrint('API: Charge amount: Send stripe data to server.');
-    showloading(context, 'Please wait...');
+    showLoadingUI(context, 'Please wait...');
     //
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var userId = prefs.getString('Key_save_login_user_id').toString();
@@ -684,7 +735,7 @@ class _ConvenienceFeesChargesScreenState
         customToast(
           response.message,
           Colors.redAccent,
-          ToastGravit.BOTTOM,
+          ToastGravity.BOTTOM,
         );
       } else if (response.status == 'NOT_AUTHORIZED') {
         debugPrint('CHARGE AMOUNT API IS NOT AUTHORIZE. PLEASE AUTHORIZE');
@@ -710,6 +761,8 @@ class _ConvenienceFeesChargesScreenState
         debugPrint(
           'Success: Payment deducted from stripe. Now create UNIT bank account',
         );
+        Navigator.pop(context);
+        Navigator.pop(context, 'refreshAndCreateBankAccount');
         //
 
         // NOE CREATE A UNIT BANK ACCOUNT
