@@ -490,9 +490,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                   ),
                 ),
               ),
-
         const Divider(thickness: 0.2),
-
         strCardStatus == 'ClosedByCustomer'
             ? const SizedBox()
             : Padding(
@@ -511,7 +509,12 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                       print('CLICKED ==> FREEZE UNFREEZE CARD');
                     }
                     if (strCardStatus == 'Frozen') {
-                      showUnfreezeCardDialog(context);
+                      pushToConvenienceFeeScreen(
+                        context,
+                        'Unfreeze card',
+                        'unfreezeCard',
+                      );
+                      // showUnfreezeCardDialog(context);
                     } else {
                       showFreezeCardDialog(context);
                     }
@@ -929,8 +932,13 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
           });
         } else {
           //
-          Navigator.pop(context);
-          Navigator.pop(context, 'reload_screen');
+          if (type == '0') {
+            Navigator.pop(context);
+            Navigator.pop(context, 'reload_screen');
+          } else {
+            Navigator.pop(context);
+            Navigator.pop(context, 'reload_screen');
+          }
         }
       } else {
         customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
@@ -1655,6 +1663,61 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
     }
   }
 
+  Future<void> createIndividualDebitCard(String token) async {
+    final url = Uri.parse('https://api.s.unit.sh/cards');
+    final headers = {
+      'Content-Type': 'application/vnd.api+json',
+      'Authorization': 'Bearer $token',
+    };
+
+    final body = jsonEncode({
+      "data": {
+        "type": "individualDebitCard",
+        "attributes": {
+          "shippingAddress": {
+            "street": "5230 Newell Rd",
+            "street2": null,
+            "city": "Palo Alto",
+            "state": "CA",
+            "postalCode": "94303",
+            "country": "US"
+          },
+          "idempotencyKey": "3a1a33be-4e12-4603-9ed0-820922389fb8",
+          "limits": {
+            "dailyWithdrawal": 50000,
+            "dailyPurchase": 50000,
+            "monthlyWithdrawal": 500000,
+            "monthlyPurchase": 700000
+          }
+        },
+        "relationships": {
+          "account": {
+            "data": {"type": "depositAccount", "id": "2"}
+          }
+        }
+      }
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (kDebugMode) {
+          print('Card created successfully: ${response.body}');
+        }
+      } else {
+        if (kDebugMode) {
+          print(
+            'Failed to create card: ${response.statusCode} - ${response.body}',
+          );
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error: $e');
+      }
+    }
+  }
+
   void inactiveCardAfterCloseFromUnit(context) async {
     debugPrint('API ==> ADD CARD');
 
@@ -1760,6 +1823,17 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
     Navigator.pop(context, 'reload_screen');
   }
 
+  unfreezeCardInUnitAndEvs() async {
+    showLoadingUI(context, 'unfreezing');
+    bool freezeStatus =
+        await CardAllFunctionsService.unFreezeMyCard(storeCardId);
+
+    if (kDebugMode) {
+      print(freezeStatus);
+    }
+    freezeUnfreezeCardInEVSApi(context, '1');
+  }
+
   Future<void> pushToConvenienceFeeScreen(
     BuildContext context,
     String title,
@@ -1783,8 +1857,11 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
         print(result);
         print(feeType);
       }
-
-      inactiveCardAfterCloseFromUnit(context);
+      if (feeType == 'cardCloseFee') {
+        inactiveCardAfterCloseFromUnit(context);
+      } else {
+        unfreezeCardInUnitAndEvs();
+      }
     }
   }
 }

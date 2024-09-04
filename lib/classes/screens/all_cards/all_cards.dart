@@ -10,6 +10,7 @@ import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 // import 'package:flutter_credit_card/flutter_credit_card.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/convenience_fee/convenience_fees.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -100,7 +101,13 @@ class _AllCardsScreenState extends State<AllCardsScreen> {
                 IconButton(
                   onPressed: () {
                     //
-                    _deleteCard(context, arrAllCards[i]['cardId'].toString());
+
+                    pushToConvenienceFeeScreen(
+                      context,
+                      'Delete card',
+                      'deleteExternalDebitCard',
+                      arrAllCards[i]['cardId'].toString(),
+                    );
                   },
                   icon: const Icon(
                     Icons.delete,
@@ -279,5 +286,37 @@ class _AllCardsScreenState extends State<AllCardsScreen> {
       }
     }
   }
+
   //
+  Future<void> pushToConvenienceFeeScreen(
+    BuildContext context,
+    String title,
+    String feeType,
+    cardId,
+  ) async {
+    //
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ConvenienceFeesChargesScreen(
+          title: title, //'Close my account',
+          feeType: feeType, // 'accountClosingFee',
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+    //
+    if (result == REFRESH_CONVENIENCE_FEES) {
+      if (kDebugMode) {
+        print(result);
+        print(feeType);
+      }
+
+      _deleteCard(
+        context,
+        cardId,
+      );
+    }
+  }
 }

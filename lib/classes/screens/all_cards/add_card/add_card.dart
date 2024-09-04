@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ride_card_app/classes/screens/convenience_fee/convenience_fees.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
@@ -224,10 +225,10 @@ class _AddCardScreenState extends State<AddCardScreen> {
                     ),
                     child: Center(
                       child: TextFormField(
-                        controller: _contCardExpYear,
+                        controller: _contCardExpMonth,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          hintText: 'Exp. Year',
+                          hintText: 'Exp. Month',
                           border: InputBorder.none,
                           filled: false,
                           contentPadding: const EdgeInsets.symmetric(
@@ -270,10 +271,10 @@ class _AddCardScreenState extends State<AddCardScreen> {
                     ),
                     child: Center(
                       child: TextFormField(
-                        controller: _contCardExpMonth,
+                        controller: _contCardExpYear,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          hintText: 'Exp. Month',
+                          hintText: 'Exp. Year',
                           border: InputBorder.none,
                           filled: false,
                           contentPadding: const EdgeInsets.symmetric(
@@ -310,8 +311,14 @@ class _AddCardScreenState extends State<AddCardScreen> {
             child: GestureDetector(
               onTap: () async {
                 if (_formKey.currentState!.validate()) {
-                  showLoadingUI(context, 'adding...');
-                  _addCardInEvsServer(context);
+                  // showLoadingUI(context, 'adding...');
+                  //
+                  // s
+                  pushToConvenienceFeeScreen(
+                    context,
+                    'Add external card',
+                    'addExternalDebitCard',
+                  );
                 }
               },
               child: Container(
@@ -343,7 +350,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
   // API
   void _addCardInEvsServer(context) async {
     debugPrint('API ==> ADD CARD');
-
+    showLoadingUI(context, 'please wait...');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
@@ -410,16 +417,18 @@ class _AddCardScreenState extends State<AddCardScreen> {
           _contCardExpYear.text = '';
           //
           successStatus.toLowerCase() == 'success'
-              ? successfullyCreatedAccount(successStatus, successMessage)
+              ? successfullyCreatedAccount(
+                  successStatus,
+                  successMessage,
+                )
               : Navigator.pop(context);
-          /*customToast(
-            successStatus,
-            hexToColor(appREDcolorHexCode),
-            ToastGravity.TOP,
-          );*/
         }
       } else {
-        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        customToast(
+          successStatus,
+          Colors.redAccent,
+          ToastGravity.TOP,
+        );
         debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
       }
     } catch (error) {
@@ -433,5 +442,32 @@ class _AddCardScreenState extends State<AddCardScreen> {
     //
     customToast(message, Colors.green, ToastGravity.TOP);
     Navigator.pop(context);
+  }
+
+  Future<void> pushToConvenienceFeeScreen(
+    BuildContext context,
+    String title,
+    String feeType,
+  ) async {
+    //
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ConvenienceFeesChargesScreen(
+          title: title, //'Close my account',
+          feeType: feeType, // 'accountClosingFee',
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+    //
+    if (result == REFRESH_CONVENIENCE_FEES) {
+      if (kDebugMode) {
+        print(result);
+        print(feeType);
+      }
+      _addCardInEvsServer(context);
+    }
   }
 }

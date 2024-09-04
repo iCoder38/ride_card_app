@@ -918,13 +918,14 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
   ) async {
     //
     final result = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ConvenienceFeesChargesScreen(
-            title: FEES_CHARGE_TITLE,
-            feeType: 'feeOnCreatingMoreThanOneBankAccount',
-          ),
-        ));
+      context,
+      MaterialPageRoute(
+        builder: (context) => ConvenienceFeesChargesScreen(
+          title: FEES_CHARGE_TITLE,
+          feeType: 'feeOnCreatingMoreThanOneBankAccount',
+        ),
+      ),
+    );
 
     if (!mounted) return;
     //
