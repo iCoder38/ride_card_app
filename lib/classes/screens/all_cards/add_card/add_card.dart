@@ -371,6 +371,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
       'bank_number': '',
       'relationship_card_type': '',
       'customerID': '',
+      'status': '1' // 1 = add , 0 = remove
     };
     if (kDebugMode) {
       print(parameters);
@@ -417,10 +418,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
           _contCardExpYear.text = '';
           //
           successStatus.toLowerCase() == 'success'
-              ? successfullyCreatedAccount(
-                  successStatus,
-                  successMessage,
-                )
+              ? successfullyCreatedAccount(successStatus, successMessage)
               : Navigator.pop(context);
         }
       } else {
