@@ -79,7 +79,9 @@ import 'package:uuid/uuid.dart';
 // }
 
 class IssueCardService {
-  static Future<Map<String, dynamic>?> issueCard(String bankAccountId) async {
+  static Future<Map<String, dynamic>?> issueCard(
+    String bankAccountId,
+  ) async {
     debugPrint('========== ISSUE CARD URL ================');
     final url = Uri.parse(ISSUE_CARD_URL);
     if (kDebugMode) {
@@ -105,6 +107,97 @@ class IssueCardService {
             "monthlyWithdrawal": CARD_I_V_D_C_MONTHLY_WITHDRAWAL,
             "monthlyPurchase": CARD_I_V_D_C_MONTHLY_PURCHASE
           }
+        },
+        "relationships": {
+          "account": {
+            "data": {
+              "type": "depositAccount",
+              "id": bankAccountId,
+            }
+          }
+        }
+      }
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: jsonEncode(requestBody),
+      );
+      if (kDebugMode) {
+        print(response.statusCode);
+      }
+      if (response.statusCode == 201) {
+        // If the server returns a 201 Created response
+        if (kDebugMode) {
+          debugPrint('========== CARD ISSUED RESPONSE ================');
+          print(json.decode(response.body));
+          debugPrint('===================================================');
+        }
+        return json.decode(response.body);
+      } else {
+        if (kDebugMode) {
+          final jsonData = json.decode(response.body);
+          print('Error creating account: $jsonData');
+        }
+        return json.decode(response.body);
+      }
+    } catch (error) {
+      // Handle any errors that occur during the HTTP request
+      if (kDebugMode) {
+        print('Error: $error');
+      }
+      return null;
+    }
+  }
+
+  static Future<Map<String, dynamic>?> issueCardForIndividualDebitCard(
+    String bankAccountId,
+    String firstName,
+    String lastName,
+    String dob,
+    String email,
+    String phoneNumber,
+    String street,
+    String city,
+    String state,
+    String postalCode,
+    String country,
+  ) async {
+    debugPrint('========== ISSUE PHYSICAL CARD URL ================');
+    final url = Uri.parse(ISSUE_CARD_URL);
+    if (kDebugMode) {
+      print(url);
+    }
+    debugPrint('==========================================');
+
+    // Define custom headers
+    Map<String, String> headers = {
+      'Content-Type': 'application/vnd.api+json',
+      'Authorization': 'Bearer $TESTING_TOKEN',
+    };
+
+    // Define the request body
+    Map<String, dynamic> requestBody = {
+      "data": {
+        "type": 'individualDebitCard',
+        "attributes": {
+          "idempotencyKey": const Uuid().v4(),
+          "limits": {
+            "dailyWithdrawal": 50000,
+            "dailyPurchase": 50000,
+            "monthlyWithdrawal": 500000,
+            "monthlyPurchase": 700000
+          },
+          "shippingAddress": {
+            "street": street,
+            "street2": null,
+            "city": city,
+            "state": state,
+            "postalCode": postalCode,
+            "country": country
+          },
         },
         "relationships": {
           "account": {

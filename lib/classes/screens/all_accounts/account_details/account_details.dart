@@ -71,6 +71,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   double showConvenienceFeesOnPopup = 0.0;
   var savedCardDetailsInDictionary;
   var strWhatUserSelect = '';
+  var userSelectWhichCard = '1';
   @override
   void initState() {
     // getFeesAndTaxes();
@@ -1390,6 +1391,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                     children: [
                       GestureDetector(
                         onTap: () {
+                          userSelectWhichCard = '1';
                           _issueCard();
                         },
                         child: Container(
@@ -1415,110 +1417,138 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                           ),
                         ),
                       ),
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        color: Colors.white,
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                textFontPOOPINS(
-                                  'Daily Withdrawal: ',
-                                  Colors.grey,
-                                  12.0,
-                                ),
-                                textFontPOOPINS(
-                                  DOLLAR_SIGN +
-                                      CARD_I_V_D_C_DAILY_WITHDRAWAL.toString(),
-                                  Colors.black,
-                                  12.0,
-                                ),
-                              ],
-                            ),
+                      GestureDetector(
+                        onTap: () {
+                          userSelectWhichCard = '2';
+                          _issueCard();
+                        },
+                        child: Container(
+                          height: 60,
+                          width: MediaQuery.of(context).size.width,
+                          color: Colors.white,
+                          child: Center(
+                            child: widget.bankType == 'businessCustomer'
+                                ? textFontPOOPINS(
+                                    //
+                                    CARD_BUSINESS_VIRTUAL_DEBIT_CARD_NAME,
+                                    Colors.black,
+                                    16.0,
+                                    fontWeight: FontWeight.w500,
+                                  )
+                                : textFontPOOPINS(
+                                    //
+                                    'Physical Debit card',
+                                    Colors.black,
+                                    16.0,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                           ),
                         ),
                       ),
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        color: Colors.white,
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                textFontPOOPINS(
-                                  'Daily Purchase: ',
-                                  Colors.grey,
-                                  12.0,
-                                ),
-                                textFontPOOPINS(
-                                  DOLLAR_SIGN +
-                                      CARD_I_V_D_C_DAILY_PURCHASE.toString(),
-                                  Colors.black,
-                                  12.0,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        color: Colors.white,
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                textFontPOOPINS(
-                                  'Montly Withdrawal: ',
-                                  Colors.grey,
-                                  12.0,
-                                ),
-                                textFontPOOPINS(
-                                  DOLLAR_SIGN +
-                                      CARD_I_V_D_C_MONTHLY_WITHDRAWAL
-                                          .toString(),
-                                  Colors.black,
-                                  12.0,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        color: Colors.white,
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              top: 4.0,
-                              bottom: 10.0,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                textFontPOOPINS(
-                                  'Monthly Purchase: ',
-                                  Colors.grey,
-                                  12.0,
-                                ),
-                                textFontPOOPINS(
-                                  DOLLAR_SIGN +
-                                      CARD_I_V_D_C_MONTHLY_PURCHASE.toString(),
-                                  Colors.black,
-                                  12.0,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
+                      // Container(
+                      //   width: MediaQuery.of(context).size.width,
+                      //   color: Colors.white,
+                      //   child: Center(
+                      //     child: Padding(
+                      //       padding: const EdgeInsets.all(4.0),
+                      //       child: Row(
+                      //         mainAxisAlignment: MainAxisAlignment.center,
+                      //         children: [
+                      //           textFontPOOPINS(
+                      //             'Daily Withdrawal: ',
+                      //             Colors.grey,
+                      //             12.0,
+                      //           ),
+                      //           textFontPOOPINS(
+                      //             DOLLAR_SIGN +
+                      //                 CARD_I_V_D_C_DAILY_WITHDRAWAL.toString(),
+                      //             Colors.black,
+                      //             12.0,
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      // Container(
+                      //   width: MediaQuery.of(context).size.width,
+                      //   color: Colors.white,
+                      //   child: Center(
+                      //     child: Padding(
+                      //       padding: const EdgeInsets.all(4.0),
+                      //       child: Row(
+                      //         mainAxisAlignment: MainAxisAlignment.center,
+                      //         children: [
+                      //           textFontPOOPINS(
+                      //             'Daily Purchase: ',
+                      //             Colors.grey,
+                      //             12.0,
+                      //           ),
+                      //           textFontPOOPINS(
+                      //             DOLLAR_SIGN +
+                      //                 CARD_I_V_D_C_DAILY_PURCHASE.toString(),
+                      //             Colors.black,
+                      //             12.0,
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      // Container(
+                      //   width: MediaQuery.of(context).size.width,
+                      //   color: Colors.white,
+                      //   child: Center(
+                      //     child: Padding(
+                      //       padding: const EdgeInsets.all(4.0),
+                      //       child: Row(
+                      //         mainAxisAlignment: MainAxisAlignment.center,
+                      //         children: [
+                      //           textFontPOOPINS(
+                      //             'Montly Withdrawal: ',
+                      //             Colors.grey,
+                      //             12.0,
+                      //           ),
+                      //           textFontPOOPINS(
+                      //             DOLLAR_SIGN +
+                      //                 CARD_I_V_D_C_MONTHLY_WITHDRAWAL
+                      //                     .toString(),
+                      //             Colors.black,
+                      //             12.0,
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      // Container(
+                      //   width: MediaQuery.of(context).size.width,
+                      //   color: Colors.white,
+                      //   child: Center(
+                      //     child: Padding(
+                      //       padding: const EdgeInsets.only(
+                      //         top: 4.0,
+                      //         bottom: 10.0,
+                      //       ),
+                      //       child: Row(
+                      //         mainAxisAlignment: MainAxisAlignment.center,
+                      //         children: [
+                      //           textFontPOOPINS(
+                      //             'Monthly Purchase: ',
+                      //             Colors.grey,
+                      //             12.0,
+                      //           ),
+                      //           textFontPOOPINS(
+                      //             DOLLAR_SIGN +
+                      //                 CARD_I_V_D_C_MONTHLY_PURCHASE.toString(),
+                      //             Colors.black,
+                      //             12.0,
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                   const SizedBox(
@@ -1612,11 +1642,19 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
     } else {
       debugPrint('Individual Customer: ISSUE VIRTUAL DEBIT CARD');
 
-      pushToConvenienceFeeScreen(
-        context,
-        'Virtual debit card',
-        'generateDebitCard',
-      );
+      if (userSelectWhichCard == '1') {
+        pushToConvenienceFeeScreen(
+          context,
+          'Virtual debit card',
+          'generateDebitCard',
+        );
+      } else {
+        pushToConvenienceFeeScreen(
+          context,
+          'Physical debit card',
+          'generateDebitCard',
+        );
+      }
 
       /*strWhatUserSelect = 'close_ind_virtual_card';
       showLoadingUI(context, 'please wait...');
@@ -2076,6 +2114,42 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
     }
   }
 
+  void issueMyPhysicalDebitCard() async {
+    showLoadingUI(context, 'please wait...');
+    await sendRequestToProfileDynamic().then((v) async {
+      if (kDebugMode) {
+        print(v);
+      }
+      Map<String, dynamic>? businessResponse =
+          await IssueCardService.issueCardForIndividualDebitCard(
+        bankAccountId.toString(),
+        v['data']['fullName'].toString(),
+        v['data']['lastName'].toString(),
+        v['data']['dob'].toString(),
+        v['data']['email'].toString(),
+        v['data']['contactNumber'].toString(),
+        v['data']['address'].toString(),
+        v['data']['City'].toString(),
+        v['data']['state'].toString(),
+        v['data']['zipcode'].toString(),
+        v['data']['country'].toString(),
+      );
+      if (kDebugMode) {
+        print('Card: Individual physical card');
+        print(businessResponse);
+      }
+      Navigator.pop(context);
+      _addCardInEvsServer(
+          context,
+          businessResponse!['data']['attributes']['last4Digits'].toString(),
+          businessResponse['data']['id'].toString(),
+          businessResponse['data']['relationships']['account']['data']['id']
+              .toString(),
+          businessResponse['data']['attributes']['expirationDate'].toString(),
+          businessResponse['data']['relationships']['customer']['data']['id']);
+    });
+  }
+
   Future<void> pushToConvenienceFeeScreen(
     BuildContext context,
     String title,
@@ -2103,7 +2177,13 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       if (feeType == 'accountClosingFee') {
         _handleCloseAccount();
       } else if (feeType == 'generateDebitCard') {
-        createVirtualDebitCard();
+        if (userSelectWhichCard == '1') {
+          createVirtualDebitCard();
+        } else {
+          debugPrint('fee deduct for physical');
+
+          issueMyPhysicalDebitCard();
+        }
       } else {
         _handleUnfreezeAccount();
       }
