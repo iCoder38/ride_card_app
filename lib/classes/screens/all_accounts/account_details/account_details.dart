@@ -75,12 +75,13 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   @override
   void initState() {
     // getFeesAndTaxes();
+    // _dummyAndCheck();
     dataParseInAccountDetails();
     super.initState();
   }
 
   dataParseInAccountDetails() {
-// API
+    // API
     if (kDebugMode) {
       print('======== BANK ===========');
       print(widget.accountData);
@@ -2186,6 +2187,176 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         }
       } else {
         _handleUnfreezeAccount();
+      }
+    }
+  }
+
+  // dummy
+  void _dummyAndCheck() async {
+    debugPrint('API ==> ADD CARD');
+    //
+    showLoadingUI(context, 'please wait...');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
+    // split year and month
+    // List<String> parts = expYearMonth.split('-');
+    // String year = parts[0];
+    // String month = parts[1];
+
+    // if (kDebugMode) {
+    //   print('Year: $year');
+    //   print('Month: $month');
+    // }
+
+    final stripeToken = await createStripeToken(
+        cardNumber: '4242424242424242'.toString(),
+        expMonth: '12'.toString(),
+        expYear: '30'.toString(),
+        cvc: '123'.toString());
+
+    // Use the token for further processing, such as making a payment
+    if (kDebugMode) {
+      print(stripeToken);
+      // print('Stripe amount to send: $amount');
+      // print('Stripe amount to send: $cardSavedStatus');
+    }
+
+    final parameters = {
+      'action': 'customer',
+      'userId': userId,
+      'name': loginUserName(),
+      'email': FirebaseAuth.instance.currentUser!.email,
+      'tokenID': stripeToken.toString()
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+
+    try {
+      final response = await _apiService.stripePostRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+      String customerIdIs = jsonResponse['customer_id'];
+
+      if (kDebugMode) {
+        print('STATUS ==> $successStatus');
+        print(successMessage);
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          apiServiceGT
+              .generateToken(
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            roleIs,
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+          });
+        } else {
+          if (successStatus.toLowerCase() == 'success') {
+            //
+            // Navigator.pop(context);
+            debugPrint('====> SUCCESS <====');
+            createStripeCustomerAccount(customerIdIs);
+          }
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }
+  }
+
+  ///
+  // dummy
+  void createStripeCustomerAccount(customerId) async {
+    debugPrint('API ==> Stripe subscription');
+    //
+    // showLoadingUI(context, 'please wait...');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
+
+    final parameters = {
+      'action': 'subscription',
+      'userId': userId,
+      'customerId': customerId,
+      'plan_type': 'Card'
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+
+    try {
+      final response = await _apiService.stripeCreateRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+      if (kDebugMode) {
+        print('STATUS ==> $successStatus');
+        print(successMessage);
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          apiServiceGT
+              .generateToken(
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            roleIs,
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+          });
+        } else {
+          if (successStatus.toLowerCase() == 'success') {
+            //
+            // Navigator.pop(context);
+            debugPrint('====> SUCCESS: SUBSCRIPTION <====');
+            // fetchAllCardsDetails();
+          }
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
       }
     }
   }

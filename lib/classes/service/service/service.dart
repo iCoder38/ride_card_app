@@ -35,4 +35,70 @@ class ApiService {
       throw Exception('Failed to load data');
     }
   }
+
+  Future<http.Response> stripePostRequest(
+    Map<String, dynamic> parameters,
+    token,
+  ) async {
+    if (token == null) {
+      token = '';
+    } else {
+      token = token;
+    }
+    final url = Uri.parse(
+        'https://demo4.evirtualservices.net/ridewallet/webroot/strip_master/strip_master/customer_test.php');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        // 'token': token
+      },
+      body: jsonEncode(parameters),
+    );
+
+    if (response.statusCode == 200) {
+      // Request was successful
+      return response;
+    } else {
+      // Handle error
+      if (kDebugMode) {
+        print(response.body);
+      }
+      throw Exception('Failed to load data');
+    }
+  }
+
+  Future<http.Response> stripeCreateRequest(
+    Map<String, dynamic> parameters,
+    token,
+  ) async {
+    if (token == null) {
+      token = '';
+    } else {
+      token = token;
+    }
+    final url = Uri.parse(
+        'https://demo4.evirtualservices.net/ridewallet/webroot/strip_master/strip_master/subscribe_test.php');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        // 'token': token
+      },
+      body: jsonEncode(parameters),
+    );
+
+    if (response.statusCode == 200) {
+      // Request was successful
+      return response;
+    } else {
+      // Handle error
+      if (kDebugMode) {
+        print(response.body);
+      }
+      throw Exception('Failed to load data');
+    }
+  }
 }

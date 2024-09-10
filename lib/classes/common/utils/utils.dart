@@ -18,6 +18,7 @@ var TAX_TYPE_FIXED_PRICE = 'Fix';
 
 var REFRESH_CONVENIENCE_FEES = 'refreshConvenienceFees';
 var FEES_CHARGE_TITLE = 'Add bank account';
+
 // CHECK CC SCORE KEYS
 // var CC_SCORE_BASE_URL = dotenv.env['CC_SCORE_BASE_URL'];
 // var CC_SCORE_CLIENT_ID = dotenv.env['CC_SCORE_CLIENT_ID'];
