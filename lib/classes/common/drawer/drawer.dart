@@ -7,6 +7,7 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/screens/all_cards/add_card/add_card.dart';
 import 'package:ride_card_app/classes/screens/all_cards/all_cards.dart';
+import 'package:ride_card_app/classes/screens/bank_to_bank/bank_to_bank.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/change_password/change_password.dart';
 import 'package:ride_card_app/classes/screens/edit_profile/edit_profile.dart';
@@ -284,6 +285,25 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => BottomBar(selectedIndex: 2)),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.wallet,
+                color: Colors.white,
+              ),
+              title: textFontPOOPINS(
+                //
+                'Bank to Bank transfer',
+                Colors.white,
+                16.0,
+              ),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const BankToBankTransfterScreen()),
                 );
               },
             ),

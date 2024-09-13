@@ -26,6 +26,7 @@ import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/create_account/create
 import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/get_customer_accounts_list/get_customer_account_list.dart';
 import 'package:ride_card_app/classes/service/charge_money_from_stripe/charge_money_from_stripe.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
+import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -43,6 +44,7 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final stripeService = ChargeMoneyStripeService();
   final GenerateTokenService _apiServiceGT = GenerateTokenService();
+  final ApiService _apiService = ApiService();
 
   var customerID = '0';
   List<dynamic>? accountDetails;
@@ -309,17 +311,120 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
     totalAmountAfterCalculateFee != 0.0
         ? const SizedBox()
         : showLoadingUI(context, 'please wait...');
-    bool result = await CreateAccountService.createAccount(customerID);
+    var response = await CreateAccountService.createAccount(customerID);
     setState(() {
-      accountCreated = result;
+      accountCreated = true;
     });
 
     // Print the result to check it
-    if (result) {
+    if (response != null) {
       debugPrint('Account created successfully.');
-      successCreated();
+      if (kDebugMode) {
+        print('================ created account details =====================');
+        print(response);
+        print('==============================================================');
+      }
+      String depositAccountId = response['data']['id'];
+      String routingNumber = response['data']['attributes']['routingNumber'];
+      String accountNumber = response['data']['attributes']['accountNumber'];
+      String customerId =
+          response['data']['relationships']['customer']['data']['id'];
+
+      // Print values
+      if (kDebugMode) {
+        print('Deposit Account ID: $depositAccountId');
+        print('Routing Number: $routingNumber');
+        print('Account Number: $accountNumber');
+        print('Customer ID: $customerId');
+      }
+      nowAddBankAccountDetailsInOurServer(
+        depositAccountId,
+        routingNumber,
+        accountNumber,
+        customerId,
+      );
     } else {
       debugPrint('Failed to create account.');
+    }
+  }
+
+  nowAddBankAccountDetailsInOurServer(
+    depositAccountId,
+    routingNumber,
+    accountNumber,
+    customerId,
+  ) async {
+    //
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
+
+    final parameters = {
+      'action': 'accountadd',
+      'userId': userId,
+      'account_number': accountNumber,
+      'unitCustomerId': customerId,
+      'unitBankId': depositAccountId,
+      'unitBankType': 'deposit',
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+
+    try {
+      final response = await _apiService.postRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+      if (kDebugMode) {
+        print('STATUS ==> $successStatus');
+        print(successMessage);
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          _apiServiceGT
+              .generateToken(
+            userId,
+            loginUserEmail(),
+            roleIs,
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            nowAddBankAccountDetailsInOurServer(
+              depositAccountId,
+              routingNumber,
+              accountNumber,
+              customerId,
+            );
+          });
+        } else {
+          if (successStatus.toLowerCase() == 'success') {
+            //
+            successCreated();
+          }
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
     }
   }
 
