@@ -15,6 +15,8 @@ import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/widgets/widgets.dart';
+import 'package:ride_card_app/classes/service/UNIT/checkWalletStatus/check_wallet_status.dart';
+import 'package:ride_card_app/classes/service/UNIT/create_bank/create.dart';
 import 'package:ride_card_app/classes/service/check_cc_score/check_cc_score.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
@@ -35,6 +37,8 @@ class _CardsScreenState extends State<CardsScreen> {
   //
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String data = 'Fetching data...';
+
+  final CheckUnitWalletStatus _walletStatusChecker = CheckUnitWalletStatus();
 
   final ApiService _apiService = ApiService();
   final GenerateTokenService _apiServiceGT = GenerateTokenService();
@@ -82,11 +86,90 @@ class _CardsScreenState extends State<CardsScreen> {
 
   Future<void> fetchProfileData() async {
     await sendRequestToProfileDynamic().then((v) async {
+      logger.d(v);
       SharedPreferences prefs2 = await SharedPreferences.getInstance();
       prefs2.setString(
           'Key_save_login_profile_picture', v['data']['image'].toString());
       prefs2.setString('key_save_user_role', v['data']['role'].toString());
+
+      ///
+      ///
+      ///
+      //  createCustomer();
+      // createBankAccountToken(
+      //   'stripeSecretKey',
+      //   'accountNumber',
+      //   'routingNumber',
+      //   'purnima pandey',
+      // );
+      // checkIsUserHaveAWallet(v['data']['customerId']);
+      // attachBankAccountWithCustomerId();
+      //
+      transferFromUnitToStripe(
+        'unitApiKey',
+        'unitAccountId',
+        'stripeBankAccountNumber',
+        'stripeRoutingNumber',
+        1,
+      );
     });
+  }
+
+  Future<void> createCustomer() async {
+    // Replace with the customer's email
+    String? customerId = await createStripeCustomer('purnimaevs@gmail.com');
+
+    if (customerId != null) {
+      print('Stripe customer created successfully: $customerId');
+      // Now you can attach a bank account or card to this customer
+    } else {
+      print('Failed to create Stripe customer.');
+    }
+  }
+
+  attachBankAccountWithCustomerId() {
+    final addBankResponse = attachBankAccountToCustomer(
+      'cus_QrPRXhqZC28tsQ',
+      'btok_1PzgVlCc4YwUErYBvILqyyLj',
+    );
+
+    if (kDebugMode) {
+      print(addBankResponse);
+      logger.d(addBankResponse);
+    }
+  }
+
+  checkIsUserHaveAWallet(customerId) async {
+    logger.d('CHECKING WALLET STATUS with CUSTOMER ID: $customerId');
+
+    try {
+      final response = await _walletStatusChecker.checkWalletStatus(customerId);
+      // final response = await _walletStatusChecker.getWalletAccount(customerId);
+
+      // Process response here
+      if (response.statusCode == 200) {
+        // Parse and handle the response
+        final responseBody = response.body;
+        if (kDebugMode) {
+          print('Wallet created successfully: $responseBody');
+        }
+      } else {
+        // Handle failure case
+        if (kDebugMode) {
+          print('Error: ${response.statusCode}');
+        }
+      }
+    } catch (e) {
+      // Handle any exceptions
+      if (kDebugMode) {
+        print('Exception: $e');
+      }
+    }
+    /*final checkWakketResponse = CheckUnitWalletStatus().checkWalletStatus(
+      customerId,
+    );
+
+    logger.d(checkWakketResponse);*/
   }
 
   @override
