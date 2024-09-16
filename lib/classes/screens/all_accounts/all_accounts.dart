@@ -62,6 +62,7 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
   bool removePopLoader = false;
   double showConvenienceFeesOnPopup = 0.0;
   var savedCardDetailsInDictionary;
+  var storeStripeCustomerId = '';
   //
   @override
   void initState() {
@@ -155,10 +156,16 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
         child: FloatingActionButton(
           onPressed: () {
             //
-            areYourSureCreateAccountPopup(
-              context,
-              totalAmountAfterCalculateFee,
-            );
+
+            if (accountDetails!.isEmpty) {
+              logger.d('First account');
+              _openBottomSheet();
+            } else {
+              areYourSureCreateAccountPopup(
+                context,
+                totalAmountAfterCalculateFee,
+              );
+            }
           },
           tooltip: 'Add account',
           backgroundColor: hexToColor(appORANGEcolorHexCode),
@@ -170,6 +177,346 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
       ),
       body: _UIKit(context),
     );
+  }
+
+  void _openBottomSheet() async {
+    final result = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+      ),
+      builder: (context) {
+        return const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          child: BottomSheetForm(),
+        );
+      },
+    );
+
+    if (result != null) {
+      // Print or use the result values here
+      if (kDebugMode) {
+        print("Account Number: ${result['accountNumber']}");
+        print("Exp Date: ${result['expDate']}");
+        print("Exp Year: ${result['expYear']}");
+        print("CVV: ${result['cvv']}");
+      }
+      checkUserData(result);
+    }
+  }
+
+  Future<void> checkUserData(result) async {
+    await sendRequestToProfileDynamic().then((v) async {
+      if (kDebugMode) {
+        //  print(v);
+      }
+      if (STRIPE_STATUS == 'T') {
+        storeStripeCustomerId = v['data']['stripe_customer_id_Test'];
+      } else {
+        storeStripeCustomerId = v['data']['stripe_customer_id_Live'];
+      }
+      //
+      logger.d(storeStripeCustomerId);
+      final newStripeToken = await createStripeToken(
+          cardNumber: result['accountNumber'].toString(),
+          expMonth: result['expDate'].toString(),
+          expYear: result['expYear'].toString(),
+          cvc: result['cvv'].toString());
+
+      //
+      logger.d(newStripeToken);
+      showLoadingUI(context, 'please wait...');
+      if (storeStripeCustomerId != '') {
+        createStripeCustomerAccount(storeStripeCustomerId);
+      } else {
+        _registerCustomerInStripe(newStripeToken);
+      }
+    });
+  }
+
+  void _registerCustomerInStripe(stripeToken) async {
+    debugPrint('API ==> REGISTER CUSTOMER IN STRIPE');
+
+    ///
+    String? customerId =
+        await RegisterCustomerInStripe().registerCustomerInStripe(stripeToken);
+
+    if (customerId != null) {
+      bool isProfileEdited = await RegisterCustomerInStripe()
+          .editAfterCreateStripeCustomer(customerId);
+
+      if (isProfileEdited) {
+        bool isSubscriptionCreated =
+            await RegisterCustomerInStripe().createSubscription(customerId);
+
+        if (isSubscriptionCreated) {
+          logger.d('Subscription created successfully.');
+          Navigator.pop(context);
+          _createUnitBankAccount(context);
+        } else {
+          debugPrint('Failed to create subscription.');
+        }
+      } else {
+        debugPrint('Failed to edit profile.');
+      }
+    } else {
+      debugPrint('Failed to register customer in Stripe.');
+    }
+
+    ///
+
+    /*String? customerId =
+        await RegisterCustomerInStripe().registerCustomerInStripe(stripeToken);
+
+    if (customerId != null) {
+      if (kDebugMode) {
+        logger.d('Customer registered with ID: $customerId');
+      }
+      editAfterCreateStripeCustomer(context, customerId);
+    } else {
+      if (kDebugMode) {
+        print('Customer registration failed');
+      }
+    }*/
+
+    // Step 1: Register customer in Stripe
+    /* String? customerId =
+        await RegisterCustomerInStripe().registerCustomerInStripe(stripeToken);
+
+    if (customerId != null) {
+      bool isProfileEdited =
+          await RegisterCustomerInStripe().editAfterCreateStripeCustomer(
+        customerId,
+      );
+
+      if (isProfileEdited) {
+        debugPrint(
+          'Profile updated successfully after creating Stripe customer.',
+        );
+      } else {
+        debugPrint(
+          'Failed to update profile after creating Stripe customer.',
+        );
+      }
+    } else {
+      debugPrint('Failed to register customer in Stripe.');
+    }*/
+
+    // showLoadingUI(context, 'please wait...');
+    /*SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
+
+    final parameters = {
+      'action': 'customer',
+      'userId': userId,
+      'name': loginUserName(),
+      'email': loginUserEmail(),
+      'tokenID': stripeToken.toString()
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+
+    try {
+      final response = await _apiService.stripePostRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+      String customerIdIs = jsonResponse['customer_id'];
+
+      if (kDebugMode) {
+        print('STATUS ==> $successStatus');
+        print(successMessage);
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          _apiServiceGT
+              .generateToken(
+            userId,
+            loginUserEmail(),
+            roleIs,
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            _registerCustomerInStripe(token);
+          });
+        } else {
+          if (successStatus.toLowerCase() == 'success') {
+            //
+            // Navigator.pop(context);
+            logger.d(customerIdIs);
+            logger.d('CUSTOMER IN STRIPE CREATED SUCCESSFULLY');
+            editAfterCreateStripeCustomer(context, customerIdIs);
+            // editAfterCreateStripeCustomer(context, customerIdIs);
+          }
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }*/
+  }
+
+  /*void editAfterCreateStripeCustomer(
+    context,
+    customerId,
+  ) async {
+    debugPrint('API ==> EDIT PROFILE');
+    // String parseDevice = await deviceIs();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
+    final parameters = {
+      'action': 'editProfile',
+      'userId': userId,
+      'stripe_customer_id_Test': customerId,
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+    // return;
+
+    try {
+      final response = await _apiService.postRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+      if (kDebugMode) {
+        print('STATUS ==> $successStatus');
+        print(successMessage);
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          _apiServiceGT
+              .generateToken(
+            userId,
+            loginUserEmail(),
+            roleIs.toString(),
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            editAfterCreateStripeCustomer(context, customerId);
+          });
+        } else {
+          //
+          createStripeCustomerAccount(customerId);
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      // print(error);
+    }
+  }*/
+
+  ///
+  // dummy
+  void createStripeCustomerAccount(customerId) async {
+    debugPrint('API ==> Stripe subscription');
+    //
+    // showLoadingUI(context, 'please wait...');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
+
+    final parameters = {
+      'action': 'subscription',
+      'userId': userId,
+      'customerId': customerId,
+      'plan_type': 'Account'
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+
+    try {
+      final response = await _apiService.stripeCreateRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+      if (kDebugMode) {
+        print('STATUS ==> $successStatus');
+        print(successMessage);
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          _apiServiceGT
+              .generateToken(
+            userId,
+            loginUserEmail(),
+            roleIs,
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+          });
+        } else {
+          if (successStatus.toLowerCase() == 'success') {
+            //
+            // Navigator.pop(context);
+            logger.d('SUCCESS: SUBSCRIPTION');
+            Navigator.pop(context);
+            _createUnitBankAccount(context);
+          }
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }
   }
 
   void areYourSureCreateAccountPopup(
@@ -1041,5 +1388,129 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
       // showLoadingUI(context, 'please wait...');
       _createUnitBankAccount(context);
     }
+  }
+}
+
+class BottomSheetForm extends StatefulWidget {
+  const BottomSheetForm({super.key});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _BottomSheetFormState createState() => _BottomSheetFormState();
+}
+
+class _BottomSheetFormState extends State<BottomSheetForm> {
+  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _accountNumberController =
+      TextEditingController();
+  final TextEditingController _expDateController = TextEditingController();
+  final TextEditingController _expYearController = TextEditingController();
+  final TextEditingController _cvvController = TextEditingController();
+
+  @override
+  void dispose() {
+    _accountNumberController.dispose();
+    _expDateController.dispose();
+    _expYearController.dispose();
+    _cvvController.dispose();
+    super.dispose();
+  }
+
+  void _onSubmit() {
+    if (_formKey.currentState!.validate()) {
+      // Collect values
+      Navigator.pop(context, {
+        'accountNumber': _accountNumberController.text,
+        'expDate': _expDateController.text,
+        'expYear': _expYearController.text,
+        'cvv': _cvvController.text,
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      children: [
+        Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Account Number Field
+              TextFormField(
+                controller: _accountNumberController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Card Number',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter card number';
+                  }
+                  return null;
+                },
+                maxLength: 16,
+              ),
+              const SizedBox(height: 10.0),
+              // Exp Date Field
+              TextFormField(
+                controller: _expDateController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Exp Date (MM)',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter expiry month';
+                  }
+                  return null;
+                },
+                maxLength: 2,
+              ),
+              const SizedBox(height: 10.0),
+              // Exp Year Field
+              TextFormField(
+                controller: _expYearController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Exp Year (YY)',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter expiry year';
+                  }
+                  return null;
+                },
+                maxLength: 2,
+              ),
+              const SizedBox(height: 10.0),
+              // CVV Field
+              TextFormField(
+                controller: _cvvController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'CVV',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter CVV';
+                  }
+                  return null;
+                },
+                maxLength: 3,
+              ),
+              const SizedBox(height: 20.0),
+              // Submit Button
+              ElevatedButton(
+                onPressed: _onSubmit,
+                child: const Text('Submit'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

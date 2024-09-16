@@ -416,10 +416,8 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
           onTap: () async {
             // if (_formKey.currentState!.validate()) {
             showLoadingUI(context, PLEASE_WAIT);
-            /**/
-            // _sendToLogin(context);
-            checkAndGetBankAccount();
-            // }
+            //
+            checkAndGetBankAccount(contAccountNumber.text.toString());
           },
           child: Container(
             height: 60,
@@ -433,7 +431,7 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
             child: Center(
               child: textFontPOOPINS(
                 //
-                'SIGN IN',
+                'Transfer',
                 Colors.white,
                 18.0,
                 fontWeight: FontWeight.w600,
@@ -446,8 +444,7 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
   }
   // transfer
 
-  checkAndGetBankAccount() async {
-    //
+  checkAndGetBankAccount(accountNumber) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
@@ -456,10 +453,10 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
 
     final parameters = {
       'action': 'accountlist',
-      'userId': userId,
+      'keyword': accountNumber.toString(),
     };
     if (kDebugMode) {
-      print(parameters);
+      logger.d(parameters);
     }
 
     try {
@@ -493,7 +490,7 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
               print('TOKEN ==> $v');
             }
             // again click
-            checkAndGetBankAccount();
+            checkAndGetBankAccount(accountNumber);
           });
         } else {
           if (successStatus.toLowerCase() == 'success') {
@@ -516,7 +513,7 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
               }
             }
             logger.d('BankId:==> $storeUnitBankId');
-            Navigator.pop(context);
+            sendPayment();
           }
         }
       } else {
@@ -619,7 +616,10 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
     final body = jsonEncode({
       "data": {
         "type": "bookPayment",
-        "attributes": {"amount": 100, "description": "Funding"},
+        "attributes": {
+          "amount": 100,
+          "description": "Funding",
+        },
         "relationships": {
           "account": {
             "data": {
@@ -628,11 +628,15 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
             }
           },
           "counterpartyAccount": {
-            "data": {"type": "depositAccount", "id": storeUnitBankId.toString()}
+            "data": {
+              "type": "depositAccount",
+              "id": storeUnitBankId.toString(),
+            }
           }
         }
       }
     });
+    logger.d(body);
 
     try {
       final response = await http.post(
@@ -646,6 +650,11 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
         if (kDebugMode) {
           print('Payment successful: ${response.body}');
         }
+        contAccountNumber.text = "";
+        contName.text = "";
+        contRoutingNumber.text = "";
+        contYourBankAccount.text = "";
+        Navigator.pop(context);
       } else {
         // Payment failed
         if (kDebugMode) {
