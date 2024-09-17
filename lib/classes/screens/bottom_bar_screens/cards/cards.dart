@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -92,9 +93,7 @@ class _CardsScreenState extends State<CardsScreen> {
           'Key_save_login_profile_picture', v['data']['image'].toString());
       prefs2.setString('key_save_user_role', v['data']['role'].toString());
 
-      ///
-      ///
-      ///
+      //
       //  createCustomer();
       // createBankAccountToken(
       //   'stripeSecretKey',
@@ -105,14 +104,38 @@ class _CardsScreenState extends State<CardsScreen> {
       // checkIsUserHaveAWallet(v['data']['customerId']);
       // attachBankAccountWithCustomerId();
       //
-      transferFromUnitToStripe(
+
+      /*transferFromUnitToStripe(
         'unitApiKey',
         'unitAccountId',
         'stripeBankAccountNumber',
         'stripeRoutingNumber',
         1,
-      );
+      );*/
+      /*final customerExternalAccount =
+          getCustomerExternalAccounts('cus_QrPRXhqZC28tsQ');
+      logger.d(customerExternalAccount);*/
+
+      // Timer(const Duration(seconds: 3), payout);
     });
+  }
+
+  payout() async {
+    http.Response response = await createPayout('ba_1PzgVlCc4YwUErYBOqcNTfjl');
+
+    // Handle the response (e.g., show a success or failure message)
+    if (response.statusCode == 200) {
+      // Success case
+      if (kDebugMode) {
+        print('Payout successful: ${response.body}');
+      }
+      // You can also show a snackbar or alert to the user
+    } else {
+      // Failure case
+      if (kDebugMode) {
+        print('Payout failed: ${response.body}');
+      }
+    }
   }
 
   Future<void> createCustomer() async {
@@ -120,10 +143,13 @@ class _CardsScreenState extends State<CardsScreen> {
     String? customerId = await createStripeCustomer('purnimaevs@gmail.com');
 
     if (customerId != null) {
-      print('Stripe customer created successfully: $customerId');
-      // Now you can attach a bank account or card to this customer
+      if (kDebugMode) {
+        print('Stripe customer created successfully: $customerId');
+      }
     } else {
-      print('Failed to create Stripe customer.');
+      if (kDebugMode) {
+        print('Failed to create Stripe customer.');
+      }
     }
   }
 

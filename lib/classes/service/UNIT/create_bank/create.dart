@@ -166,3 +166,61 @@ Future<void> transferFromUnitToStripe(
     }
   }
 }
+
+Future<http.Response> createPayout(id) async {
+  Map<String, String> headers = {
+    'Authorization':
+        'Bearer  sk_test_51POkgbCc4YwUErYBQnFMUB9MZseYOA1GVleyN7STW6k4BBL9umjICF4JxnWgl17UfDXbwfmtF5xmI9LFrQPJIrKl00H6WwHpFg',
+    'Content-Type': 'application/x-www-form-urlencoded',
+  };
+
+  // Define the payout request body
+  Map<String, String> body = {
+    'amount': '100',
+    'currency': 'usd',
+    'destination': id,
+  };
+
+  // Send the POST request to create the payout
+  final response = await http.post(
+    Uri.parse('https://api.stripe.com/v1/payouts'),
+    headers: headers,
+    body: body,
+  );
+
+  // Handle the response
+  if (response.statusCode == 200) {
+    if (kDebugMode) {
+      print('Payout successful: ${response.body}');
+    }
+    return response; // Return the successful response
+  } else {
+    if (kDebugMode) {
+      print('Failed to create payout: ${response.body}');
+    }
+    return response; // Return the error response
+  }
+}
+
+Future<void> getCustomerExternalAccounts(String customerId) async {
+  String secretKey =
+      'sk_test_51POkgbCc4YwUErYBQnFMUB9MZseYOA1GVleyN7STW6k4BBL9umjICF4JxnWgl17UfDXbwfmtF5xmI9LFrQPJIrKl00H6WwHpFg';
+
+  Map<String, String> headers = {
+    'Authorization': 'Bearer $secretKey',
+  };
+
+  final response = await http.get(
+    Uri.parse('https://api.stripe.com/v1/customers/$customerId/sources'),
+    headers: headers,
+  );
+
+  if (response.statusCode == 200) {
+    var responseData = json.decode(response.body);
+    print('External accounts: $responseData');
+
+    // You can filter through the external accounts to get the 'id' of the bank account or card
+  } else {
+    print('Failed to retrieve external accounts: ${response.body}');
+  }
+}
