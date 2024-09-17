@@ -282,6 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
       'email': _contEmail.text,
       'password': _contPassword.text,
     };
+
     if (kDebugMode) {
       print(parameters);
     }
