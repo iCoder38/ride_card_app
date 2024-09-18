@@ -133,8 +133,8 @@ class _WalletScreenState extends State<WalletScreen> {
               TEXT_NAVIGATION_TITLE_WALLET,
               _scaffoldKey,
             ),
-            const Spacer(),
-            GestureDetector(
+            // const Spacer(),
+            /*GestureDetector(
               onTap: () {
                 //
                 showModalBottomSheet(
@@ -162,7 +162,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   ),
                 ),
               ),
-            ),
+            ),*/
             const SizedBox(width: 20),
           ],
         ),

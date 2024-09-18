@@ -149,7 +149,8 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                 child: TextFormField(
                   readOnly: false,
                   controller: contEnterAmount,
-                  keyboardType: TextInputType.number,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   decoration: const InputDecoration(
                     hintText: 'Enter amount',
                     border: InputBorder.none, // Remove the border
