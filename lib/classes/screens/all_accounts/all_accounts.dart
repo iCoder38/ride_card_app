@@ -1431,14 +1431,16 @@ class _BottomSheetFormState extends State<BottomSheetForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      children: [
-        Form(
+    return Padding(
+      padding: MediaQuery.of(context).viewInsets, // Adjust for keyboard
+      child: SingleChildScrollView(
+        child: Form(
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               // Account Number Field
+
               TextFormField(
                 controller: _accountNumberController,
                 keyboardType: TextInputType.number,
@@ -1454,8 +1456,67 @@ class _BottomSheetFormState extends State<BottomSheetForm> {
                 maxLength: 16,
               ),
               const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  // Exp Date Field (Month)
+                  Expanded(
+                    child: TextFormField(
+                      controller: _expDateController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Exp Date',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter expiry month';
+                        }
+                        return null;
+                      },
+                      maxLength: 2,
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+
+                  // Exp Year Field
+                  Expanded(
+                    child: TextFormField(
+                      controller: _expYearController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Exp Year',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter expiry year';
+                        }
+                        return null;
+                      },
+                      maxLength: 2,
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+
+                  // CVV Field
+                  Expanded(
+                    child: TextFormField(
+                      controller: _cvvController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'CVV',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter CVV';
+                        }
+                        return null;
+                      },
+                      maxLength: 3,
+                    ),
+                  ),
+                ],
+              ),
               // Exp Date Field
-              TextFormField(
+              /* TextFormField(
                 controller: _expDateController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
@@ -1500,7 +1561,7 @@ class _BottomSheetFormState extends State<BottomSheetForm> {
                   return null;
                 },
                 maxLength: 3,
-              ),
+              ),*/
               const SizedBox(height: 20.0),
               // Submit Button
               ElevatedButton(
@@ -1510,7 +1571,7 @@ class _BottomSheetFormState extends State<BottomSheetForm> {
             ],
           ),
         ),
-      ],
+      ),
     );
   }
 }
