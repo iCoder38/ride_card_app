@@ -127,7 +127,45 @@ class _WalletScreenState extends State<WalletScreen> {
         const SizedBox(
           height: 80.0,
         ),
-        customNavigationBarForMenu(TEXT_NAVIGATION_TITLE_WALLET, _scaffoldKey),
+        Row(
+          children: [
+            customNavigationBarForMenu(
+              TEXT_NAVIGATION_TITLE_WALLET,
+              _scaffoldKey,
+            ),
+            const Spacer(),
+            GestureDetector(
+              onTap: () {
+                //
+                showModalBottomSheet(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return BottomSheetContent();
+                  },
+                );
+              },
+              child: Container(
+                height: 40,
+                width: 130,
+                decoration: BoxDecoration(
+                  color: hexToColor(appREDcolorHexCode),
+                  borderRadius: BorderRadius.circular(
+                    14.0,
+                  ),
+                ),
+                child: Center(
+                  child: textFontPOOPINS(
+                    'Withdraw',
+                    Colors.white,
+                    16.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 20),
+          ],
+        ),
         Padding(
           padding: const EdgeInsets.all(14.0),
           child: Container(
@@ -539,5 +577,79 @@ class _WalletScreenState extends State<WalletScreen> {
       fetchProfileData();
       //
     }
+  }
+}
+
+class BottomSheetContent extends StatelessWidget {
+  final TextEditingController amountController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+
+  BottomSheetContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // To detect keyboard size and apply padding
+    double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16.0,
+        right: 16.0,
+        bottom: keyboardHeight, // Add padding equal to the keyboard height
+        top: 16.0,
+      ),
+      child: SingleChildScrollView(
+        // Allows scrolling when content overflows
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Enter Amount',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Amount',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Enter Description',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: descriptionController,
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  // Handle submission logic here
+                  String amount = amountController.text;
+                  String description = descriptionController.text;
+
+                  // Example: Print the values or pass them somewhere
+                  if (kDebugMode) {
+                    print('Amount: $amount, Description: $description');
+                  }
+                  Navigator.pop(context); // Close the bottom sheet
+                },
+                child: const Text('Submit'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

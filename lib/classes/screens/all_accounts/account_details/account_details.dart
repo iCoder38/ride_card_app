@@ -182,7 +182,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               ),
               subtitle: textFontPOOPINS(
                 //
-                widget.accountData['type'],
+                // widget.accountData['type'],
+                "Routing number: ${widget.accountData['attributes']['routingNumber']}",
                 Colors.grey,
                 10.0,
               ),

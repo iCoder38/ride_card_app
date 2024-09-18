@@ -179,7 +179,7 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                                   // sv
                                   '',
                                   Colors.grey,
-                                  12.0,
+                                  8.0,
                                   fontWeight: FontWeight.w500,
                                 )
                               : textFontPOOPINS(
@@ -187,7 +187,7 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                                   formatDate(
                                       arrAllUser[i]['trn_date'].toString()),
                                   Colors.grey,
-                                  12.0,
+                                  8.0,
                                   fontWeight: FontWeight.w500,
                                 ),
                         ],
@@ -253,7 +253,7 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                                   // sv
                                   '',
                                   Colors.grey,
-                                  12.0,
+                                  8.0,
                                   fontWeight: FontWeight.w500,
                                 )
                               : textFontPOOPINS(
@@ -261,7 +261,7 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                                   formatDate(
                                       arrAllUser[i]['trn_date'].toString()),
                                   Colors.grey,
-                                  12.0,
+                                  8.0,
                                   fontWeight: FontWeight.w500,
                                 ),
                         ],
