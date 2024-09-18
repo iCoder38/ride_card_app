@@ -146,7 +146,7 @@ class _PaymentTaxAndFeesScreenState extends State<PaymentTaxAndFeesScreen> {
     }
     var amountForAdd = double.parse(widget.getAmount.toString());
     var convForAdd = double.parse(showConvenienceFeesOnPopup.toString());
-    var addBoth = amountForAdd + convForAdd;
+    var addBoth = amountForAdd + 0; ////convForAdd;
     _totalAmountIs = addBoth;
 
     setState(() {
@@ -309,7 +309,7 @@ class _PaymentTaxAndFeesScreenState extends State<PaymentTaxAndFeesScreen> {
           ),
         ),
         const Divider(thickness: 0.4),
-        Padding(
+        /*Padding(
           padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
           child: Row(
             children: [
@@ -330,7 +330,7 @@ class _PaymentTaxAndFeesScreenState extends State<PaymentTaxAndFeesScreen> {
             ],
           ),
         ),
-        const Divider(thickness: 0.4),
+        const Divider(thickness: 0.4),*/
         /*const SizedBox(height: 40.0),
         Padding(
           padding: const EdgeInsets.only(
@@ -473,14 +473,14 @@ class _PaymentTaxAndFeesScreenState extends State<PaymentTaxAndFeesScreen> {
 
         const SizedBox(height: 12.0),
         const Divider(),
-        Padding(
+        /*Padding(
           padding: const EdgeInsets.all(8.0),
           child: textFontPOOPINS(
             '\$${widget.getAmount} will be deducted from your wallet directly and \$$showConvenienceFeesOnPopup is conveinence fee and it will be deducted from your card.',
             Colors.grey,
             10.0,
           ),
-        ),
+        ),*/
         GestureDetector(
           onTap: () {
             //

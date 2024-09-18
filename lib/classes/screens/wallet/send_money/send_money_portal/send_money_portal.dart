@@ -312,15 +312,14 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
                     onTap: () {
                       if (_formKey.currentState!.validate()) {
                         widget.title == '1'
-                            ? pushToPaymentTaxScreen(context)
-                            /*_sendMoney(
+                            ? // pushToPaymentTaxScreen(context)
+                            _sendMoney(
                                 context,
                                 widget.data['userId'].toString(),
                                 firstController.text.toString(),
                                 '1',
                                 'Sent',
-                              )*/
-
+                              )
                             : _sendMoney(
                                 context,
                                 widget.data['userId'].toString(),
@@ -419,7 +418,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
             'userId': receiverId, // receiverId
             'amount': amount,
             'type': type,
-            'adminCharge': '0.06',
+            'adminCharge': '0.13',
           }
         : parameters = {
             'action': 'sendmoney',
@@ -427,7 +426,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
             'userId': userId, // login id
             'amount': amount,
             'type': type,
-            'adminCharge': '0.06',
+            'adminCharge': '0.13',
           };
     if (kDebugMode) {
       print(parameters);

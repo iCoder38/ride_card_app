@@ -1692,7 +1692,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       builder: (context) {
         return const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-            child: BottomSheetForm());
+            child: BottomSheetForm(title: 'debit card'));
       },
     );
 
