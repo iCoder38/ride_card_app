@@ -820,12 +820,15 @@ class _PaymentTaxAndFeesScreenState extends State<PaymentTaxAndFeesScreen> {
     var roleIs = '';
     roleIs = prefs.getString('key_save_user_role').toString();
     final parameters;
+    var deductAmountWithCommision =
+        double.parse(widget.getAmount.toString()) - double.parse('0.13');
     parameters = {
       'action': 'sendmoney',
       'senderId': userId,
       'userId': receiverId, // receiverId
-      'amount': widget.getAmount.toString(),
+      'amount': deductAmountWithCommision.toString(),
       'type': type,
+      'adminCharge': '0.13',
     };
 
     if (kDebugMode) {

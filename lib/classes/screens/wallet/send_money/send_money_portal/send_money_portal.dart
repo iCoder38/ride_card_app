@@ -411,12 +411,14 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
     var roleIs = '';
     roleIs = prefs.getString('key_save_user_role').toString();
     final parameters;
+    var deductAmountWithCommision =
+        double.parse(amount.toString()) - double.parse('0.13');
     widget.title == '1'
         ? parameters = {
             'action': 'sendmoney',
             'senderId': userId,
             'userId': receiverId, // receiverId
-            'amount': amount,
+            'amount': deductAmountWithCommision,
             'type': type,
             'adminCharge': '0.13',
           }
@@ -424,7 +426,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
             'action': 'sendmoney',
             'senderId': receiverId, // receiver id
             'userId': userId, // login id
-            'amount': amount,
+            'amount': deductAmountWithCommision,
             'type': type,
             'adminCharge': '0.13',
           };

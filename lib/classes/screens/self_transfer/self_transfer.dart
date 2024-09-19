@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,45 +9,29 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
-import 'package:ride_card_app/classes/common/widget/widget.dart';
-import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
 import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/get_customer_accounts_list/get_customer_account_list.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
-import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class BankToBankTransfterScreen extends StatefulWidget {
-  const BankToBankTransfterScreen({super.key});
+class SelfTransferScreen extends StatefulWidget {
+  const SelfTransferScreen({super.key});
 
   @override
-  State<BankToBankTransfterScreen> createState() =>
-      _BankToBankTransfterScreenState();
+  State<SelfTransferScreen> createState() => _SelfTransferScreenState();
 }
 
-class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
+class _SelfTransferScreenState extends State<SelfTransferScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _formKey = GlobalKey<FormState>();
   final ApiService _apiService = ApiService();
-  final TextEditingController contName = TextEditingController();
-  final TextEditingController contAccountNumber = TextEditingController();
-  final TextEditingController contRoutingNumber = TextEditingController();
+  final TextEditingController contFrom = TextEditingController();
+  final TextEditingController contTo = TextEditingController();
   final TextEditingController contAmount = TextEditingController();
-  final TextEditingController contAccountType = TextEditingController();
-  final TextEditingController contYourBankAccount = TextEditingController();
-
-  final GenerateTokenService _apiServiceGT = GenerateTokenService();
   var storeUnitBankId = '0';
   var customerID = '';
-  var selectedAccountId = '';
+  var selectedFromAccountId = '';
+  var selectedToAccountId = '';
+  var userSelect = '';
   List<dynamic>? accountDetails;
-  //
-  @override
-  void initState() {
-    // sendPayment();
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,7 +72,6 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
       const SizedBox(
         height: 80.0,
       ),
-
       Row(
         children: [
           Align(
@@ -126,7 +108,7 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
             child: Center(
               child: textFontORBITRON(
                 //
-                'Bank to bank',
+                'Self transfer',
                 Colors.white,
                 18.0,
                 fontWeight: FontWeight.w600,
@@ -153,10 +135,11 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
           ),
           child: Center(
             child: TextFormField(
-              controller: contName,
+              readOnly: true,
+              controller: contFrom,
               keyboardType: TextInputType.emailAddress,
               decoration: const InputDecoration(
-                hintText: 'Account holder name',
+                hintText: 'From account',
                 border: InputBorder.none, // Remove the border
                 filled: false,
                 contentPadding: EdgeInsets.symmetric(
@@ -181,12 +164,17 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
                 }
                 return null;
               },
+              onTap: () {
+                userSelect = '1';
+                showLoadingUI(context, 'please wait...');
+                fetchProfileData();
+              },
             ),
           ),
         ),
       ),
       const SizedBox(
-        height: 30.0,
+        height: 20.0,
       ),
       Padding(
         padding: const EdgeInsets.only(
@@ -203,10 +191,11 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
           ),
           child: Center(
             child: TextFormField(
-              controller: contAccountNumber,
+              readOnly: true,
+              controller: contTo,
               keyboardType: TextInputType.emailAddress,
               decoration: const InputDecoration(
-                hintText: 'Account number',
+                hintText: 'To Account',
                 border: InputBorder.none, // Remove the border
                 filled: false,
                 contentPadding: EdgeInsets.symmetric(
@@ -230,6 +219,11 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
                   return TEXT_FIELD_EMPTY_TEXT;
                 }
                 return null;
+              },
+              onTap: () {
+                userSelect = '2';
+                showLoadingUI(context, 'please wait...');
+                fetchProfileData();
               },
             ),
           ),
@@ -241,58 +235,7 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
       ///
       ///
       const SizedBox(
-        height: 30.0,
-      ),
-      Padding(
-        padding: const EdgeInsets.only(
-          left: 16.0,
-          right: 16.0,
-        ),
-        child: Container(
-          height: 60,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(
-              12.0,
-            ),
-          ),
-          child: Center(
-            child: TextFormField(
-              controller: contRoutingNumber,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                hintText: 'Routing number',
-                border: InputBorder.none, // Remove the border
-                filled: false,
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: 15,
-                  horizontal: 10.0,
-                ),
-                /*suffixIcon: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: svgImage(
-                    'email',
-                    14.0,
-                    14.0,
-                  ),
-                ),*/
-              ),
-              style: GoogleFonts.poppins(
-                fontSize: 14.0,
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return TEXT_FIELD_EMPTY_TEXT;
-                }
-                return null;
-              },
-            ),
-          ),
-        ),
-      ),
-      //
-      const SizedBox(
-        height: 30.0,
+        height: 20.0,
       ),
       Padding(
         padding: const EdgeInsets.only(
@@ -342,123 +285,6 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
           ),
         ),
       ),
-
-      ///
-      ///
-      ///
-      ///
-      const SizedBox(
-        height: 30.0,
-      ),
-      Padding(
-        padding: const EdgeInsets.only(
-          left: 16.0,
-          right: 16.0,
-        ),
-        child: Container(
-          height: 60,
-          decoration: BoxDecoration(
-            color: Colors.grey,
-            borderRadius: BorderRadius.circular(
-              12.0,
-            ),
-          ),
-          child: Center(
-            child: TextFormField(
-              readOnly: true,
-              controller: contAccountType,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                hintText: 'Deposit account',
-                border: InputBorder.none, // Remove the border
-                filled: false,
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: 15,
-                  horizontal: 10.0,
-                ),
-                /*suffixIcon: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: svgImage(
-                    'email',
-                    14.0,
-                    14.0,
-                  ),
-                ),*/
-              ),
-              style: GoogleFonts.poppins(
-                fontSize: 14.0,
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return TEXT_FIELD_EMPTY_TEXT;
-                }
-                return null;
-              },
-            ),
-          ),
-        ),
-      ),
-
-      ///
-      ///
-      ///
-      ///
-      const SizedBox(
-        height: 30.0,
-      ),
-      Padding(
-        padding: const EdgeInsets.only(
-          left: 16.0,
-          right: 16.0,
-        ),
-        child: Container(
-          height: 60,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(
-              12.0,
-            ),
-          ),
-          child: Center(
-            child: TextFormField(
-              readOnly: true,
-              controller: contYourBankAccount,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                hintText: 'Select your bank account',
-                border: InputBorder.none, // Remove the border
-                filled: false,
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: 15,
-                  horizontal: 10.0,
-                ),
-                /*suffixIcon: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: svgImage(
-                    'email',
-                    14.0,
-                    14.0,
-                  ),
-                ),*/
-              ),
-              style: GoogleFonts.poppins(
-                fontSize: 14.0,
-              ),
-              onTap: () {
-                showLoadingUI(context, 'please wait...');
-                fetchProfileData();
-                // Open the bottom sheet when tapped
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return TEXT_FIELD_EMPTY_TEXT;
-                }
-                return null;
-              },
-            ),
-          ),
-        ),
-      ),
       Padding(
         padding: const EdgeInsets.only(
           left: 16.0,
@@ -468,9 +294,18 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
         child: GestureDetector(
           onTap: () async {
             // if (_formKey.currentState!.validate()) {
+            if (contFrom.text == '') {
+              return;
+            }
+            if (contTo.text == '') {
+              return;
+            }
+            if (contAmount.text == '') {
+              return;
+            }
             showLoadingUI(context, PLEASE_WAIT);
+            sendPayment();
             //
-            checkAndGetBankAccount(contAccountNumber.text.toString());
           },
           child: Container(
             height: 60,
@@ -495,90 +330,6 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
       ),
     ]);
   }
-  // transfer
-
-  checkAndGetBankAccount(accountNumber) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
-    var userId = prefs.getString('Key_save_login_user_id').toString();
-    var roleIs = '';
-    roleIs = prefs.getString('key_save_user_role').toString();
-
-    final parameters = {
-      'action': 'accountlist',
-      'keyword': accountNumber.toString(),
-    };
-    if (kDebugMode) {
-      logger.d(parameters);
-    }
-
-    try {
-      final response = await _apiService.postRequest(parameters, token);
-      if (kDebugMode) {
-        print(response.body);
-      }
-      //
-      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-      String successStatus = jsonResponse['status'];
-      String successMessage = jsonResponse['msg'];
-      if (kDebugMode) {
-        print('STATUS ==> $successStatus');
-        print(successMessage);
-      }
-
-      if (response.statusCode == 200) {
-        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
-        //
-        if (successMessage == NOT_AUTHORIZED) {
-          //
-          _apiServiceGT
-              .generateToken(
-            userId,
-            loginUserEmail(),
-            roleIs,
-          )
-              .then((v) {
-            //
-            if (kDebugMode) {
-              print('TOKEN ==> $v');
-            }
-            // again click
-            checkAndGetBankAccount(accountNumber);
-          });
-        } else {
-          if (successStatus.toLowerCase() == 'success') {
-            //
-            var allAccountsInArray = [];
-            Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-            var responseData = jsonResponse['data'];
-            allAccountsInArray = responseData;
-            // print(allAccountsInArray);
-            for (int i = 0; i < allAccountsInArray.length; i++) {
-              if (kDebugMode) {
-                print(i);
-              }
-              // print(allAccountsInArray[i])
-              if (contAccountNumber.text.toString() ==
-                  allAccountsInArray[i]['account_number'].toString()) {
-                debugPrint('This is an UNIT bank account.');
-                storeUnitBankId =
-                    allAccountsInArray[i]['unitBankId'].toString();
-              }
-            }
-            logger.d('BankId:==> $storeUnitBankId');
-            sendPayment();
-          }
-        }
-      } else {
-        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
-        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
-      }
-    } catch (error) {
-      if (kDebugMode) {
-        print(error);
-      }
-    }
-  }
 
   // EVS: API => GET USER PROFILE DATA
   Future<void> fetchProfileData() async {
@@ -594,10 +345,14 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
         .getParticularAccountDetailsViaCustomerId(customerID);
     logger.d(accountDetails?[0]);
     Navigator.pop(context);
-    _showAccountSelectionSheet(context);
+    if (userSelect == '1') {
+      _showAccountSelectionSheetFrom(context);
+    } else {
+      _showAccountSelectionSheetTo(context);
+    }
   }
 
-  void _showAccountSelectionSheet(BuildContext context) {
+  void _showAccountSelectionSheetFrom(BuildContext context) {
     // Parse the JSON response
 
     showModalBottomSheet(
@@ -633,8 +388,70 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
                       // Store the selected account ID
                       setState(
                         () {
-                          contYourBankAccount.text = accountNumber.toString();
-                          selectedAccountId = accountId;
+                          contFrom.text = accountNumber.toString();
+                          selectedFromAccountId = accountId;
+                        },
+                      );
+
+                      // Dismiss the bottom sheet
+                      Navigator.pop(context);
+
+                      // Optionally, show a confirmation message
+                      /*ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Selected Account ID: $selectedAccountId'),
+                        ),
+                      );*/
+                    },
+                  ),
+                  const Divider(),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAccountSelectionSheetTo(BuildContext context) {
+    // Parse the JSON response
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(16.0),
+          height: 500,
+          child: ListView.builder(
+            itemCount: accountDetails?.length,
+            itemBuilder: (context, index) {
+              final account = accountDetails?[index];
+              final accountNumber = account['attributes']['accountNumber'];
+              final accountId = account['id'];
+
+              return Column(
+                children: [
+                  ListTile(
+                    leading: SizedBox(
+                      height: 30,
+                      width: 30,
+                      child: Image.asset(
+                        'assets/images/bank.png',
+                      ),
+                    ),
+                    title: textFontOPENSANS(
+                      accountNumber,
+                      Colors.black,
+                      16.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onTap: () {
+                      // Store the selected account ID
+                      setState(
+                        () {
+                          contTo.text = accountNumber.toString();
+                          selectedToAccountId = accountId;
                         },
                       );
 
@@ -680,13 +497,13 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
           "account": {
             "data": {
               "type": "depositAccount",
-              "id": selectedAccountId.toString()
+              "id": selectedFromAccountId.toString()
             }
           },
           "counterpartyAccount": {
             "data": {
               "type": "depositAccount",
-              "id": storeUnitBankId.toString(),
+              "id": selectedToAccountId.toString(),
             }
           }
         }
@@ -706,11 +523,10 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
         if (kDebugMode) {
           print('Payment successful: ${response.body}');
         }
-        contAccountNumber.text = "";
-        contName.text = "";
-        contRoutingNumber.text = "";
-        contYourBankAccount.text = "";
+        contFrom.text = "";
+        contTo.text = "";
         contAmount.text = "";
+
         Navigator.pop(context);
       } else {
         // Payment failed
