@@ -8,6 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
+import 'package:ride_card_app/classes/common/tax_and_fees/get_price/get_price.dart';
+import 'package:ride_card_app/classes/common/tax_and_fees/get_price/model/model.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
@@ -40,6 +42,18 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
   var myFullData;
   var myCurrentBalance;
   //
+  String feesAndTaxesType = '';
+  double feesAndTaxesAmount = 0.0;
+  double calculatedFeeAmount = 0.0;
+  double totalAmountAfterCalculateFee = 0.0;
+  bool removePopLoader = false;
+  double showConvenienceFeesOnPopup = 0.0;
+  var savedCardDetailsInDictionary;
+  bool userSavedCard = false;
+  bool saveCard = false;
+  bool isUserSelectSavedCard = false;
+  var storeStripeCustomerId = '';
+  var storeStripeToken = '';
   @override
   void initState() {
     if (kDebugMode) {
@@ -311,22 +325,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
                   child: GestureDetector(
                     onTap: () {
                       if (_formKey.currentState!.validate()) {
-                        widget.title == '1'
-                            ? // pushToPaymentTaxScreen(context)
-                            _sendMoney(
-                                context,
-                                widget.data['userId'].toString(),
-                                firstController.text.toString(),
-                                '1',
-                                'Sent',
-                              )
-                            : _sendMoney(
-                                context,
-                                widget.data['userId'].toString(),
-                                firstController.text.toString(),
-                                '1',
-                                'Request',
-                              );
+                        getFeesAndTaxes();
                       }
                     },
                     child: Container(
@@ -388,6 +387,90 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
     // print(responseBody);
   }
 
+  void getFeesAndTaxes() async {
+    widget.title == '1'
+        ? showLoadingUI(context, 'sending...')
+        : showLoadingUI(context, 'requesting...');
+
+    ApiServiceToGetFeesAndTaxes apiService = ApiServiceToGetFeesAndTaxes();
+
+    List<FeeData>? feeList = await apiService.fetchFeesAndTaxes();
+
+    if (feeList != null) {
+      for (var fee in feeList) {
+        if (kDebugMode) {
+          print(
+            'ID: ${fee.id}, Name: ${fee.name}, Type: ${fee.type}, Amount: ${fee.amount}',
+          );
+        }
+        if (fee.name == 'instantDeposit') {
+          if (fee.type == TAX_TYPE_PERCENTAGE) {
+            debugPrint(fee.type);
+            feesAndTaxesType = fee.type.toString();
+            feesAndTaxesAmount = double.parse(fee.amount.toString());
+            showConvenienceFeesOnPopup = (feesAndTaxesAmount * 10) / 100;
+            totalAmountAfterCalculateFee = (feesAndTaxesAmount * 10) / 100;
+          } else {
+            debugPrint(fee.type);
+            feesAndTaxesType = fee.type.toString();
+            feesAndTaxesAmount = double.parse(fee.amount.toString());
+            showConvenienceFeesOnPopup = feesAndTaxesAmount;
+            totalAmountAfterCalculateFee = feesAndTaxesAmount;
+          }
+        }
+      }
+
+      if (feesAndTaxesType == TAX_TYPE_PERCENTAGE) {
+        String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
+        showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
+        // FEES CALCULATOR
+        widget.title == '1'
+            ? // pushToPaymentTaxScreen(context)
+            _sendMoney(
+                context,
+                widget.data['userId'].toString(),
+                firstController.text.toString(),
+                '1',
+                'Sent',
+                showConvenienceFeesOnPopup.toString(),
+              )
+            : _sendMoney(
+                context,
+                widget.data['userId'].toString(),
+                firstController.text.toString(),
+                '1',
+                'Request',
+                showConvenienceFeesOnPopup.toString(),
+              );
+      } else {
+        String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
+        showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
+        widget.title == '1'
+            ? // pushToPaymentTaxScreen(context)
+            _sendMoney(
+                context,
+                widget.data['userId'].toString(),
+                firstController.text.toString(),
+                '1',
+                'Sent',
+                showConvenienceFeesOnPopup.toString(),
+              )
+            : _sendMoney(
+                context,
+                widget.data['userId'].toString(),
+                firstController.text.toString(),
+                '1',
+                'Request',
+                showConvenienceFeesOnPopup.toString(),
+              );
+      }
+    } else {
+      if (kDebugMode) {
+        print('Failed to retrieve fee data.');
+      }
+    }
+  }
+
   // send money
 // API
   void _sendMoney(
@@ -396,14 +479,9 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
     String amount,
     status,
     String type,
+    String fees,
   ) async {
     debugPrint('API ==> SEND MONEY');
-
-    if (status == '1') {
-      widget.title == '1'
-          ? showLoadingUI(context, 'sending...')
-          : showLoadingUI(context, 'requesting...');
-    }
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
@@ -412,7 +490,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
     roleIs = prefs.getString('key_save_user_role').toString();
     final parameters;
     var deductAmountWithCommision =
-        double.parse(amount.toString()) - double.parse('0.13');
+        double.parse(amount.toString()) - double.parse(fees);
     widget.title == '1'
         ? parameters = {
             'action': 'sendmoney',
@@ -465,7 +543,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
               print('TOKEN ==> $v');
             }
             // again click api
-            _sendMoney(context, receiverId, amount, '0', type);
+            _sendMoney(context, receiverId, amount, '0', type, fees);
           });
           //
         } else {

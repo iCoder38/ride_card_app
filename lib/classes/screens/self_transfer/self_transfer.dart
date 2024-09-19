@@ -491,7 +491,7 @@ class _SelfTransferScreenState extends State<SelfTransferScreen> {
         "type": "bookPayment",
         "attributes": {
           "amount": convertAmount.toString(),
-          "description": "Funding",
+          "description": "BankToBank - Self",
         },
         "relationships": {
           "account": {

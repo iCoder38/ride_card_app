@@ -674,7 +674,7 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
         "type": "bookPayment",
         "attributes": {
           "amount": convertAmount.toString(),
-          "description": "Funding",
+          "description": "BankToBank - Other",
         },
         "relationships": {
           "account": {

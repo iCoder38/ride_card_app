@@ -195,18 +195,18 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(
-                Icons.credit_card,
-                color: Colors.white,
-              ),
-              title: textFontPOOPINS(
-                //
-                TEXT_MENU_MANAGE_CARDS,
-                Colors.white,
-                16.0,
-              ),
-            ),
+            // ListTile(
+            //   leading: const Icon(
+            //     Icons.credit_card,
+            //     color: Colors.white,
+            //   ),
+            //   title: textFontPOOPINS(
+            //     //
+            //     TEXT_MENU_MANAGE_CARDS,
+            //     Colors.white,
+            //     16.0,
+            //   ),
+            // ),
             ListTile(
               leading: const Icon(
                 Icons.add_card_rounded,
@@ -273,7 +273,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
             ),
             ListTile(
               leading: const Icon(
-                Icons.wallet,
+                Icons.account_balance_wallet,
                 color: Colors.white,
               ),
               title: textFontPOOPINS(
@@ -292,7 +292,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
             ),
             ListTile(
               leading: const Icon(
-                Icons.wallet,
+                Icons.assured_workload,
                 color: Colors.white,
               ),
               title: textFontPOOPINS(
@@ -311,7 +311,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
             ),
             ListTile(
               leading: const Icon(
-                Icons.wallet,
+                Icons.account_balance,
                 color: Colors.white,
               ),
               title: textFontPOOPINS(

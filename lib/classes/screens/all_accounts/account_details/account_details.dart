@@ -32,6 +32,7 @@ import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/freeze_account/freeze
 import 'package:ride_card_app/classes/service/UNIT/CARD/issue_card/issue_card.dart';
 import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/open_account/open_account.dart';
 import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/un_freeze/unfreeze_account.dart';
+import 'package:ride_card_app/classes/service/UNIT/bank_statement/bank_statement.dart';
 import 'package:ride_card_app/classes/service/charge_money_from_stripe/charge_money_from_stripe.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
@@ -60,6 +61,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   var bankAccountId = '';
   var bankAccountNumber = '';
   var accountBalance = '0';
+
+  List<String> selectedItems = []; // Store selected items
 
   bool? cardCreated;
   List<dynamic>? allCards;
@@ -269,7 +272,18 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               ),
               onTap: () {
                 //
-                // pushToAccountDetails(context, accountDetails![i]);
+                // fetchCardDetails('2303977');
+                // fetchStatements();
+                // getTransactionDetails(
+                //   TESTING_TOKEN,
+                //   '4225262',
+                //   '8509538',
+                // );
+                getAllTransactions(
+                  TESTING_TOKEN,
+                  '4225262',
+                );
+                // openBottomSheet(context);
               },
             ),
           ),
@@ -2482,5 +2496,67 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         _handleUnfreezeAccount();
       }
     }
+  }
+
+  Future<void> openBottomSheet(BuildContext context) async {
+    List<String> items = ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"];
+    List<String> selectedData = [];
+
+    // Opening the bottom sheet
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              height: 400,
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Select Items',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return CheckboxListTile(
+                          title: Text(items[index]),
+                          value: selectedData.contains(items[index]),
+                          onChanged: (bool? value) {
+                            setModalState(() {
+                              if (value == true) {
+                                selectedData.add(items[index]);
+                              } else {
+                                selectedData.remove(items[index]);
+                              }
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context, selectedData);
+                    },
+                    child: Text("Submit"),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ).then((value) {
+      if (value != null && value is List<String>) {
+        setState(() {
+          selectedItems = value; // Update the selected items
+        });
+      }
+    });
   }
 }
