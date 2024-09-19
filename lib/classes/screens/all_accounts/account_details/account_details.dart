@@ -26,6 +26,7 @@ import 'package:ride_card_app/classes/screens/all_accounts/all_accounts.dart';
 import 'package:ride_card_app/classes/screens/all_accounts/card_details/card_details.dart';
 import 'package:ride_card_app/classes/screens/all_cards/service/service.dart';
 import 'package:ride_card_app/classes/screens/convenience_fee/convenience_fees.dart';
+import 'package:ride_card_app/classes/screens/statements/bank_statements.dart';
 import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/all_customer_cards/all_customer_cards.dart';
 import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/close_account/close_account.dart';
 import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/freeze_account/freeze_account.dart';
@@ -270,6 +271,12 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                 const Color.fromARGB(255, 86, 85, 85),
                 14.0,
               ),
+              trailing: textFontPOOPINS(
+                'statement >',
+                Colors.blue,
+                12.0,
+                fontWeight: FontWeight.bold,
+              ),
               onTap: () {
                 //
                 // fetchCardDetails('2303977');
@@ -279,10 +286,15 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                 //   '4225262',
                 //   '8509538',
                 // );
-                getAllTransactions(
-                  TESTING_TOKEN,
-                  '4225262',
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BankStatementsScreen(
+                      bankId: bankAccountId,
+                    ),
+                  ),
                 );
+
                 // openBottomSheet(context);
               },
             ),

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
@@ -69,14 +70,18 @@ Future<void> fetchCardDetails(String cardId) async {
   }
 }
 
-Future<void> getTransactionDetails(
-    String token, String accountId, String transactionId) async {
-  // Define the URL with accountId and transactionId
+Future<Map<String, dynamic>?> getTransactionDetails(
+  String token,
+  String accountId,
+  String transactionId,
+) async {
   final url = Uri.https(
-      // 'api.s.unit.sh', '/accounts/$accountId/transactions/$transactionId');
-      'api.s.unit.sh',
-      '/accounts/$accountId/transactions');
-  logger.d(url);
+    'api.s.unit.sh',
+    '/accounts/$accountId/transactions/$transactionId',
+  );
+
+  logger.d(url); // Log the URL for debugging
+
   // Send the GET request
   final response = await http.get(
     url,
@@ -88,25 +93,30 @@ Future<void> getTransactionDetails(
   // Check the status code and handle the response
   if (response.statusCode == 200) {
     // Parse the response body
-    final data = json.decode(response.body);
-    // print('Transaction Details: $data');
-    logger.d(data);
+    final Map<String, dynamic> data = json.decode(response.body);
+    logger.d(data); // Log the parsed data for debugging
+
+    return data; // Return the parsed data
   } else {
-    print('Error: ${response.statusCode}');
-    print('Error: ${response.body}');
+    // Log the error status code and body
+    logger.e('Error: ${response.statusCode}');
+    logger.e('Error: ${response.body}');
+
+    return null; // Return null if the request fails
   }
 }
 
-Future<void> getAllTransactions(
+Future<dynamic> getAllTransactions(
   String token,
   String accountId,
 ) async {
-  // Define the URL with accountId and transactionId
+  // Define the URL with accountId
   final url = Uri.https('api.s.unit.sh', '/transactions', {
-    'filter[accountId]': accountId, // Adding the accountId filter
+    'filter[accountId]': accountId,
   });
 
   logger.d(url);
+
   // Send the GET request
   final response = await http.get(
     url,
@@ -114,15 +124,29 @@ Future<void> getAllTransactions(
       'Authorization': 'Bearer $token',
     },
   );
-
-  // Check the status code and handle the response
   if (response.statusCode == 200) {
-    // Parse the response body
     final data = json.decode(response.body);
-    // print('Transaction Details: $data');
-    logger.d(data);
+
+    if (data is Map<String, dynamic>) {
+      if (data.containsKey('data')) {
+        final transactions = data['data'];
+        if (transactions is List) {
+          return transactions;
+        } else {
+          throw Exception(
+              'Expected a list of transactions but got something else');
+        }
+      } else {
+        throw Exception('Response does not contain "transactions" key');
+      }
+    } else {
+      throw Exception('Expected a JSON object but got something else');
+    }
   } else {
-    print('Error: ${response.statusCode}');
-    print('Error: ${response.body}');
+    if (kDebugMode) {
+      print('Error: ${response.statusCode}');
+      print('Error: ${response.body}');
+    }
+    throw Exception('Failed to fetch transactions');
   }
 }

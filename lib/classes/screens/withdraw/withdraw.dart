@@ -393,7 +393,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
         "type": "bookPayment",
         "attributes": {
           "amount": double.parse(amount.toString()),
-          "description": "Withdraw",
+          "description": "Withdraw ( wallet )",
         },
         "relationships": {
           "account": {

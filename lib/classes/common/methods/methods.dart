@@ -113,6 +113,19 @@ String convertDollarsToCentsAsString(String dollarString) {
   return centsString;
 }
 
+String convertCentsToDollarsAsString(String centsString) {
+  // Parse the cents string to an integer
+  int cents = int.tryParse(centsString) ?? 0;
+
+  // Convert cents to dollars (divide by 100)
+  double dollars = cents / 100.0;
+
+  // Format the dollars as a string with 2 decimal places
+  String dollarString = dollars.toStringAsFixed(2);
+
+  return '\$$dollarString';
+}
+
 String loginUserName() {
   String userName = FirebaseAuth.instance.currentUser!.displayName.toString();
   return userName;
