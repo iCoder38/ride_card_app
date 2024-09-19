@@ -112,6 +112,35 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
     );
   }
 
+  String calculateTotalAmount(String amount, String adminCharge) {
+    // Parse the strings to double and handle potential parsing issues
+    double amountValue = double.tryParse(amount) ?? 0.0;
+    double adminChargeValue = double.tryParse(adminCharge) ?? 0.0;
+
+    // Add the values together
+    double total = amountValue + adminChargeValue;
+
+    // Return the result as a formatted string (e.g., with 2 decimal places)
+    return total.toStringAsFixed(2);
+  }
+
+  String calculateAfterConvenienceFee(String amount, String adminCharge) {
+    // Parse the strings to double and handle potential parsing issues
+
+    double amountValueF = double.tryParse(amount) ?? 0.0;
+    double adminChargeValueF = double.tryParse(adminCharge) ?? 0.0;
+
+    // Add the values together
+    double totalF = amountValueF + adminChargeValueF;
+
+    // Add the values together
+    double total = totalF - adminChargeValueF;
+    debugPrint(total.toString());
+
+    // Return the result as a formatted string (e.g., with 2 decimal places)
+    return total.toStringAsFixed(2);
+  }
+
   Widget _UIKitRequestHistoryAfterBG(context) {
     return Column(
       children: [
@@ -164,7 +193,11 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                           const SizedBox(width: 4.0),
                           textFontORBITRON(
                             //
-                            arrAllUser[i]['amount'].toString(),
+                            calculateTotalAmount(
+                              arrAllUser[i]['amount'].toString(),
+                              arrAllUser[i]['admincharge'].toString(),
+                            ),
+
                             Colors.orangeAccent,
                             18.0,
                             fontWeight: FontWeight.w800,
@@ -238,7 +271,9 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                           const SizedBox(width: 4.0),
                           textFontORBITRON(
                             //
-                            arrAllUser[i]['amount'].toString(),
+                            calculateTotalAmount(
+                                arrAllUser[i]['amount'].toString(),
+                                arrAllUser[i]['admincharge'].toString()),
                             Colors.orangeAccent,
                             18.0,
                             fontWeight: FontWeight.w800,
@@ -271,6 +306,11 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                 ),
                 onTap: () {
                   debugPrint('REQUEST FROM YOU');
+                  _openBottomSheet(
+                    context,
+                    arrAllUser[i]['amount'].toString(),
+                    arrAllUser[i]['admincharge'].toString(),
+                  );
                 },
               ),
             ),
@@ -280,6 +320,82 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
       ],
     );
   } // API
+
+  void _openBottomSheet(
+    BuildContext context,
+    requestAmount,
+    adminCharge,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                textFontPOOPINS(
+                  'Invoice',
+                  Colors.black,
+                  16.0,
+                  fontWeight: FontWeight.bold,
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    textFontPOOPINS(
+                      'Requested amount:',
+                      Colors.black,
+                      16.0,
+                    ),
+                    const Spacer(),
+                    textFontPOOPINS(
+                      '\$${calculateTotalAmount(requestAmount, adminCharge)}',
+                      Colors.black,
+                      16.0,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20.0),
+                Row(
+                  children: [
+                    textFontPOOPINS(
+                      'Convenience fee:',
+                      Colors.black,
+                      16.0,
+                    ),
+                    const Spacer(),
+                    textFontPOOPINS(
+                      '\$$adminCharge',
+                      Colors.black,
+                      16.0,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30.0),
+                Row(
+                  children: [
+                    textFontPOOPINS('You will get:', Colors.black, 20.0,
+                        fontWeight: FontWeight.bold),
+                    const Spacer(),
+                    textFontPOOPINS(
+                        '\$${calculateAfterConvenienceFee(requestAmount, adminCharge)}',
+                        Colors.black,
+                        20.0,
+                        fontWeight: FontWeight.bold),
+                  ],
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   void _showAlertDialog(BuildContext context, Map<String, dynamic> user) {
     showDialog(

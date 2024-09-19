@@ -828,7 +828,7 @@ class _PaymentTaxAndFeesScreenState extends State<PaymentTaxAndFeesScreen> {
       'userId': receiverId, // receiverId
       'amount': deductAmountWithCommision.toString(),
       'type': type,
-      'adminCharge': '0.13',
+      'admincharge': '0.13',
     };
 
     if (kDebugMode) {
