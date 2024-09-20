@@ -33,7 +33,7 @@ class _BankStatementsScreenState extends State<BankStatementsScreen> {
       TESTING_TOKEN,
       widget.bankId,
     );
-    logger.d(bankTransactionResponse.last);
+    // logger.d(bankTransactionResponse.last);
     statementList = bankTransactionResponse;
     setState(() {
       screenLoader = false;
@@ -88,18 +88,18 @@ class _BankStatementsScreenState extends State<BankStatementsScreen> {
           fit: BoxFit.cover,
         ),
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: screenLoader == true
-            ? Center(
-                child: textFontPOOPINS(
-                  'please wait...',
-                  Colors.white,
-                  16.0,
-                ),
-              )
-            : _UIKitRequestMoneyAfterBG(context),
-      ),
+      child: screenLoader == true
+          ? Center(
+              child: textFontPOOPINS(
+                'please wait...',
+                Colors.white,
+                16.0,
+              ),
+            )
+          : SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: _UIKitRequestMoneyAfterBG(context),
+            ),
     );
   }
 

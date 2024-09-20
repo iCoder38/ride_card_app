@@ -441,27 +441,9 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     showLoadingUI(context, 'please wait...');
     // Call the sendPayment function
     logger.d(amount);
-    // return;
-    bool paymentSuccess = await sendPaymentToClientAccount(
-      amount: amount,
-      selectedAccountId: selectedAccountId,
-      context: context,
-    );
 
-    // Handle the response
-    if (paymentSuccess) {
-      // Payment was successful
-      debugPrint('Payment was successful');
-
-      sendPayment();
-    } else {
-      // Payment failed
-      customToast(
-        'Payment failed. Please try again.',
-        Colors.redAccent,
-        ToastGravity.BOTTOM,
-      );
-    }
+    // send full amount to customer from Z account
+    sendPayment();
   }
 
   Future<void> fetchProfileData() async {
@@ -607,7 +589,25 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
         } else {
           logger.d('Done payment');
 
-          editWalletBalance(context);
+          bool paymentSuccess = await sendPaymentToClientAccount(
+            amount: showConvenienceFeesOnPopup,
+            selectedAccountId: selectedAccountId,
+            context: context,
+          );
+
+          // Handle the response
+          if (paymentSuccess) {
+            // Payment was successful
+            debugPrint('Payment was successful');
+            editWalletBalance(context);
+          } else {
+            // Payment failed
+            customToast(
+              'Payment failed. Please try again.',
+              Colors.redAccent,
+              ToastGravity.BOTTOM,
+            );
+          }
         }
       } else {
         // Payment failed

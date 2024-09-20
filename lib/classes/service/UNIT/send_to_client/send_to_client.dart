@@ -53,9 +53,11 @@ Future<bool> sendPaymentToClientAccount({
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       Map<String, dynamic> jsonData = jsonDecode(response.body);
+      logger.d(jsonData);
       String status = jsonData['data']['attributes']['status'];
 
       if (status == 'Rejected') {
+        Navigator.pop(context);
         _handleRejectedPayment(context);
         return false;
       } else {
@@ -76,6 +78,7 @@ Future<bool> sendPaymentToClientAccount({
 
 void _handleRejectedPayment(BuildContext context) {
   Navigator.pop(context);
+
   dismissKeyboard(context);
   customToast(
     'Please contact admin.',
