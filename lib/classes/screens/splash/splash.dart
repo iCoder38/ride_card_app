@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_final_fields, unused_field, non_constant_identifier_names
 
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -75,6 +76,15 @@ class _SplashScreenState extends State<SplashScreen> {
       if (kDebugMode) {
         print("token is $token");
       }
+
+      FirebaseFirestore.instance
+          .collection(
+            'MODE/TEST/RIDE_CARD_APP/USERS/LIST',
+          )
+          .doc(loginUserId())
+          .set(
+        {'deviceToken': token, 'status': true, 'userId': loginUserId()},
+      );
     });
     //
     foregorundHandler();

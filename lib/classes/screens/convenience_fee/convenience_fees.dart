@@ -1069,11 +1069,7 @@ widget.feeType == 'addExternalDebitCard'
         if (successMessage == NOT_AUTHORIZED) {
           //
           _apiServiceGT
-              .generateToken(
-            userId,
-            loginUserEmail(),
-            roleIs,
-          )
+              .generateToken(userId, loginUserEmail(), roleIs)
               .then((v) {
             //
             if (kDebugMode) {

@@ -76,6 +76,7 @@ dependencies:
   network_info_plus: ^5.0.3
   flutter_dotenv: ^5.1.0
   logger: ^2.4.0
+  googleapis_auth: ^1.6.0
   
 
 dev_dependencies:
@@ -106,6 +107,7 @@ flutter:
     - assets/images/
     - assets/images/svg/
     - assets/images/display_card_details/display_card_details.html
+    - assets/images/rideCardAppNotificationServiceKey.json
     - .env
   #   - images/a_dot_ham.jpeg
 

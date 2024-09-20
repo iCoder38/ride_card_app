@@ -16,6 +16,7 @@ import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/widgets/widgets.dart';
+import 'package:ride_card_app/classes/screens/notification_center/get_send_notification.dart';
 import 'package:ride_card_app/classes/service/UNIT/checkWalletStatus/check_wallet_status.dart';
 import 'package:ride_card_app/classes/service/UNIT/create_bank/create.dart';
 import 'package:ride_card_app/classes/service/check_cc_score/check_cc_score.dart';
@@ -346,6 +347,7 @@ class _CardsScreenState extends State<CardsScreen> {
                 }
                 // again click
               });*/
+              getUserFullDataToSendNotification('nILM0K6h3pWHweAhKcI5cZDTGky1');
             },
             child: Container(
               height: 60,

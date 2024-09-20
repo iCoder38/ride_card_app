@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "ride-card-app",
+  "private_key_id": "b9a8bf435d7603282e1bfbfed3363644f5ff9663",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDqJPEpKGEFfugW\n6jEeEPr3WRk+svF/BFmZb6iA5pGioaPlDMY8o/wwv/6J99LrY8wtiviCCCWwoucq\nnU5SzX+hN4MGgDzt8iZiCJNE4EJdbUp4luB88gfaGsF1Rf1i5BkcLDreYo2TDrGI\nFVoAqZLCgf6SbGkLNDAqlb+SeCwMyDIVmgRs0nJ67eph22UznRu93LZtUNlAaPbY\nNUSuy3BjUY07zrFJNkcduqWIlLrNORa4XVYT2pX+4TnEO2AgoSgtRG29EBOAxDmC\nAMxuu6iDNP3UsyXe4ASCerkBv7qcM+CghIj+NpeHe3Yjgpss4uXTm50dUYQSM/tb\ne1U/NKmZAgMBAAECggEABe0c8Hx95ih14dyYFSl7XKbT6X8Ydy1KQkSt+GM9lObv\n8cRuwQqqf6ZgYCgWXdBXEuEFVK81mwCohq7YFGbwn8k6pv+4axJZr9oFNjVR4LD7\nNU2mTWtH0RijxF7a4LWiwBCLheTrLelti2L09fbUyNkG8zhMuVSfEnjbUi75+HHN\nU8S6ZGEJxo4Ryha0glh3fU4LpDugYI0RwCAu2x3zlr/WJMwys3WoS5axjSH9XOMt\nz0pw/ai75+sr6GuFznwp1E9c7ObWPVXymzslLtlRK+1I6m8rPtI1YTap5oXVGDdY\nlDvT69imgxHEcHooAOqm6zylUpkj8Z/GlJGwE1YDvQKBgQD3wHRqJwHdCVvWn/pZ\nuTwQ62Eg8m+xzCrz8e6lPJgP3cPYT0nCKuWBzKfRZwA9L493L8ev3/Fovo8/hlxO\ng+TID3q7Pj18k3hmw+Y93MtC6DpWYa/NhiUCnPDAsX2aBCn9BjGEZ047sfkP0mnL\nBBZMu/M3Q3XW04dD0We9RKbwjQKBgQDx8INfr9BUEbcQYE2GoMXspZEBgj8CnkSG\nITPprC63HDGzvuZRhR+JquWqJAsE6GRV9byJSdR8cGvupw9g8DIy5p9piDwrj8ev\nN+kvAA5B1vG6INsw1sAlhWH66IyTLcA6BF2Q2fRNhjdalpv169BJ78qSzSt/wL5b\nRapksqi4PQKBgQCm2U2NT8fJfEwFNqf7VOxG2L4I2jyumLk0oHH/hddCmC8UthEO\nWqVFzPYX6C4ZBravpdXtc/u4dt0yAuKXXevtb79P6pKuGwKy8qtUbiXVYWAoXJFw\n8C5snBTnMKFN4BAG/uzKJmhhe3IoXaQxvQbnlowtY5kwnDQ0UAp1RI7I4QKBgH0s\nNZwlB0DnpXIIkTOtLJnCE2LXcyg0oDlRJl2oYscEBEb95oWYvXdpfsdnPHg+j+LV\nb8UL+K6lL4Ja1p8NxrsFDMb54D+ddO+XmsJhYf74aTomU6FSCjmfZ9D7zfc7vW+G\n4K3Xxgjx/uOUdn5mke4e7QzEr9O58gKg6YaN1LL1AoGARhLe8osYT+l6XtVL0tRH\neuieJcPV/CHDaHAe+DD6VhIBbCwjBt+QeT5R7592JlK2jmTKT7QIq0mK5sPHBUnV\nQ2C5qRTU643XrW7dHpOqv++Iz5Z0uS71I0+2xvZip/nZtZWfX4LD2oo2Umn/oMK+\nm1tzDNbDX8nEimCIyQ/tWww=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-3bfhc@ride-card-app.iam.gserviceaccount.com",
+  "client_id": "102477021123808906322",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-3bfhc%40ride-card-app.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
