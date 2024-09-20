@@ -10,8 +10,11 @@ import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
+import 'package:ride_card_app/classes/common/tax_and_fees/get_price/get_price.dart';
+import 'package:ride_card_app/classes/common/tax_and_fees/get_price/model/model.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/get_customer_accounts_list/get_customer_account_list.dart';
+import 'package:ride_card_app/classes/service/UNIT/send_to_client/send_to_client.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
@@ -38,6 +41,22 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
   bool screenLoader = true;
   String balanceIs = '';
   var showLoader = '0';
+  String amountToSendToCustomer = '';
+  double amountSend = 0.0;
+  //
+
+  String feesAndTaxesType = '';
+  double feesAndTaxesAmount = 0.0;
+  double calculatedFeeAmount = 0.0;
+  double totalAmountAfterCalculateFee = 0.0;
+  bool removePopLoader = false;
+  double showConvenienceFeesOnPopup = 0.0;
+  var savedCardDetailsInDictionary;
+  bool userSavedCard = false;
+  bool saveCard = false;
+  bool isUserSelectSavedCard = false;
+  var storeStripeCustomerId = '';
+  var storeStripeToken = '';
   @override
   void initState() {
     fetchProfileData();
@@ -259,14 +278,19 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                     dismissKeyboard(context);
                     showLoader = '1';
                     showLoadingUI(context, 'please wait...');
-                    logger.d(dotenv.env['UNIT_BANK_ID'].toString());
-                    logger.d(
-                      selectedAccountId.toString(),
-                    );
+                    /*logger.d(dotenv.env['UNIT_BANK_ID'].toString());
+                    logger.d(selectedAccountId.toString());*/
                     final amount = convertDollarsToCentsAsString(
                         contEnterAmount.text.toString());
                     logger.d(amount.toString());
-                    sendPayment(amount);
+
+                    // amountToSend = amount;
+
+                    // logger.d(amountToSend);
+
+                    // first send payment to client as convenience fees
+
+                    getFeesAndTaxes();
                   }
                 }
               },
@@ -294,6 +318,150 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
         ],
       ),
     );
+  }
+
+  void getFeesAndTaxes() async {
+    ApiServiceToGetFeesAndTaxes apiService = ApiServiceToGetFeesAndTaxes();
+
+    List<FeeData>? feeList = await apiService.fetchFeesAndTaxes();
+
+    if (feeList != null) {
+      for (var fee in feeList) {
+        if (kDebugMode) {
+          print(
+              'ID: ${fee.id}, Name: ${fee.name}, Type: ${fee.type}, Amount: ${fee.amount}');
+        }
+        if (fee.name == 'instantDeposit') {
+          if (fee.type == TAX_TYPE_PERCENTAGE) {
+            feesAndTaxesType = fee.type.toString();
+            feesAndTaxesAmount = double.parse(fee.amount.toString());
+            showConvenienceFeesOnPopup = (feesAndTaxesAmount * 10) / 100;
+            totalAmountAfterCalculateFee = (feesAndTaxesAmount * 10) / 100;
+            // amount send to customer
+            amountSend = double.parse(contEnterAmount.text.toString()) -
+                showConvenienceFeesOnPopup;
+          } else {
+            debugPrint(fee.type);
+            feesAndTaxesType = fee.type.toString();
+            feesAndTaxesAmount = double.parse(fee.amount.toString());
+            showConvenienceFeesOnPopup = feesAndTaxesAmount;
+            totalAmountAfterCalculateFee = feesAndTaxesAmount;
+            // amount send to customer
+            amountSend = double.parse(contEnterAmount.text.toString()) -
+                showConvenienceFeesOnPopup;
+          }
+        }
+      }
+      if (feesAndTaxesType == TAX_TYPE_PERCENTAGE) {
+        String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
+        showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
+        logger.d(showConvenienceFeesOnPopup);
+        logger.d(amountSend);
+        //
+        Navigator.pop(context);
+        showTransferBottomSheet(context, showConvenienceFeesOnPopup.toString());
+        //
+        // initiatePayment(context, showConvenienceFeesOnPopup, selectedAccountId);
+      } else {
+        String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
+        showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
+        logger.d(showConvenienceFeesOnPopup);
+        logger.d(amountSend);
+        //
+        Navigator.pop(context);
+        showTransferBottomSheet(context, showConvenienceFeesOnPopup.toString());
+        // initiatePayment(context, showConvenienceFeesOnPopup, selectedAccountId);
+      }
+    } else {
+      if (kDebugMode) {
+        print('Failed to retrieve fee data.');
+      }
+    }
+  }
+
+  void showTransferBottomSheet(
+    BuildContext context,
+    String feeAmount,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              textFontPOOPINS(
+                "We charge  \$$feeAmount fee to instantly transfer money from your wallet to your bank account. Do you wish to proceed?\n\nYou will receive \$$amountSend in your selected bank account.",
+                Colors.black,
+                14.0,
+              ),
+              const SizedBox(height: 20.0),
+              ElevatedButton(
+                onPressed: () {
+                  // Handle transfer action
+                  Navigator.pop(context);
+                  initiatePayment(
+                    context,
+                    showConvenienceFeesOnPopup,
+                    selectedAccountId,
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40.0,
+                    vertical: 16.0,
+                  ),
+                ),
+                child: const Text(
+                  'Transfer',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  //
+
+  void initiatePayment(
+    BuildContext context,
+    double amount,
+    String selectedAccountId,
+  ) async {
+    showLoadingUI(context, 'please wait...');
+    // Call the sendPayment function
+    logger.d(amount);
+    // return;
+    bool paymentSuccess = await sendPaymentToClientAccount(
+      amount: amount,
+      selectedAccountId: selectedAccountId,
+      context: context,
+    );
+
+    // Handle the response
+    if (paymentSuccess) {
+      // Payment was successful
+      debugPrint('Payment was successful');
+
+      sendPayment();
+    } else {
+      // Payment failed
+      customToast(
+        'Payment failed. Please try again.',
+        Colors.redAccent,
+        ToastGravity.BOTTOM,
+      );
+    }
   }
 
   Future<void> fetchProfileData() async {
@@ -381,7 +549,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     );
   }
 
-  Future<void> sendPayment(amount) async {
+  Future<void> sendPayment() async {
     final url = Uri.parse('https://api.s.unit.sh/payments');
     final headers = {
       'Content-Type': 'application/vnd.api+json',
@@ -392,7 +560,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
       "data": {
         "type": "bookPayment",
         "attributes": {
-          "amount": double.parse(amount.toString()),
+          "amount": amountSend * 100,
           "description": "Withdraw ( wallet )",
         },
         "relationships": {
@@ -439,7 +607,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
         } else {
           logger.d('Done payment');
 
-          editWalletBalance(context, amount);
+          editWalletBalance(context);
         }
       } else {
         // Payment failed
@@ -459,7 +627,6 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
 
   void editWalletBalance(
     context,
-    amount,
   ) async {
     debugPrint('API ==> EDIT PROFILE');
     // String parseDevice = await deviceIs();
@@ -515,7 +682,6 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
             // again click
             editWalletBalance(
               context,
-              amount,
             );
           });
         } else {
@@ -523,6 +689,12 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
           contYourBankAccount.text = "";
           contEnterAmount.text = "";
           dismissKeyboard(context);
+
+          customToast(
+            'Transaction completed.',
+            Colors.green,
+            ToastGravity.BOTTOM,
+          );
 
           fetchProfileData();
         }

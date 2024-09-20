@@ -433,6 +433,15 @@ class _BankStatementsScreenState extends State<BankStatementsScreen> {
                   16.0,
                   fontWeight: FontWeight.bold,
                 ),
+              ] else if (extractTransactionType(
+                      data['attributes']['summary']) ==
+                  'Convenience fee') ...[
+                textFontPOOPINS(
+                  'Withdraw from wallet',
+                  Colors.black,
+                  16.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ],
             ],
           ),
@@ -440,17 +449,42 @@ class _BankStatementsScreenState extends State<BankStatementsScreen> {
         ),
         const SizedBox(height: 10),
         ListTile(
-          title: textFontPOOPINS(
-            transactionData['data']['attributes']['counterparty']['name']
-                .toString(),
-            Colors.black,
-            16.0,
-          ),
-          subtitle: textFontPOOPINS(
-            'AN: ${transactionData['data']['attributes']['counterparty']['accountNumber']}',
-            Colors.grey,
-            12.0,
-          ),
+          title: (extractTransactionType(data['attributes']['summary']) ==
+                  'Convenience fee')
+              ? textFontPOOPINS(
+                  'Ride card wallet',
+                  Colors.black,
+                  16.0,
+                )
+              : (extractTransactionType(data['attributes']['summary']) ==
+                      'Withdraw ( wallet )')
+                  ? textFontPOOPINS(
+                      'Money added',
+                      Colors.black,
+                      16.0,
+                    )
+                  : textFontPOOPINS(
+                      transactionData['data']['attributes']['counterparty']
+                              ['name']
+                          .toString(),
+                      Colors.black,
+                      16.0,
+                    ),
+          subtitle: (extractTransactionType(data['attributes']['summary']) ==
+                  'Convenience fee')
+              ? textFontPOOPINS(
+                  'Convenience fee:',
+                  Colors.grey,
+                  12.0,
+                )
+              : (extractTransactionType(data['attributes']['summary']) ==
+                      'Withdraw ( wallet )')
+                  ? const SizedBox()
+                  : textFontPOOPINS(
+                      'AN: ${transactionData['data']['attributes']['counterparty']['accountNumber']}',
+                      Colors.grey,
+                      12.0,
+                    ),
           trailing: data['attributes']['direction'] == 'Credit'
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
