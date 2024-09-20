@@ -137,7 +137,17 @@ class _ConvenienceFeesChargesScreenState
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 40.0),
+        const SizedBox(height: 10.0),
+
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: textFontPOOPINS(
+            'To Create a ${widget.title}, you will need to provide your card details for subscription purpose. A \$$showConvenienceFeesOnPopup monthly maintenance fee will automatically be charged from your added card. This fee ensures your ${widget.title} remains active and up-to-date.',
+            Colors.grey,
+            12.0,
+          ),
+        ),
+
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(

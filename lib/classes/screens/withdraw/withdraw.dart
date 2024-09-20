@@ -383,6 +383,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     BuildContext context,
     String feeAmount,
   ) {
+    String formattedValue = amountSend.toStringAsFixed(2);
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -396,7 +397,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               textFontPOOPINS(
-                "We charge  \$$feeAmount fee to instantly transfer money from your wallet to your bank account. Do you wish to proceed?\n\nYou will receive \$$amountSend in your selected bank account.",
+                "We charge  \$$feeAmount fee to instantly transfer money from your wallet to your bank account. Do you wish to proceed?\n\nYou will receive \$$formattedValue in your selected bank account.",
                 Colors.black,
                 14.0,
               ),
@@ -537,12 +538,20 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
       'Content-Type': 'application/vnd.api+json',
       'Authorization': 'Bearer $TESTING_TOKEN',
     };
-
+    logger.d(amountSend);
+    logger.d(amountSend * 100);
+    double convert = (amountSend * 100);
+    String formattedValue = convert.toStringAsFixed(2);
+    logger.d(formattedValue);
+    int myInt = double.parse(formattedValue.toString()).round();
+    print(myInt);
+    // return;s
+    // String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
     final body = jsonEncode({
       "data": {
         "type": "bookPayment",
         "attributes": {
-          "amount": amountSend * 100,
+          "amount": myInt.toString(),
           "description": "Withdraw ( wallet )",
         },
         "relationships": {

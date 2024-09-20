@@ -33,6 +33,7 @@ import 'package:ride_card_app/classes/service/UNIT/CARD/freeze_unfreeze_card/fre
 // import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
 import 'package:ride_card_app/classes/service/UNIT/CARD/pin_status/pin_status.dart';
 import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/customer_token/customer_token.dart';
+import 'package:ride_card_app/classes/service/UNIT/bank_statement/bank_statement.dart';
 import 'package:ride_card_app/classes/service/charge_money_from_stripe/charge_money_from_stripe.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
@@ -1275,6 +1276,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
       print('===============================================');
     }
     storeCustomerToken = tokenAfterAll.toString();
+
     // open browser
     openBrowserToShowCardDetails();
   }
@@ -1288,6 +1290,13 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
       print('Card id ==>${widget.cardData['id']}');
       print('Customer Token after all ==> $storeCustomerToken');
     }
+    logger.d(storeCustomerId);
+    logger.d(widget.cardData['id']);
+    logger.d(storeCustomerToken);
+    var responsee = fetchCardDetails(widget.cardData['id']);
+
+    logger.d(responsee);
+
     if (strSelectType == '1') {
       _launchURL(
         '$SET_PIN_URL$storeCustomerId&cardid=${widget.cardData['id']}&customertoken=$storeCustomerToken',
