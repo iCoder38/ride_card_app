@@ -139,14 +139,16 @@ class _ConvenienceFeesChargesScreenState
         ),
         const SizedBox(height: 10.0),
 
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: textFontPOOPINS(
-            'To Create a ${widget.title}, you will need to provide your card details for subscription purpose. A \$$showConvenienceFeesOnPopup monthly maintenance fee will automatically be charged from your added card. This fee ensures your ${widget.title} remains active and up-to-date.',
-            Colors.grey,
-            12.0,
-          ),
-        ),
+        widget.feeType == 'addExternalDebitCard'
+            ? const SizedBox()
+            : Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: textFontPOOPINS(
+                  'To Create a ${widget.title}, you will need to provide your card details for subscription purpose. A "\$2" monthly maintenance fee will automatically be charged from your added card. This fee ensures your ${widget.title} remains active and up-to-date.',
+                  Colors.grey,
+                  12.0,
+                ),
+              ),
 
         Padding(
           padding: const EdgeInsets.all(8.0),
@@ -829,7 +831,10 @@ class _ConvenienceFeesChargesScreenState
         );
 
         // debugPrint(widget.feeType); //
-
+/*
+widget.feeType == 'addExternalDebitCard'
+            ? 
+            */
         if (widget.feeType.toString() == 'generateDebitCard') {
           logger.d('====> GENERATE CARD AND START SUBSCRIPTION <====');
           if (storeStripeCustomerId == '') {
@@ -844,6 +849,10 @@ class _ConvenienceFeesChargesScreenState
             logger.d('Yes, Stripe customer is already created.');
             createStripeCustomerAccount(storeStripeCustomerId);
           }
+        }
+        if (widget.feeType.toString() == 'addExternalDebitCard') {
+          debugPrint('==> ADD EXTERNAL DEBIT CARD');
+          sucessEverythingNowGoBack();
         } else {
           // NOE CREATE A UNIT BANK ACCOUNT
           sucessEverythingNowGoBack();

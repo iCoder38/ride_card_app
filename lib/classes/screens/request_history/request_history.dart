@@ -97,6 +97,18 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
     );
   }
 
+  String calculateTotalAmount(String amount, String adminCharge) {
+    // Parse the strings to double and handle potential parsing issues
+    double amountValue = double.tryParse(amount) ?? 0.0;
+    double adminChargeValue = double.tryParse(adminCharge) ?? 0.0;
+
+    // Add the values together
+    double total = amountValue + adminChargeValue;
+
+    // Return the result as a formatted string (e.g., with 2 decimal places)
+    return total.toStringAsFixed(2);
+  }
+
   Widget _UIKitRequestHistoryAfterBG(context) {
     return Column(
       children: [
@@ -229,7 +241,10 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
                                 // const SizedBox(width: 4.0),
                                 textFontORBITRON(
                                   //
-                                  arrAllUser[i]['amount'].toString(),
+                                  calculateTotalAmount(
+                                      arrAllUser[i]['amount'].toString(),
+                                      arrAllUser[i]['admincharge'].toString()),
+
                                   Colors.redAccent,
                                   18.0,
                                   fontWeight: FontWeight.w800,
