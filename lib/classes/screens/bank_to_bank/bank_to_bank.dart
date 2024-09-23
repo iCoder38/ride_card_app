@@ -712,6 +712,12 @@ class _BankToBankTransfterScreenState extends State<BankToBankTransfterScreen> {
         contYourBankAccount.text = "";
         contAmount.text = "";
         Navigator.pop(context);
+        dismissKeyboard(context);
+        customToast(
+          'Successfully transfered',
+          Colors.green,
+          ToastGravity.BOTTOM,
+        );
       } else {
         // Payment failed
         if (kDebugMode) {

@@ -528,6 +528,13 @@ class _SelfTransferScreenState extends State<SelfTransferScreen> {
         contAmount.text = "";
 
         Navigator.pop(context);
+
+        dismissKeyboard(context);
+        customToast(
+          'Successfully transfered',
+          Colors.green,
+          ToastGravity.BOTTOM,
+        );
       } else {
         // Payment failed
         if (kDebugMode) {
