@@ -271,8 +271,8 @@ class _BankStatementsScreenState extends State<BankStatementsScreen> {
           padding: const EdgeInsets.all(16.0),
           height: transactionData['data']['type'].toString() ==
                   'purchaseTransaction'
-              ? 280
-              : 180,
+              ? 380
+              : 280,
           width: MediaQuery.of(context).size.width,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
