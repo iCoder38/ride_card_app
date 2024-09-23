@@ -144,7 +144,7 @@ class _ConvenienceFeesChargesScreenState
             : Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: textFontPOOPINS(
-                  'To Create a ${widget.title}, you will need to provide your card details for subscription purpose. A "\$2" monthly maintenance fee will automatically be charged from your added card. This fee ensures your ${widget.title} remains active and up-to-date.',
+                  'To Create a ${widget.title}, you will need to provide your card details for maintenance purpose. A "\$2" monthly maintenance fee will automatically be charged from your added card. This fee ensures your ${widget.title} remains active and up-to-date.',
                   Colors.grey,
                   12.0,
                 ),

@@ -1442,7 +1442,7 @@ class _BottomSheetFormState extends State<BottomSheetForm> {
             mainAxisSize: MainAxisSize.min,
             children: [
               textFontPOOPINS(
-                "To Create a new ${widget.title}, you will need to provide your card details for subscription purpose. A \$2 monthly maintenance fee will automatically be charged from your added card. This fee ensures your account remains active and up-to-date.",
+                "To Create a new ${widget.title}, you will need to provide your card details for maintenance purpose. A \$2 monthly maintenance fee will automatically be charged from your added card. This fee ensures your account remains active and up-to-date.",
                 Colors.black,
                 14.0,
               ),

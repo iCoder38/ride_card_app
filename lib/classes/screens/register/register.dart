@@ -95,8 +95,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               height: 80.0,
             ),
             widget.strProfileIs == '2'
-                ? customNavigationBar(context, 'Register (User)')
-                : customNavigationBar(context, 'Register (Business)'),
+                ? customNavigationBar(context, 'Register')
+                : customNavigationBar(context, 'Register'),
             GestureDetector(
               onTap: () {
                 openGalleryOrCamera(context);
