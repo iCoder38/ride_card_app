@@ -265,7 +265,6 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
     }
 
     ///
-
     /*String? customerId =
         await RegisterCustomerInStripe().registerCustomerInStripe(stripeToken);
 

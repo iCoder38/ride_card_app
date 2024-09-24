@@ -160,3 +160,36 @@ Future<String?> getIPAddress() async {
   ipAddress ??= await info.getWifiIPv6();
   return ipAddress;
 }
+
+String calculatePercentage(String amountStr) {
+  // Parse the string amount to a double
+  double amount = double.tryParse(amountStr) ?? 0.0;
+
+  // Calculate 1.3% of the amount
+  double percentage = amount * 0.013;
+
+  // Return the deducted percentage amount as a string with 2 decimal places
+  return percentage.toString();
+  // percentage.toStringAsFixed(3);
+}
+
+Map<String, String> calculateAmountAndDeduction(
+    String amountStr, double serverPercentage) {
+  // Parse the string amount to a double
+  double amount = double.tryParse(amountStr) ?? 0.0;
+
+  // Convert the server percentage (e.g., 1.3%) to decimal form
+  double convertedPercentage = serverPercentage / 100;
+
+  // Calculate the deduction amount
+  double deduction = amount * convertedPercentage;
+
+  // Calculate the final amount after deduction
+  double totalAfterDeduction = amount - deduction;
+
+  // Return both the final amount and the deducted percentage amount as strings with 2 decimal places
+  return {
+    'finalAmount': totalAfterDeduction.toStringAsFixed(2),
+    'deductionAmount': deduction.toStringAsFixed(2),
+  };
+}

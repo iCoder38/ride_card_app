@@ -1618,58 +1618,22 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
     Navigator.pop(context);
 
     if (widget.bankType == 'businessCustomer') {
-      showLoadingUI(context, 'please wait...');
-      await sendRequestToProfileDynamic().then((v) async {
-        if (kDebugMode) {
-          print(v);
-        }
-
-        if (v['data']['fullName'].toString() == '') {
-          customToast(
-            'something went wrong with your name. Please check your name in edit profile section',
-            Colors.redAccent,
-            ToastGravity.TOP,
-          );
-          return;
-        } else if (v['data']['lastName'].toString() == '') {
-          customToast(
-            'something went wrong with your name. Please check your name in edit profile section',
-            Colors.redAccent,
-            ToastGravity.TOP,
-          );
-          return;
-        } else {
-          Map<String, dynamic>? businessResponse =
-              await IssueBusinessCardService.issueBusinessCard(
-            bankAccountId.toString(),
-            v['data']['fullName'].toString(),
-            v['data']['lastName'].toString(),
-            v['data']['dob'].toString(),
-            v['data']['email'].toString(),
-            v['data']['contactNumber'].toString(),
-            v['data']['address'].toString(),
-            v['data']['City'].toString(),
-            v['data']['state'].toString(),
-            v['data']['zipcode'].toString(),
-            v['data']['country'].toString(),
-          );
-          if (kDebugMode) {
-            print('BUSINESS CARD REPONSE');
-            print(businessResponse);
-          }
-          Navigator.pop(context);
-          _addCardInEvsServer(
-              context,
-              businessResponse!['data']['attributes']['last4Digits'].toString(),
-              businessResponse['data']['id'].toString(),
-              businessResponse['data']['relationships']['account']['data']['id']
-                  .toString(),
-              businessResponse['data']['attributes']['expirationDate']
-                  .toString(),
-              businessResponse['data']['relationships']['customer']['data']
-                  ['id']);
-        }
-      });
+      // showLoadingUI(context, 'please wait...');
+      logger.d(userSelectWhichCard);
+      // Navigator.pop(context);
+      if (userSelectWhichCard == '1') {
+        pushToConvenienceFeeScreen(
+          context,
+          'Virtual business debit card',
+          'generateDebitCard',
+        );
+      } else {
+        pushToConvenienceFeeScreen(
+          context,
+          'Physical business debit card',
+          'generateDebitCard',
+        );
+      }
     } else {
       debugPrint('Individual Customer: ISSUE VIRTUAL DEBIT CARD');
 
@@ -1682,7 +1646,6 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
           } else {
             logger.d('Create physical debit card');
             // debugPrint('fee deduct for physical');
-
             //issueMyPhysicalDebitCard();
           }
         } else {
@@ -2494,18 +2457,89 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         print(feeType);
         print(allCards!.length);
       }
-      if (feeType == 'accountClosingFee') {
-        _handleCloseAccount();
-      } else if (feeType == 'generateDebitCard') {
-        if (userSelectWhichCard == '1') {
-          createVirtualDebitCard();
-        } else {
-          debugPrint('fee deduct for physical');
+      if (widget.bankType == 'businessCustomer') {
+        // business
+        await sendRequestToProfileDynamic().then((v) async {
+          if (kDebugMode) {
+            print(v);
+          }
 
-          issueMyPhysicalDebitCard();
-        }
+          if (v['data']['fullName'].toString() == '') {
+            customToast(
+              'something went wrong with your name. Please check your name in edit profile section',
+              Colors.redAccent,
+              ToastGravity.TOP,
+            );
+            return;
+          } else if (v['data']['lastName'].toString() == '') {
+            customToast(
+              'something went wrong with your name. Please check your name in edit profile section',
+              Colors.redAccent,
+              ToastGravity.TOP,
+            );
+            return;
+          } else {
+            /**/
+            logger.d(userSelectWhichCard);
+            //  Navigator.pop(context);
+            /*if (userSelectWhichCard == '1') {
+              pushToConvenienceFeeScreen(
+                context,
+                'Virtual business debit card',
+                'generateDebitCard',
+              );
+            } else {
+              pushToConvenienceFeeScreen(
+                context,
+                'Physical business debit card',
+                'generateDebitCard',
+              );
+            }*/
+            Map<String, dynamic>? businessResponse =
+                await IssueBusinessCardService.issueBusinessCard(
+              bankAccountId.toString(),
+              v['data']['fullName'].toString(),
+              v['data']['lastName'].toString(),
+              v['data']['dob'].toString(),
+              v['data']['email'].toString(),
+              v['data']['contactNumber'].toString(),
+              v['data']['address'].toString(),
+              v['data']['City'].toString(),
+              v['data']['state'].toString(),
+              v['data']['zipcode'].toString(),
+              v['data']['country'].toString(),
+            );
+            if (kDebugMode) {
+              print('BUSINESS CARD REPONSE');
+              print(businessResponse);
+            }
+            _addCardInEvsServer(
+              context,
+              businessResponse!['data']['attributes']['last4Digits'].toString(),
+              businessResponse['data']['id'].toString(),
+              businessResponse['data']['relationships']['account']['data']['id']
+                  .toString(),
+              businessResponse['data']['attributes']['expirationDate']
+                  .toString(),
+              businessResponse['data']['relationships']['customer']['data']
+                  ['id'],
+            );
+          }
+        });
       } else {
-        _handleUnfreezeAccount();
+        if (feeType == 'accountClosingFee') {
+          _handleCloseAccount();
+        } else if (feeType == 'generateDebitCard') {
+          if (userSelectWhichCard == '1') {
+            createVirtualDebitCard();
+          } else {
+            debugPrint('fee deduct for physical');
+
+            issueMyPhysicalDebitCard();
+          }
+        } else {
+          _handleUnfreezeAccount();
+        }
       }
     }
   }

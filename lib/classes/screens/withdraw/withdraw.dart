@@ -42,7 +42,10 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
   String balanceIs = '';
   var showLoader = '0';
   String amountToSendToCustomer = '';
-  double amountSend = 0.0;
+  // double amountSend = 0.0;
+  double amountSendToClientMainBnkAccount = 0.0;
+  double amountSendToCustomerBankAccount = 0.0;
+  String amountInpercentageToShow = '';
   //
 
   String feesAndTaxesType = '';
@@ -329,47 +332,80 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
       for (var fee in feeList) {
         if (kDebugMode) {
           print(
-              'ID: ${fee.id}, Name: ${fee.name}, Type: ${fee.type}, Amount: ${fee.amount}');
+            'ID: ${fee.id}, Name: ${fee.name}, Type: ${fee.type}, Amount: ${fee.amount}',
+          );
         }
         if (fee.name == 'instantDeposit') {
           if (fee.type == TAX_TYPE_PERCENTAGE) {
             feesAndTaxesType = fee.type.toString();
             feesAndTaxesAmount = double.parse(fee.amount.toString());
-            showConvenienceFeesOnPopup = (feesAndTaxesAmount * 10) / 100;
+            amountInpercentageToShow = fee.amount.toString();
+            /*showConvenienceFeesOnPopup = (feesAndTaxesAmount * 10) / 100;
             totalAmountAfterCalculateFee = (feesAndTaxesAmount * 10) / 100;
             // amount send to customer
             amountSend = double.parse(contEnterAmount.text.toString()) -
-                showConvenienceFeesOnPopup;
+                showConvenienceFeesOnPopup;*/
           } else {
             debugPrint(fee.type);
             feesAndTaxesType = fee.type.toString();
             feesAndTaxesAmount = double.parse(fee.amount.toString());
             showConvenienceFeesOnPopup = feesAndTaxesAmount;
             totalAmountAfterCalculateFee = feesAndTaxesAmount;
+            amountInpercentageToShow = fee.amount.toString();
             // amount send to customer
-            amountSend = double.parse(contEnterAmount.text.toString()) -
-                showConvenienceFeesOnPopup;
+            /*amountSend = double.parse(contEnterAmount.text.toString()) -
+                showConvenienceFeesOnPopup;*/
           }
         }
       }
       if (feesAndTaxesType == TAX_TYPE_PERCENTAGE) {
-        String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
-        showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
-        logger.d(showConvenienceFeesOnPopup);
-        logger.d(amountSend);
+        double calculatedFeeAfterTax = feesAndTaxesAmount / 100;
+        String formattedValue = calculatedFeeAfterTax.toStringAsFixed(3);
+
+        double fee = double.parse(formattedValue);
+
+        // first
+        // calculate customer amount
+        double calculateCustomerAmountAfterFeeGet =
+            double.parse(contEnterAmount.text.toString()) - fee;
+        String formattedValueForCustomerAmount =
+            calculateCustomerAmountAfterFeeGet.toStringAsFixed(2);
         //
+        amountSendToCustomerBankAccount =
+            double.parse(formattedValueForCustomerAmount);
+
+        String formattedValueForClientAmount = fee.toStringAsFixed(3);
+        amountSendToClientMainBnkAccount =
+            double.parse(formattedValueForClientAmount);
+        logger.d("Customer total amount: $amountSendToCustomerBankAccount");
+        logger.d("Client total amount: $amountSendToClientMainBnkAccount");
+
         Navigator.pop(context);
-        showTransferBottomSheet(context, showConvenienceFeesOnPopup.toString());
+        showTransferBottomSheet(context, fee.toString());
         //
+        // not working
         // initiatePayment(context, showConvenienceFeesOnPopup, selectedAccountId);
       } else {
         String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
         showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
         logger.d(showConvenienceFeesOnPopup);
-        logger.d(amountSend);
+
+        //
+        double calculateFixAmount =
+            double.parse(contEnterAmount.text) - feesAndTaxesAmount;
+        logger.d(calculateFixAmount);
+        //
+        //
+        amountSendToCustomerBankAccount = calculateFixAmount;
+        amountSendToClientMainBnkAccount = feesAndTaxesAmount;
+        logger.d("Customer total amount: $amountSendToCustomerBankAccount");
+        logger.d("Client total amount: $amountSendToClientMainBnkAccount");
+        //
         //
         Navigator.pop(context);
-        showTransferBottomSheet(context, showConvenienceFeesOnPopup.toString());
+        showTransferBottomSheet(context, feesAndTaxesAmount.toString());
+        //
+        // not working
         // initiatePayment(context, showConvenienceFeesOnPopup, selectedAccountId);
       }
     } else {
@@ -383,7 +419,6 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     BuildContext context,
     String feeAmount,
   ) {
-    String formattedValue = amountSend.toStringAsFixed(2);
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -397,7 +432,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               textFontPOOPINS(
-                "We charge  \$$feeAmount fee to instantly transfer money from your wallet to your bank account. Do you wish to proceed?\n\nYou will receive \$$formattedValue in your selected bank account.",
+                "We charge  \$$amountInpercentageToShow fee to instantly transfer money from your wallet to your bank account. Do you wish to proceed?\n\nYou will receive \$$amountSendToCustomerBankAccount in your selected bank account.",
                 Colors.black,
                 14.0,
               ),
@@ -538,20 +573,22 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
       'Content-Type': 'application/vnd.api+json',
       'Authorization': 'Bearer $TESTING_TOKEN',
     };
-    logger.d(amountSend);
-    logger.d(amountSend * 100);
-    double convert = (amountSend * 100);
-    String formattedValue = convert.toStringAsFixed(2);
-    logger.d(formattedValue);
-    int myInt = double.parse(formattedValue.toString()).round();
-    print(myInt);
-    // return;s
+    // logger.d(amountSend);
+    // logger.d(amountSend * 100);
+    //  double convert = (amountSend * 100);
+    // String formattedValue = convert.toStringAsFixed(2);
+    // logger.d(formattedValue);
+    // int myInt = double.parse(formattedValue.toString()).round();
+    if (kDebugMode) {
+      print(amountSendToCustomerBankAccount * 100);
+    }
+    // return;
     // String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
     final body = jsonEncode({
       "data": {
         "type": "bookPayment",
         "attributes": {
-          "amount": myInt.toString(),
+          "amount": amountSendToCustomerBankAccount * 100,
           "description": "Withdraw ( wallet )",
         },
         "relationships": {
@@ -599,7 +636,8 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
           logger.d('Done payment');
 
           bool paymentSuccess = await sendPaymentToClientAccount(
-            amount: showConvenienceFeesOnPopup,
+            amount: amountSendToClientMainBnkAccount,
+            // showConvenienceFeesOnPopup,
             selectedAccountId: selectedAccountId,
             context: context,
           );
