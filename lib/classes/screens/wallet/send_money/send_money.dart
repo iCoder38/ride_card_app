@@ -123,6 +123,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                 _scaffoldKey,
               )
             : customNavigationBar(context, TEXT_NAVIGATION_TITLE_SEND_MONEY),
+
         /*GestureDetector(
                 onTap: () {
                   // Navigator.push(
@@ -144,6 +145,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                 16.0,
                 fontWeight: FontWeight.w800,
               ),*/
+
         const SizedBox(
           height: 20,
         ),

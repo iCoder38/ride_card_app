@@ -396,10 +396,11 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
         logger.d(calculateFixAmount);
         //
         //
-        amountSendToCustomerBankAccount = calculateFixAmount;
+        String formattedValue22 = calculateFixAmount.toStringAsFixed(2);
+        amountSendToCustomerBankAccount = double.parse(formattedValue22);
         amountSendToClientMainBnkAccount = feesAndTaxesAmount;
-        logger.d("Customer total amount: $amountSendToCustomerBankAccount");
-        logger.d("Client total amount: $amountSendToClientMainBnkAccount");
+        // logger.d("Customer total amount: $amountSendToCustomerBankAccount");
+        // logger.d("Client total amount: $amountSendToClientMainBnkAccount");
         //
         //
         Navigator.pop(context);
@@ -575,20 +576,22 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     };
     // logger.d(amountSend);
     // logger.d(amountSend * 100);
-    //  double convert = (amountSend * 100);
-    // String formattedValue = convert.toStringAsFixed(2);
+    double convert = (amountSendToCustomerBankAccount * 100);
+    String formattedValue = convert.toStringAsFixed(2);
     // logger.d(formattedValue);
-    // int myInt = double.parse(formattedValue.toString()).round();
+    int myInt = double.parse(formattedValue.toString()).round();
+    //
     if (kDebugMode) {
       print(amountSendToCustomerBankAccount * 100);
     }
+    //
     // return;
     // String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
     final body = jsonEncode({
       "data": {
         "type": "bookPayment",
         "attributes": {
-          "amount": amountSendToCustomerBankAccount * 100,
+          "amount": myInt,
           "description": "Withdraw ( wallet )",
         },
         "relationships": {

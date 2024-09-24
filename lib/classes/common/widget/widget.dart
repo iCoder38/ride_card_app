@@ -40,7 +40,7 @@ Widget customNavigationBar(context, title) {
             //
             title,
             Colors.white,
-            18.0,
+            14.0,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -88,7 +88,7 @@ Widget customNavigationBarForMenu(title, key) {
             //
             title,
             Colors.white,
-            18.0,
+            14.0,
             fontWeight: FontWeight.w600,
           ),
         ),
