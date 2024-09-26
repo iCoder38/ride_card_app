@@ -40,8 +40,8 @@ android {
 
     defaultConfig {
         applicationId = "com.evs.ride_card_app.prod"
-        minSdk = 26 // flutter.minSdkVersion
-        targetSdk = 34 //flutter.targetSdkVersion
+        minSdk = 28 // flutter.minSdkVersion
+        targetSdk = 35 //flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
     }

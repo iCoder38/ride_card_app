@@ -347,11 +347,19 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                       //   getFeesAndTaxes('accountClosingFee');
                       // });
                       //
-                      pushToConvenienceFeeScreen(
-                        context,
-                        'Close bank account',
-                        'accountClosingFee',
-                      );
+                      debugPrint('Clicked: Close my account $accountBalance');
+                      if (accountBalance == '0.0') {
+                        pushToConvenienceFeeScreen(
+                          context,
+                          'Close bank account',
+                          'accountClosingFee',
+                        );
+                      } else {
+                        //
+                        _showBottomSheetBeforeClose(context);
+                      }
+
+                      /**/
 
                       // getFeesAndTaxes(userSelectType)
                       //
@@ -578,6 +586,30 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                   )
                 : _listOfAllIssuedCardsUIKit(context),
       ],
+    );
+  }
+
+  void _showBottomSheetBeforeClose(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'We would like to inform you that in order to proceed with closing your bank account, it\'s necessary that the account balance be zero. If your account currently has a positive balance, we kindly request that you withdraw or transfer the remaining funds. Once the account balance is settled, we will be able to proceed with your account closure request.',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
