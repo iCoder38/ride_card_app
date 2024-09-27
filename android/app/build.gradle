@@ -9,6 +9,11 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+// Load key and local properties
+def keyPropertiesFile = rootProject.file("key.properties")
+def keyProperties = new Properties()
+keyProperties.load(new FileInputStream(keyPropertiesFile))
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
@@ -27,28 +32,54 @@ if (flutterVersionName == null) {
     flutterVersionName = "1.0"
 }
 
+ext.kotlin_version = '2.0.0'
+
 android {
     namespace = "com.evs.ride_card_app.prod"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34
     // ndkVersion = flutter.ndkVersion
-    ndkVersion = "21.3.6528147"
+    ndkVersion "25.1.8937393" // Specify NDK version
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
     }
 
     defaultConfig {
         applicationId = "com.evs.ride_card_app.prod"
-        minSdk = 28 // flutter.minSdkVersion
-        targetSdk = 35 //flutter.targetSdkVersion
+        minSdk = 26
+        targetSdk = 34
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
+
+        // Enable multidex for larger apps
+        multiDexEnabled true
+    }
+
+    // Signing configuration for release builds
+    signingConfigs {
+        release {
+            keyProperties.load(new FileInputStream(keyPropertiesFile))
+            keyAlias keyProperties['keyAlias']
+            keyPassword keyProperties['keyPassword']
+            storeFile keyProperties['storeFile'] ? file(keyProperties['storeFile']) : null
+            storePassword keyProperties['storePassword']
+        }
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
+            // Use release signing configuration
+            signingConfig signingConfigs.release
+            // Enables code shrinking, obfuscation, and optimization using ProGuard or R8.
+            minifyEnabled true
+            // Enables shrinking of unused resources.
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -59,5 +90,5 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.android.material:material:1.12.0'
 }

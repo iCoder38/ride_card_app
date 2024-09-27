@@ -2,7 +2,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter/foundation.dart';
 
-// L:
 var BASE_URL = 'https://app.ridewallets.com/services/index';
 // var BASE_URL = 'https://demo4.evirtualservices.net/ridewallet/services/index';
 
@@ -48,7 +47,6 @@ String? STRIPE_KEY = dotenv.env['STRIPE_KEY'];
 String? STRIPE_STATUS = dotenv.env['STRIPE_STATUS'];
 
 final Logger logger = Logger(
-  level:
-      kReleaseMode ? Level.off : Level.debug, // Disable logging in production
-  printer: PrettyPrinter(), // Customize as needed
+  level: kReleaseMode ? Level.off : Level.debug,
+  printer: PrettyPrinter(),
 );

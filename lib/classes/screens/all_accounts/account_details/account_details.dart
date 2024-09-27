@@ -2566,7 +2566,6 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
             createVirtualDebitCard();
           } else {
             debugPrint('fee deduct for physical');
-
             issueMyPhysicalDebitCard();
           }
         } else {
