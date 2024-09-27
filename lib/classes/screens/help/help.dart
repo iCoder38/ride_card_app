@@ -1,6 +1,10 @@
+import 'package:http/http.dart' as http;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
+import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/help/service/service.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
@@ -20,6 +24,9 @@ class _HelpScreenState extends State<HelpScreen> {
   GenerateTokenService apiServiceGT = GenerateTokenService();
   var helpData;
   bool screenLoader = true;
+  var stringWhatsapp = '';
+  var stringEmail = '';
+  var stringPhone = '';
   //
   @override
   void initState() {
@@ -30,13 +37,34 @@ class _HelpScreenState extends State<HelpScreen> {
 
   Future<void> fetchHelp() async {
     await helpApi().then((v) {
-      helpData = v;
+      // helpData = v;
+      if (kDebugMode) {
+        print('HELP DATA');
+        print(v);
+      }
+      stringWhatsapp = v['data']['whatsappNumber'];
+      stringEmail = v['data']['eamil'];
+      stringPhone = v['data']['phone'];
     });
     setState(() {
       screenLoader = false;
     });
     // print(responseBody);
   }
+
+  // Future<void> sendGetRequest() async {
+  //   final uri = Uri.parse(BASE_URL).replace(
+  //     queryParameters: {'action': 'help'},
+  //   );
+
+  //   final response = await http.post(uri);
+
+  //   if (response.statusCode == 200) {
+  //     print('Response body: ${response.body}');
+  //   } else {
+  //     print('Failed to load data');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -115,19 +143,19 @@ class _HelpScreenState extends State<HelpScreen> {
                           ),
                           const SizedBox(height: 8.0),
                           textFontPOOPINS(
-                            'Whatsapp: ',
+                            'Whatsapp: $stringWhatsapp',
                             Colors.white,
                             14.0,
                           ),
                           const SizedBox(height: 4.0),
                           textFontPOOPINS(
-                            'Support number: ',
+                            'Support number: $stringPhone',
                             Colors.white,
                             14.0,
                           ),
                           const SizedBox(height: 4.0),
                           textFontPOOPINS(
-                            'Email: support@',
+                            'Email: $stringEmail',
                             Colors.white,
                             14.0,
                           ),
