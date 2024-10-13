@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Ride Card App</string>
+	<string>Ride Wallet</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -28,13 +28,13 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-  	<key>NSAllowsArbitraryLoads</key>
-  	<true/>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Ride Card App would like to access your camera to upload profile image.</string>
+	<string>Ride Wallet would like to access your camera to upload profile image.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Ride Card App would like to access your camera to upload profile image.</string>
+	<string>Ride Wallet would like to access your camera to upload profile image.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

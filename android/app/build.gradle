@@ -53,7 +53,7 @@ android {
         applicationId = "com.evs.ride_card_app.prod"
         minSdk = 26
         targetSdk = 34
-        versionCode = '1'.toInteger()
+        versionCode = '3'.toInteger()
         versionName = 1.0
 
         // Enable multidex for larger apps

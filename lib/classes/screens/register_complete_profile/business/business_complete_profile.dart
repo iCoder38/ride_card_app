@@ -167,14 +167,8 @@ class _BusinessCompleteProfileScreenState
   @override
   void initState() {
     // sendBusinessApplication();
-    _fetchIPAddress();
-    super.initState();
-  }
 
-  Future<void> _fetchIPAddress() async {
-    String? ipAddress = await getIPAddress();
-    debugPrint(ipAddress);
-    storeSystemIPaddress = ipAddress.toString();
+    super.initState();
   }
 
   @override
