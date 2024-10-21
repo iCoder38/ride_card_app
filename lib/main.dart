@@ -19,12 +19,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //
 
-  debugPrint('Starting to load .env');
+  // debugPrint('Starting to load .env');
   try {
     await dotenv.load(fileName: ".env");
-    debugPrint('.env loaded successfully');
+    // debugPrint('.env loaded successfully');
   } catch (e) {
-    debugPrint('Failed to load .env: $e');
+    // debugPrint('Failed to load .env: $e');
   }
 
   // init stripe

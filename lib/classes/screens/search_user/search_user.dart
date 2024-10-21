@@ -23,6 +23,7 @@ class SearchUserScreen extends StatefulWidget {
 
 class _SearchUserScreenState extends State<SearchUserScreen> {
   //
+  String? resultFound = 's';
   var screenLoader = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
@@ -30,6 +31,7 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
   GenerateTokenService apiServiceGT = GenerateTokenService();
   final TextEditingController _contUser = TextEditingController();
   var arrAllUser = [];
+  bool isDataShow = false;
   //
   bool resultLoader = true;
   //
@@ -89,7 +91,7 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
                     controller: _contUser,
                     // keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      hintText: 'Search...',
+                      hintText: 'enter name...',
                       border: InputBorder.none,
                       filled: false,
                       contentPadding: const EdgeInsets.symmetric(
@@ -104,6 +106,10 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
                     style: GoogleFonts.poppins(
                       fontSize: 14.0,
                     ),
+                    // onChanged: (value) {
+                    //   print(value);
+                    //   _searchUser(context, value);
+                    // },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return TEXT_FIELD_EMPTY_TEXT;
@@ -150,6 +156,15 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
                 ),
               ),
             ),
+            if (resultFound == '1') ...[
+              textFontOPENSANS('', Colors.white, 14.0),
+            ] else if (resultFound == '0') ...[
+              const SizedBox(height: 40),
+              textFontOPENSANS('No result found', Colors.white, 14.0),
+            ] else if (resultFound == 's') ...[
+              textFontOPENSANS('', Colors.white, 14.0),
+            ],
+
             //
             resultLoader == true
                 ? const SizedBox()
@@ -159,12 +174,19 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
                         padding: const EdgeInsets.only(top: 16.0, left: 16.0),
                         child: Align(
                           alignment: Alignment.centerLeft,
-                          child: textFontPOOPINS(
-                            'Results',
-                            Colors.white,
-                            24.0,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          child: resultFound == '0'
+                              ? textFontPOOPINS(
+                                  '',
+                                  Colors.white,
+                                  24.0,
+                                  fontWeight: FontWeight.w600,
+                                )
+                              : textFontPOOPINS(
+                                  'Results',
+                                  Colors.white,
+                                  24.0,
+                                  fontWeight: FontWeight.w600,
+                                ),
                         ),
                       ),
                       for (int i = 0; i < arrAllUser.length; i++) ...[
@@ -197,10 +219,12 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
                                   borderRadius: BorderRadius.circular(
                                     40.0,
                                   ),
-                                  child: Image.network(
-                                    arrAllUser[i]['profile_picture'],
-                                    fit: BoxFit.fitWidth,
-                                  ),
+                                  child: arrAllUser[i]['profile_picture'] == ''
+                                      ? const SizedBox()
+                                      : Image.network(
+                                          arrAllUser[i]['profile_picture'],
+                                          fit: BoxFit.fitWidth,
+                                        ),
                                 ),
                               ),
                               title: textFontPOOPINS(
@@ -349,7 +373,7 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
 // API
   void _searchUser(context) async {
     debugPrint('API ==> SEARCH USER');
-
+    arrAllUser.clear();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // print(prefs.getString('key_save_token_locally'));
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
@@ -412,10 +436,17 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
           });
         } else {
           //
-
           arrAllUser = jsonResponse['data'];
+          if (arrAllUser.isEmpty) {
+            setState(() {
+              resultFound = '0';
+            });
+          } else {
+            setState(() {
+              resultFound = '1';
+            });
+          }
 
-          debugPrint('YEAH DONE');
           if (kDebugMode) {
             print(arrAllUser);
           }

@@ -373,9 +373,7 @@ class _CompleteProfileBusinessScreenState
                       horizontal: 10.0,
                     ),
                   ),
-                  style: GoogleFonts.poppins(
-                    fontSize: 14.0,
-                  ),
+                  style: GoogleFonts.poppins(fontSize: 14.0),
                   maxLines: 4,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
