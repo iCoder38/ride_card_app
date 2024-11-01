@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:ride_card_app/classes/common/methods/methods.dart';
+import 'package:ride_card_app/classes/common/utils/utils.dart';
 
 Future<dynamic> fetchCreditScore2({
   required String apiUrl,
@@ -46,9 +47,12 @@ Future<dynamic> fetchCreditScore2({
 
     // Convert the request body to JSON
     String requestBodyJson = json.encode(requestBody);
+    // logger.d(requestBodyJson);
 
     // Convert the API URL string to a Uri object
-    Uri uri = Uri.parse(apiUrl);
+    Uri uri = Uri.parse(
+        'https://in.staging.decentro.tech/v2/financial_services/credit_bureau/credit_report/summary');
+    // logger.d(uri);
 
     http.Response response =
         await http.post(uri, headers: headers, body: requestBodyJson);

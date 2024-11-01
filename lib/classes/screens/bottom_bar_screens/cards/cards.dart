@@ -695,7 +695,9 @@ class _CardsScreenState extends State<CardsScreen> {
                       //
                       fetchCreditScore2(
                         apiUrl:
-                            dotenv.env['CC_SCORE_BASE_URL'] ?? 'default_key',
+                            'https://in.staging.decentro.tech/v2/financial_services/credit_bureau/credit_report/summary',
+
+                        // dotenv.env['CC_SCORE_BASE_URL'] ?? 'default_key',
                         clientId:
                             dotenv.env['CC_SCORE_CLIENT_ID'] ?? 'default_key',
                         clientSecret: dotenv.env['CC_SCORE_CLIENT_SECRET'] ??
@@ -709,9 +711,7 @@ class _CardsScreenState extends State<CardsScreen> {
                         mobile: contactNumber, //"9555536396",
                         inquiryPurpose: "CC",
                         documentType: "PAN",
-                        documentId: _contPanSnn.text
-                            .toString()
-                            .toUpperCase(), //"AAICV0413H",
+                        documentId: _contPanSnn.text.toString().toUpperCase(),
                       ).then((v) {
                         //
                         if (kDebugMode) {
