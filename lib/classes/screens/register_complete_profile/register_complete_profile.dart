@@ -804,7 +804,23 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               return null;
             },
             onTap: () async {
+              DateTime eighteenYearsAgo =
+                  DateTime.now().subtract(const Duration(days: 365 * 19));
+
               DateTime? pickedDate = await showDatePicker(
+                context: context,
+                initialDate: eighteenYearsAgo,
+                firstDate: DateTime(1900),
+                lastDate: eighteenYearsAgo,
+              );
+
+              if (pickedDate != null) {
+                setState(() {
+                  _contDOB.text = "${pickedDate.toLocal()}".split(' ')[0];
+                });
+              }
+
+              /*DateTime? pickedDate = await showDatePicker(
                 context: context,
                 initialDate: DateTime.now(),
                 firstDate: DateTime(1900),
@@ -816,7 +832,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   _contDOB.text = "${pickedDate.toLocal()}"
                       .split(' ')[0]; // Format the date as you like
                 });
-              }
+              }*/
             },
           ),
         ),

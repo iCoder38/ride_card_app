@@ -450,6 +450,23 @@ class _CustomDrawerState extends State<CustomDrawer> {
             ),
             ListTile(
               leading: const Icon(
+                Icons.delete_forever,
+                color: Colors.red,
+              ),
+              title: textFontPOOPINS(
+                //
+                'Delete account',
+                Colors.red,
+                16.0,
+                fontWeight: FontWeight.w600,
+              ),
+              onTap: () async {
+                //
+                showLogout(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(
                 Icons.logout,
                 color: Colors.white,
               ),
@@ -478,6 +495,59 @@ class _CustomDrawerState extends State<CustomDrawer> {
           ],
         ),
       ),
+    );
+  }
+
+  void showLogout(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(16.0),
+          height: 200,
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(
+                child: Text(
+                  'Delete account',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Center(
+                child:
+                    Text('Your account will be deleted account permanently.'),
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    SharedPreferences prefs2 =
+                        await SharedPreferences.getInstance();
+                    prefs2.remove('key_show_cc_panel');
+                    prefs2.remove('Key_save_login_user_id');
+                    prefs2.remove('Key_save_login_profile_picture');
+                    //
+                    signOut();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const WelcomeScreen()),
+                    );
+                  },
+                  child: const Text('Delete my account'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
