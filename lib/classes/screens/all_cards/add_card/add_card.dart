@@ -5,7 +5,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ride_card_app/classes/common/stripe/generate_token/generate_token.dart';
+import 'package:ride_card_app/classes/common/tax_and_fees/card_show/sheet/alreadySavedCardSheet.dart';
+import 'package:ride_card_app/classes/common/tax_and_fees/get_price/get_price.dart';
+import 'package:ride_card_app/classes/common/tax_and_fees/get_price/model/model.dart';
 import 'package:ride_card_app/classes/screens/convenience_fee/convenience_fees.dart';
+import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
@@ -35,6 +40,10 @@ class _AddCardScreenState extends State<AddCardScreen> {
   final TextEditingController _contCardNumber = TextEditingController();
   final TextEditingController _contCardExpYear = TextEditingController();
   final TextEditingController _contCardExpMonth = TextEditingController();
+  //
+  var feesAndTaxesAmount = 0;
+  var strFeesType = '';
+  var storeStripeCustomerId = '';
   //
   @override
   Widget build(BuildContext context) {
@@ -314,11 +323,13 @@ class _AddCardScreenState extends State<AddCardScreen> {
                   // showLoadingUI(context, 'adding...');
                   //
                   // s
-                  pushToConvenienceFeeScreen(
+                  /*pushToConvenienceFeeScreen(
                     context,
                     'Add external card',
                     'addExternalDebitCard',
-                  );
+                  );*/
+                  strFeesType = 'addExternalDebitCard';
+                  fetchProfileData();
                 }
               },
               child: Container(
@@ -349,7 +360,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
 
   // API
   void _addCardInEvsServer(context) async {
-    debugPrint('API ==> ADD CARD');
+    // debugPrint('API ==> ADD CARD');
     showLoadingUI(context, 'please wait...');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
@@ -440,6 +451,201 @@ class _AddCardScreenState extends State<AddCardScreen> {
     //
     customToast(message, Colors.green, ToastGravity.TOP);
     Navigator.pop(context);
+  }
+
+  Future<void> fetchProfileData() async {
+    showLoadingUI(context, 'Please wait...');
+    await sendRequestToProfileDynamic().then((v) {
+      if (kDebugMode) {
+        print('=====================================');
+        print('Stripe Mode is: ====> $STRIPE_STATUS');
+        print('=====================================');
+      }
+
+      if (STRIPE_STATUS == 'T') {
+        storeStripeCustomerId = v['data']['stripe_customer_id_Test'];
+      } else {
+        storeStripeCustomerId = v['data']['stripe_customer_id_Live'];
+      }
+      // logger.d(v);
+      logger.d(storeStripeCustomerId);
+
+      if (storeStripeCustomerId == '') {
+        debugPrint('There is no stripe customer key created');
+      }
+
+      // Logger().d(storeStripeToken);
+      // Logger().d(v);
+    });
+    getFeesAndTaxes();
+  }
+
+  void getFeesAndTaxes() async {
+    ApiServiceToGetFeesAndTaxes apiService = ApiServiceToGetFeesAndTaxes();
+
+    List<FeeData>? feeList = await apiService.fetchFeesAndTaxes();
+
+    if (feeList != null) {
+      for (var fee in feeList) {
+        if (kDebugMode) {
+          print(
+            'ID: ${fee.id}, Name: ${fee.name}, Type: ${fee.type}, Amount: ${fee.amount}',
+          );
+        }
+        if (strFeesType == fee.name) {
+          debugPrint('===================');
+          debugPrint('Yes, fee type found');
+          debugPrint('===================');
+          feesAndTaxesAmount = int.parse(fee.amount.toString());
+        } else {
+          debugPrint('===================');
+          debugPrint('No, fee type found');
+          debugPrint('===================');
+          feesAndTaxesAmount = 0;
+        }
+        /*if (fee.name == widget.feeType) {
+          if (fee.type == TAX_TYPE_PERCENTAGE) {
+            feesAndTaxesType = fee.type.toString();
+            feesAndTaxesAmount = double.parse(fee.amount.toString());
+            showConvenienceFeesOnPopup = (feesAndTaxesAmount * 10) / 100;
+            totalAmountAfterCalculateFee = (feesAndTaxesAmount * 10) / 100;
+          } else {
+            debugPrint(fee.type);
+            feesAndTaxesType = fee.type.toString();
+            feesAndTaxesAmount = double.parse(fee.amount.toString());
+            showConvenienceFeesOnPopup = feesAndTaxesAmount;
+            totalAmountAfterCalculateFee = feesAndTaxesAmount;
+          }
+        }*/
+      }
+      debugPrint('===================');
+      debugPrint('Fee amount is: ====> $feesAndTaxesAmount');
+      debugPrint('===================');
+      if (feesAndTaxesAmount == 0) {
+        debugPrint('====================================');
+        debugPrint('===== BY PASS WITHOUT CONV FEE =====');
+        debugPrint('====================================');
+        validateCard();
+      } else {
+        debugPrint('====================================');
+        debugPrint('======= DEDUCT CONV FEE ============');
+        debugPrint('====================================');
+        validateCard();
+      }
+      /*if (feesAndTaxesType == TAX_TYPE_PERCENTAGE) {
+        String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
+        showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
+        // FEES CALCULATOR
+        calculateFeesAndReturnValue();
+      } else {
+        String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
+        showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
+        fetchAndCheckSavedCard(context);
+      }*/
+    } else {
+      if (kDebugMode) {
+        print('Failed to retrieve fee data.');
+      }
+    }
+  }
+
+  validateCard() {
+    if (_contCardHolderName.text == '') {
+      exceptionAlert('Name');
+      return;
+    }
+    if (_contCardNumber.text == '') {
+      exceptionAlert('Number');
+      return;
+    }
+    if (_contCardExpMonth.text == '') {
+      exceptionAlert('Month');
+      return;
+    }
+    if (_contCardExpYear.text == '') {
+      exceptionAlert('Year');
+      return;
+    } else {
+      debugPrint('===============================================');
+      debugPrint('======= CARD VALIDATE SUCCESSFULLY ============');
+      debugPrint('===============================================');
+      final cardDetails = SavedCardDetails(
+        cardNumber: _contCardNumber.text.toString(),
+        cardholderName: _contCardHolderName.text,
+        expMonth: _contCardExpMonth.text.toString(),
+        expYear: _contCardExpYear.text.toString(),
+        cvv: '123'.toString(),
+      );
+      if (kDebugMode) {
+        print(cardDetails.cardNumber);
+        print(_contCardHolderName.text);
+        print(cardDetails.expMonth);
+        print(cardDetails.expYear);
+        print(cardDetails.cvv);
+      }
+      //
+      if (storeStripeCustomerId == '') {
+        debugPrint('There is no stripe customer key created');
+        // _registerCustomerInStripe(
+        //   number,
+        //   month,
+        //   year,
+        //   cvv,
+        // );
+        handleStripeTokenCreation(cardDetails);
+        /*final newStripeToken = createStripeToken(
+          cardNumber: cardDetails.cardNumber,
+          expMonth: cardDetails.expMonth,
+          expYear: cardDetails.expYear,
+          cvc: cardDetails.cvv,
+        ).then((v) {
+          if (v == false) {}
+        });
+
+        if (newStripeToken['success:'] == '') {}*/
+
+        // Use the token for further processing, such as making a payment
+        // if (kDebugMode) {
+        //   print(newStripeToken);
+        // }
+      }
+    }
+  }
+
+  void handleStripeTokenCreation(cardDetails) async {
+    final result = await createStripeToken(
+      cardNumber: cardDetails.cardNumber,
+      expMonth: cardDetails.expMonth,
+      expYear: cardDetails.expYear,
+      cvc: cardDetails.cvv,
+    );
+
+    if (result['success'] == true) {
+      if (kDebugMode) {
+        print('Token ID: ${result['tokenId']}');
+      }
+    } else {
+      if (kDebugMode) {
+        print('Error: ${result['message']}');
+      }
+      Navigator.pop(context);
+      dismissKeyboard(context);
+      customToast(
+        result['message'],
+        Colors.redAccent,
+        ToastGravity.BOTTOM,
+      );
+    }
+  }
+
+  exceptionAlert(String title) {
+    dismissKeyboard(context);
+    Navigator.pop(context);
+    customToast(
+      '$title should not be empty',
+      Colors.redAccent,
+      ToastGravity.BOTTOM,
+    );
   }
 
   Future<void> pushToConvenienceFeeScreen(

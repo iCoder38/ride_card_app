@@ -89,13 +89,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 
-Future<String?> createStripeToken({
+Future<Map<String, dynamic>> createStripeToken({
   required String cardNumber,
   required String expMonth,
   required String expYear,
   required String cvc,
 }) async {
   try {
+    // Set up card details and parameters for the token
     CardTokenParams cardParams = CardTokenParams(
       type: TokenType.Card,
       name: loginUserName(),
@@ -118,10 +119,19 @@ Future<String?> createStripeToken({
     if (kDebugMode) {
       print('Token created: ${token.id}');
     }
-    return token.id;
+
+    // Return success with the token ID
+    return {
+      'success': true,
+      'tokenId': token.id,
+    };
   } on StripeException catch (e) {
-    // Handle the error
+    // Handle the error by returning a message
     print('Error creating token: ${e.error.message}');
-    return null;
+    return {
+      'success': false,
+      'message':
+          e.error.message ?? 'An error occurred while creating the token.',
+    };
   }
 }

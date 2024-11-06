@@ -79,6 +79,12 @@ class _ConvenienceFeesChargesScreenState
       if (kDebugMode) {
         //  print(v);
       }
+      if (kDebugMode) {
+        print('=============================');
+        print(STRIPE_STATUS);
+        print('=============================');
+      }
+
       if (STRIPE_STATUS == 'T') {
         storeStripeCustomerId = v['data']['stripe_customer_id_Test'];
       } else {
@@ -86,8 +92,8 @@ class _ConvenienceFeesChargesScreenState
       }
       logger.d(v);
       logger.d(storeStripeCustomerId);
-      // Logger().d(storeStripeToken);
 
+      // Logger().d(storeStripeToken);
       // Logger().d(v);
     });
     getFeesAndTaxes();
@@ -869,7 +875,7 @@ widget.feeType == 'addExternalDebitCard'
     year,
     cvv,
   ) async {
-    debugPrint('API ==> REGISTER CUSTOMER IN STRIPE');
+    debugPrint('API ==> REGISTER CUSTOMER IN STRIPE 3');
     //
     // showLoadingUI(context, 'please wait...');
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -970,11 +976,20 @@ widget.feeType == 'addExternalDebitCard'
     var userId = prefs.getString('Key_save_login_user_id').toString();
     var roleIs = '';
     roleIs = prefs.getString('key_save_user_role').toString();
-    final parameters = {
-      'action': 'editProfile',
-      'userId': userId,
-      'stripe_customer_id_Test': customerId,
-    };
+    final parameters;
+    if (STRIPE_STATUS == 'T') {
+      parameters = {
+        'action': 'editProfile',
+        'userId': userId,
+        'stripe_customer_id_Test': customerId,
+      };
+    } else {
+      parameters = {
+        'action': 'editProfile',
+        'userId': userId,
+        'stripe_customer_id_Live': customerId,
+      };
+    }
     if (kDebugMode) {
       print(parameters);
     }
