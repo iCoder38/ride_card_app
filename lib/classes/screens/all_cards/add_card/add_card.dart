@@ -47,7 +47,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
   final TextEditingController _contCardExpMonth = TextEditingController();
   final TextEditingController _contCVV = TextEditingController();
   //
-  var feesAndTaxesAmount = 0;
+  var feesAndTaxesAmount = 0.0;
   var strFeesType = '';
   var storeStripeCustomerId = '';
   var storeStripeToken = '';
@@ -533,7 +533,12 @@ class _AddCardScreenState extends State<AddCardScreen> {
       logger.d('Stripe customer id: ==> $storeStripeCustomerId');
 
       if (storeStripeCustomerId == '') {
-        debugPrint('There is no stripe customer key created');
+        if (kDebugMode) {
+          print('=============================================');
+          debugPrint('There is no stripe customer key created');
+          print('=============================================');
+        }
+        getFeesAndTaxes();
       } else {
         getFeesAndTaxes();
       }
@@ -554,7 +559,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
         }
 
         if (strFeesType.toString() == fee.name.toString()) {
-          feesAndTaxesAmount = int.parse(fee.amount.toString());
+          feesAndTaxesAmount = double.parse(fee.amount.toString());
         }
       }
       debugPrint('========================');
@@ -572,16 +577,6 @@ class _AddCardScreenState extends State<AddCardScreen> {
         debugPrint('====================================');
         validateCard();
       }
-      /*if (feesAndTaxesType == TAX_TYPE_PERCENTAGE) {
-        String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
-        showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
-        // FEES CALCULATOR
-        calculateFeesAndReturnValue();
-      } else {
-        String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
-        showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
-        fetchAndCheckSavedCard(context);
-      }*/
     } else {
       if (kDebugMode) {
         print('Failed to retrieve fee data.');
@@ -626,14 +621,13 @@ class _AddCardScreenState extends State<AddCardScreen> {
       //
       if (storeStripeCustomerId == '') {
         debugPrint('There is no stripe customer key created');
-        //handleStripeTokenCreation(cardDetails);
+        handleStripeTokenCreation(cardDetails);
       } else {
         debugPrint(
           'Bypass fees <==> Yes, there is stripe custom key. Now add card directly without fee and all',
         );
         isByPass = true;
         handleStripeTokenCreation(cardDetails);
-        //
       }
     }
   }
@@ -714,20 +708,11 @@ class _AddCardScreenState extends State<AddCardScreen> {
     debugPrint('API ==> REGISTER CUSTOMER IN STRIPE 3');
     //
     // showLoadingUI(context, 'please wait...');
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    /*SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
     var roleIs = '';
     roleIs = prefs.getString('key_save_user_role').toString();
-
-    /*final newStripeToken = await createStripeToken(
-        cardNumber: number.toString(),
-        expMonth: month.toString(),
-        expYear: year.toString(),
-        cvc: cvv.toString());
-
-    // Use the token for further processing, such as making a payment
-    logger.d(newStripeToken);*/
 
     final parameters = {
       'action': 'customer',
@@ -748,14 +733,20 @@ class _AddCardScreenState extends State<AddCardScreen> {
       }
       //
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      debugPrint('one');
       String successStatus = jsonResponse['status'];
       String successMessage = jsonResponse['msg'];
-      String customerIdIs = jsonResponse['customer_id'];
+      String customerIdIs = '';
+      if (successStatus == 'Fails') {
+      } else {
+        customerIdIs = jsonResponse['customer_id'];
+      }
 
-      if (kDebugMode) {
+      debugPrint('two');
+      /*if (kDebugMode) {
         print('STATUS ==> $successStatus');
         print(successMessage);
-      }
+      }*/
 
       if (response.statusCode == 200) {
         debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
@@ -799,6 +790,76 @@ class _AddCardScreenState extends State<AddCardScreen> {
       if (kDebugMode) {
         print(error);
       }
+    }*/
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
+    final parameters;
+
+    parameters = {
+      'action': 'customer',
+      'userId': userId,
+      'name': loginUserName(),
+      'email': loginUserEmail(),
+      'tokenID': stripeToken.toString()
+    };
+
+    if (kDebugMode) {
+      print(parameters);
+    }
+    // return;
+
+    try {
+      final response = await _apiService2.stripePostRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+      String customerIdIs = '';
+      if (successStatus == 'Fails') {
+      } else {
+        customerIdIs = jsonResponse['customer_id'];
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          _apiServiceGT
+              .generateToken(
+            userId,
+            FirebaseAuth.instance.currentUser!.email,
+            roleIs.toString(),
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            _registerCustomerInStripe(
+              number,
+              month,
+              year,
+              cvv,
+              stripeToken,
+            );
+          });
+        } else {
+          // edit customer id in evs
+          editAfterCreateStripeCustomer(context, customerIdIs);
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      // print(error);
     }
   }
 
@@ -842,10 +903,10 @@ class _AddCardScreenState extends State<AddCardScreen> {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       String successStatus = jsonResponse['status'];
       String successMessage = jsonResponse['msg'];
-      if (kDebugMode) {
+      /*if (kDebugMode) {
         print('STATUS ==> $successStatus');
         print(successMessage);
-      }
+      }*/
 
       if (response.statusCode == 200) {
         debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
@@ -868,7 +929,9 @@ class _AddCardScreenState extends State<AddCardScreen> {
           });
         } else {
           //
-          createStripeCustomerAccount(customerId);
+          Navigator.pop(context);
+          fetchProfileData();
+          //  createStripeCustomerAccount(customerId);
         }
       } else {
         customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
@@ -979,7 +1042,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
       print('CONVENIENCE FEES IS: ====> $amount');
       print('===================================');
     }
-    var intAmount = int.parse(amount.toString());
+    var intAmount = double.parse(amount.toString());
     final response = await stripeService.chargeMoneyFromStripeAfterGettingToken(
       amount: double.parse(intAmount.toString()),
       stripeCardToken: token,

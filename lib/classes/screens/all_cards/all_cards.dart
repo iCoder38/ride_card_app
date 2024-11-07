@@ -102,10 +102,14 @@ class _AllCardsScreenState extends State<AllCardsScreen> {
                   onPressed: () {
                     //
 
-                    pushToConvenienceFeeScreen(
+                    /*pushToConvenienceFeeScreen(
                       context,
                       'Delete card',
                       'deleteExternalDebitCard',
+                      arrAllCards[i]['cardId'].toString(),
+                    );*/
+                    _deleteCard(
+                      context,
                       arrAllCards[i]['cardId'].toString(),
                     );
                   },
