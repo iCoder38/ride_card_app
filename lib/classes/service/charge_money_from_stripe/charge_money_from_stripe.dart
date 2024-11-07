@@ -37,6 +37,9 @@ class ChargeMoneyStripeService {
       amount: doubleParse,
       tokenID: stripeCardToken.toString(),
     );
+    if (kDebugMode) {
+      print(chargeRequest);
+    }
 
     // Encode request as JSON
     String jsonBody = json.encode(chargeRequest.toJson());
