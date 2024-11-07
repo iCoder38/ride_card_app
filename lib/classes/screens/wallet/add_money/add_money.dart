@@ -746,8 +746,6 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                     addMoneyViaUnit(firstValue);
                   } else {
                     debugPrint('STRIPE PAYMENT 1');
-
-                    // _addMoney(context, firstValue, 'dummy_1');
                   }
                 },
                 child: const Text('Submit'),
@@ -1182,9 +1180,9 @@ transactionId:
       // return token.id;
     } on StripeException catch (e) {
       // Utils.errorSnackBar(e.error.message);
-      if (kDebugMode) {
+      /*if (kDebugMode) {
         print("Flutter Stripe error ${e.error.message}");
-      }
+      }*/
       Navigator.pop(context);
       customToast(
         '${e.error.message}',
