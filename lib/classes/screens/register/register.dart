@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ride_card_app/classes/SquareAPIs/repositories/repositories.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/hive/hive.dart';
@@ -17,6 +18,7 @@ import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/register_complete_profile/register_complete_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
+import 'package:uuid/uuid.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -42,7 +44,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     debugPrint(widget.strProfileIs);
+    // dummyCreate();
     super.initState();
+  }
+
+  dummyCreate() async {
+    final SquareRepository squareRepository = SquareRepository();
+
+    try {
+      final customer = await squareRepository.addCustomer(
+        birthday: "1992-06-06",
+        emailAddress: "ios1@gmail.com",
+        familyName: "Rajput",
+        idempotencyKey: const Uuid().v4(),
+        givenName: "Dishant",
+      );
+      print('Customer created: $customer');
+    } catch (error) {
+      print('Failed to create customer: $error');
+    }
+    /*try {
+      final customer = await squareRepository.addCustomer(
+        givenName: "Amelia",
+        familyName: "Earhart",
+        emailAddress: "Amelia.Earhart@example.com",
+        addressLine1: "500 Electric Ave",
+        addressLine2: "Suite 600",
+        locality: "New York",
+        adminDistrict: "NY",
+        postalCode: "10003",
+        country: "US",
+        phoneNumber: "+1-212-555-4240",
+        referenceId: "YOUR_REFERENCE_ID",
+        note: "a customer",
+      );
+      print('Customer created: $customer');
+    } catch (error) {
+      print('Failed to create customer: $error');
+    }*/
   }
 
   @override

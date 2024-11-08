@@ -1,3 +1,3 @@
 class Endpoints {
-  String endPointCreateCustomer = 'customer';
+  String endPointCreateCustomer = 'customers';
 }

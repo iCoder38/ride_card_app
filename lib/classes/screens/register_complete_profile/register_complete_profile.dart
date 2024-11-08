@@ -1259,7 +1259,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         print('*******************************');
         print(response.statusCode);
         print(response.body);
-        print('*******************************');
+        print('********************************');
       }
       if (response.statusCode == 201) {
         // If the server returns a 200 OK response, parse the JSON
@@ -1354,7 +1354,33 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   }
 
   createCustomerInSquare(generateUUID) async {
+    debugPrint('=============================================');
+    debugPrint('======== SQUARE CUSTOMER ==============');
+    debugPrint('=============================================');
+
     final SquareRepository squareRepository = SquareRepository();
+
+    try {
+      final customer = await squareRepository.addCustomer(
+        birthday: _contDOB.text.toString(),
+        emailAddress: widget.getEmail.toString(),
+        familyName: widget.getLastName.toString(),
+        idempotencyKey: generateUUID,
+        givenName: widget.getFirstName.toString(),
+      );
+      if (kDebugMode) {
+        print('Customer created: $customer');
+      }
+      _sendRequestToCompleteProfile(customer['id'].toString());
+    } catch (error) {
+      if (kDebugMode) {
+        print('Failed to create customer: $error');
+      }
+      Navigator.pop(context);
+      customToast(error.toString(), Colors.redAccent, ToastGravity.TOP);
+    }
+
+    /*final SquareRepository squareRepository = SquareRepository();
 
     try {
       final customer = await squareRepository.addCustomer(
@@ -1367,20 +1393,42 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       if (kDebugMode) {
         print('Customer created: $customer');
       }
+      _sendRequestToCompleteProfile();
     } catch (error) {
       if (kDebugMode) {
         print('Failed to create customer: $error');
       }
-    }
-    _sendRequestToCompleteProfile();
+      Navigator.pop(context);
+      customToast(error.toString(), Colors.redAccent, ToastGravity.TOP);
+    }*/
+    /*final SquareRepository squareRepository = SquareRepository();
+
+    try {
+      final customer = await squareRepository.addCustomer(
+        givenName: "Amelia",
+        familyName: "Earhart",
+        emailAddress: "Amelia.Earhart@example.com",
+        addressLine1: "500 Electric Ave",
+        addressLine2: "Suite 600",
+        locality: "New York",
+        adminDistrict: "NY",
+        postalCode: "10003",
+        country: "US",
+        phoneNumber: "+1-212-555-4240",
+        referenceId: "YOUR_REFERENCE_ID",
+        note: "a customer",
+      );
+      print('Customer created: $customer');
+    } catch (error) {
+      print('Failed to create customer: $error');
+    }*/
   }
 
-// API
-  void _sendRequestToCompleteProfile() async {
-    debugPrint(
-        '===============================================================');
-    debugPrint(
-        '============= API: COMPLETE PROFILE ===========================');
+  // API
+  void _sendRequestToCompleteProfile(String squareCustomerId) async {
+    debugPrint('=============================================');
+    debugPrint('======== API: COMPLETE PROFILE ==============');
+    debugPrint('=============================================');
 
     var box = await Hive.openBox<MyData>('myBox1');
     // var myData = box.getAt(0);
@@ -1405,7 +1453,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       'address': _contAddress.text.toString(),
       'occupation': _contOccupation.text.toString(),
       'key_data': UUID_KEY_FOR_REGISTRATION,
-      'firebaseId': '',
+      'firebaseId': squareCustomerId.toString(),
       'customerId': createdCustomerId,
     };
     if (kDebugMode) {
@@ -1445,7 +1493,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               print('TOKEN ==> $v');
             }
             // again click
-            _sendRequestToCompleteProfile();
+            _sendRequestToCompleteProfile(squareCustomerId);
           });
         } else {
           //
@@ -1465,7 +1513,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
       }
     } catch (error) {
-      print(error);
+      if (kDebugMode) {
+        print(error);
+      }
     }
   }
 
