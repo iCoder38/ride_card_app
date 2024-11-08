@@ -433,12 +433,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (response.statusCode == 200) {
         debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
-        //
-        // Map<String, dynamic> data = jsonResponse['data'];
-        // SharedPreferences prefs2 = await SharedPreferences.getInstance();
-        // prefs2.setString('Key_save_login_user_id', data['userId'].toString());
-        //
-        //
+
         if (successStatus == 'Fails') {
           dismissKeyboard(context);
           Navigator.pop(context);

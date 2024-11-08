@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
+import 'package:ride_card_app/classes/SquareAPIs/repositories/repositories.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/hive/hive.dart';
@@ -1299,7 +1300,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
             Colors.redAccent,
             ToastGravity.BOTTOM,
           );
-          _sendRequestToCompleteProfile();
+          createCustomerInSquare(UUID_KEY_FOR_REGISTRATION);
         } else {
           debugPrint('======> APPROVED <=======');
           // if (kDebugMode) {
@@ -1308,7 +1309,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           createdCustomerId = jsonData['data']['relationships']['customer']
                   ['data']['id']
               .toString();
-          _sendRequestToCompleteProfile();
+          // _sendRequestToCompleteProfile();
+          createCustomerInSquare(UUID_KEY_FOR_REGISTRATION);
         }
 
         //
@@ -1349,6 +1351,28 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         ToastGravity.TOP,
       );
     }
+  }
+
+  createCustomerInSquare(generateUUID) async {
+    final SquareRepository squareRepository = SquareRepository();
+
+    try {
+      final customer = await squareRepository.addCustomer(
+        idempotencyKey: generateUUID,
+        givenName: widget.getFirstName.toString(),
+        familyName: widget.getLastName.toString(),
+        emailAddress: widget.getEmail.toString(),
+        birthday: _contDOB.text.toString(),
+      );
+      if (kDebugMode) {
+        print('Customer created: $customer');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Failed to create customer: $error');
+      }
+    }
+    _sendRequestToCompleteProfile();
   }
 
 // API
