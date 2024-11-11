@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -22,6 +23,7 @@ Future<String?> createBankAccountTokenAPI({
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: {
+      // 'bank_account[bank_name]': 'rajputana 12345',
       'bank_account[account_number]': accountNumber,
       'bank_account[country]': country,
       'bank_account[currency]': currency,
@@ -35,7 +37,9 @@ Future<String?> createBankAccountTokenAPI({
     final responseData = json.decode(response.body);
     return responseData['id'];
   } else {
-    print('Failed to create bank account token: ${response.body}');
+    if (kDebugMode) {
+      print('Failed to create bank account token: ${response.body}');
+    }
     return null;
   }
 }
@@ -60,5 +64,5 @@ Future<http.Response> attachBankAccountToCustomerAPI({
     },
   );
 
-  return response; // Return the response
+  return response;
 }

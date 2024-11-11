@@ -7,6 +7,8 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/screens/all_cards/add_card/add_card.dart';
 import 'package:ride_card_app/classes/screens/all_cards/all_cards.dart';
+import 'package:ride_card_app/classes/screens/bank/add.dart';
+import 'package:ride_card_app/classes/screens/bank/list.dart';
 import 'package:ride_card_app/classes/screens/bank_to_bank/bank_to_bank.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/change_password/change_password.dart';
@@ -231,6 +233,24 @@ class _CustomDrawerState extends State<CustomDrawer> {
             ),
             ListTile(
               leading: const Icon(
+                Icons.account_balance,
+                color: Colors.white,
+              ),
+              title: textFontPOOPINS(
+                'Bank accounts',
+                Colors.white,
+                16.0,
+              ),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AllBanksScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(
                 Icons.calendar_view_day_sharp,
                 color: Colors.white,
               ),
@@ -328,6 +348,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 );
               },
             ),
+
             ListTile(
               leading: const Icon(
                 Icons.wallet,
