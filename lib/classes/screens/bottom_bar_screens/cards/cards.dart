@@ -58,6 +58,7 @@ class _CardsScreenState extends State<CardsScreen> {
       'https://api.equifax.com/personal/consumer-data-suite/v1/creditReport'; // Replace with the actual Equifax API endpoint
   String creditScore = 'Fetching credit score...';
   //
+  bool screenLoader = true;
   var showCCPanel = '';
   var storeStripeCustomerId = 'cus_RCGgHxJvbMHQzB';
   //
@@ -114,8 +115,15 @@ class _CardsScreenState extends State<CardsScreen> {
             '${v["data"]["fullName"]} ${v["data"]["lastName"]}',
             v["data"]["email"].toString(),
           );*/
+          logger.d('No, Stripe customer account.');
+        } else {
+          storeStripeCustomerId =
+              v["data"]["stripe_customer_id_Live"].toString();
+          setState(() {
+            screenLoader = false;
+          });
         }
-        storeStripeCustomerId = v["data"]["stripe_customer_id_Live"].toString();
+
         // addBankAccount('${v["data"]["fullName"]} ${v["data"]["lastName"]}');
       }
     });
@@ -143,7 +151,7 @@ class _CardsScreenState extends State<CardsScreen> {
     }
   }
 
-  Future<void> addBankAccount(String accountHolderName) async {
+  /*Future<void> addBankAccount(String accountHolderName) async {
     try {
       final bankAccountToken = await createBankAccountTokenAPI(
         accountNumber: '000123456789',
@@ -200,7 +208,7 @@ class _CardsScreenState extends State<CardsScreen> {
         ),
       );
     }
-  }
+  }*/
 
   void editAfterCreateStripeCustomer(
     context,
@@ -302,7 +310,7 @@ class _CardsScreenState extends State<CardsScreen> {
 
   Future<void> createCustomer() async {
     // Replace with the customer's email
-    String? customerId = await createStripeCustomer('purnimaevs@gmail.com');
+    /*String? customerId = await createStripeCustomer('purnimaevs@gmail.com');
 
     if (customerId != null) {
       if (kDebugMode) {
@@ -312,11 +320,11 @@ class _CardsScreenState extends State<CardsScreen> {
       if (kDebugMode) {
         print('Failed to create Stripe customer.');
       }
-    }
+    }*/
   }
 
   attachBankAccountWithCustomerId() {
-    final addBankResponse = attachBankAccountToCustomer(
+    /*final addBankResponse = attachBankAccountToCustomer(
       'cus_QrPRXhqZC28tsQ',
       'btok_1PzgVlCc4YwUErYBvILqyyLj',
     );
@@ -324,7 +332,7 @@ class _CardsScreenState extends State<CardsScreen> {
     if (kDebugMode) {
       print(addBankResponse);
       logger.d(addBankResponse);
-    }
+    }*/
   }
 
   checkIsUserHaveAWallet(customerId) async {
@@ -382,7 +390,9 @@ class _CardsScreenState extends State<CardsScreen> {
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: _UIKitCardsAfterBG(context),
+        child: screenLoader == true
+            ? const SizedBox()
+            : _UIKitCardsAfterBG(context),
       ),
     );
   }

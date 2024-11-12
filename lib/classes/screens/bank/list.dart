@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -10,6 +11,7 @@ import 'package:ride_card_app/classes/StripeAPIs/bank_details.dart';
 import 'package:ride_card_app/classes/StripeAPIs/check_account_balance.dart';
 import 'package:ride_card_app/classes/StripeAPIs/check_account_requirements.dart';
 import 'package:ride_card_app/classes/StripeAPIs/create_customer.dart';
+import 'package:ride_card_app/classes/StripeAPIs/get_connected_bank_balance.dart';
 import 'package:ride_card_app/classes/StripeAPIs/link_bank_account.dart';
 import 'package:ride_card_app/classes/StripeAPIs/update_account_info.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
@@ -31,7 +33,7 @@ class AllBanksScreen extends StatefulWidget {
 }
 
 class _AllBanksScreenState extends State<AllBanksScreen> {
-  var screenLoader = true;
+  var screenLoader = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   final ApiService _apiService = ApiService();
@@ -42,8 +44,31 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
   @override
   void initState() {
     fetchProfileData();
-
+    // checkBalance();
     super.initState();
+  }
+
+  void checkBalance() async {
+    String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+    String connectedAccountId = "acct_1QJykvERnsh89gxe";
+
+    final balanceData =
+        await getConnectedAccountBalance(connectedAccountId, apiKey);
+
+    if (balanceData != null) {
+      print("Connected Account Balance:");
+      print("Available:");
+      for (var balance in balanceData['available']) {
+        print(balance);
+        print(" - Amount: ${balance['amount']} ${balance['currency']}");
+      }
+      print("Pending:");
+      for (var balance in balanceData['pending']) {
+        print(" - Amount: ${balance['amount']} ${balance['currency']}");
+      }
+    } else {
+      print("Failed to retrieve the balance.");
+    }
   }
 
   Future<void> fetchProfileData() async {
@@ -182,7 +207,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
   }
 
   void fetchAndDisplayBankAccounts() async {
-    final bankAccounts = await getCustomerBankAccountsAPI(
+    /*final bankAccounts = await getCustomerBankAccountsAPI(
       storeStripeCustomerId,
     );
 
@@ -213,7 +238,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
           backgroundColor: Colors.red,
         ),
       );
-    }
+    }*/
   }
 
   @override

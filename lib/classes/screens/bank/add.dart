@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,6 +17,7 @@ import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class AddBankScreen extends StatefulWidget {
   const AddBankScreen({super.key});
@@ -349,7 +351,21 @@ class _AddBankScreenState extends State<AddBankScreen> {
 
   //
   Future<void> addBankAccount() async {
-    try {
+    var id = const Uuid().v4().toString();
+    FirebaseFirestore.instance
+        .collection(
+          'RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS',
+        )
+        .doc(id)
+        .set(
+      {
+        'id': id,
+        'bankAccountNumber': _contAccountNumber.text.toString(),
+        'bankRoutingNumber': _contRoutingNumber.text.toString(),
+        'userId': loginUserId(),
+      },
+    );
+    /*try {
       final bankAccountToken = await createBankAccountTokenAPI(
         accountNumber: _contAccountNumber.text.toString(),
         country: 'US',
@@ -413,6 +429,6 @@ class _AddBankScreenState extends State<AddBankScreen> {
           backgroundColor: Colors.red,
         ),
       );
-    }
+    }*/
   }
 }

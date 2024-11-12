@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
+import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
@@ -28,6 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _contEmail = TextEditingController();
   final TextEditingController _contPassword = TextEditingController();
   bool evsRegistered = false;
+  final TextEditingController _textController = TextEditingController();
   //
   @override
   void initState() {
@@ -257,11 +259,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   14.0,
                   fontWeight: FontWeight.w600,
                 ),
-                textFontPOOPINS(
-                  'Click here',
-                  hexToColor(appORANGEcolorHexCode),
-                  14.0,
-                  fontWeight: FontWeight.w600,
+                GestureDetector(
+                  onTap: () {
+                    logger.d('forgot password');
+                    _showBottomSheet(context);
+                  },
+                  child: textFontPOOPINS(
+                    'Click here',
+                    hexToColor(appORANGEcolorHexCode),
+                    14.0,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -272,6 +280,116 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void _showBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16.0,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _textController,
+                decoration: InputDecoration(labelText: 'Enter text here'),
+              ),
+              SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(
+                      context,
+                      _textController.text,
+                    ); // Pass the text back
+                  },
+                  child: Text('Submit'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    ).then((value) {
+      // This runs when the bottom sheet is closed
+      if (value != null && value.isNotEmpty) {
+        /*ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('You typed: $value')),
+        );*/
+        dismissKeyboard(context);
+        showLoadingUI(context, 'please wait...');
+        _sendToForgotPassword(context);
+      }
+    });
+  }
+
+  void _sendToForgotPassword(context) async {
+    debugPrint('API ==> LOGIN');
+
+    final parameters = {
+      'action': 'forgotpassword',
+      'email': _textController.text,
+    };
+
+    if (kDebugMode) {
+      print(parameters);
+    }
+    // return;
+    try {
+      final response = await _apiService.postRequest(parameters, '');
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+
+      if (response.statusCode == 200) {
+        debugPrint('LOGIN: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == 'Email or password is wrong.') {
+          //
+          Navigator.pop(context);
+          customToast(successMessage, Colors.red, ToastGravity.TOP);
+        } else {
+          //
+          if (successStatus == 'success') {
+            Navigator.pop(context);
+            customToast(
+              successMessage,
+              Colors.green,
+              ToastGravity.BOTTOM,
+            );
+          } else if (successStatus == 'Fails') {
+            Navigator.pop(context);
+            customToast(
+              successMessage,
+              Colors.red,
+              ToastGravity.BOTTOM,
+            );
+          } else {
+            customToast(
+              'Something went wrong with server',
+              Colors.red,
+              ToastGravity.TOP,
+            );
+          }
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      // print(error);
+    }
   }
 
   void _sendToLogin(context) async {

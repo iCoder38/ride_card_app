@@ -521,6 +521,16 @@ class _AddCardScreenState extends State<AddCardScreen> {
         print('Stripe Mode is: ====> $v');
         print('=====================================');
       }
+      if (v == null) {
+        dismissKeyboard(context);
+        Navigator.pop(context);
+        customToast(
+          'Something went wrong. Please try after sometime.',
+          Colors.red,
+          ToastGravity.BOTTOM,
+        );
+        return;
+      }
 
       // storeCustomerId = v['data']['customerId'];
 
@@ -538,7 +548,13 @@ class _AddCardScreenState extends State<AddCardScreen> {
           debugPrint('There is no stripe customer key created');
           print('=============================================');
         }
-        getFeesAndTaxes();
+        // getFeesAndTaxes();
+        Navigator.pop(context);
+        customToast(
+          'Account key is invalid. Please try again after sometime.',
+          Colors.red,
+          ToastGravity.BOTTOM,
+        );
       } else {
         getFeesAndTaxes();
       }
@@ -619,7 +635,9 @@ class _AddCardScreenState extends State<AddCardScreen> {
         print(cardDetails.cvv);
       }
       //
-      if (storeStripeCustomerId == '') {
+      isByPass = true;
+      handleStripeTokenCreation(cardDetails);
+      /*if (storeStripeCustomerId == '') {
         debugPrint('There is no stripe customer key created');
         handleStripeTokenCreation(cardDetails);
       } else {
@@ -628,7 +646,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
         );
         isByPass = true;
         handleStripeTokenCreation(cardDetails);
-      }
+      }*/
     }
   }
 
@@ -645,6 +663,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
         print('Token ID: ${result['tokenId']}');
       }
 
+      logger.d(feesAndTaxesAmount);
       if (isByPass == true) {
         if (feesAndTaxesAmount != 0) {
           processPayment(
