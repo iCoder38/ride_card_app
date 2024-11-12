@@ -612,14 +612,14 @@ class _AddCardScreenState extends State<AddCardScreen> {
         ToastGravity.BOTTOM,
       );
       if (feesAndTaxesAmount == 0 || feesAndTaxesAmount == 0.0) {
-        debugPrint('====================================');
+        /* debugPrint('====================================');
         debugPrint('===== BY PASS WITHOUT CONV FEE =====');
-        debugPrint('====================================');
+        debugPrint('====================================');*/
         validateCard();
       } else {
-        debugPrint('====================================');
+        /*debugPrint('====================================');
         debugPrint('======= DEDUCT CONV FEE ============');
-        debugPrint('====================================');
+        debugPrint('====================================');*/
         validateCard();
       }
     } else {

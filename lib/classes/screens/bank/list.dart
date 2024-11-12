@@ -11,6 +11,7 @@ import 'package:ride_card_app/classes/StripeAPIs/bank_details.dart';
 import 'package:ride_card_app/classes/StripeAPIs/check_account_balance.dart';
 import 'package:ride_card_app/classes/StripeAPIs/check_account_requirements.dart';
 import 'package:ride_card_app/classes/StripeAPIs/create_customer.dart';
+import 'package:ride_card_app/classes/StripeAPIs/document_status.dart';
 import 'package:ride_card_app/classes/StripeAPIs/get_connected_bank_balance.dart';
 import 'package:ride_card_app/classes/StripeAPIs/link_bank_account.dart';
 import 'package:ride_card_app/classes/StripeAPIs/update_account_info.dart';
@@ -41,11 +42,85 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
   var arrBanks = [];
   //
   var storeStripeCustomerId = '';
+  var storeBankAccountId = '';
+  bool hideAddButton = true;
+  bool isAccountVerified = false;
+  var allDocumentsDataResponse = [];
+  var isAnyDocumentMissing = true;
+  //
   @override
   void initState() {
-    // fetchProfileData();
+    //fetchProfileData();
     // checkBalance();
+    getAllBanksAccounts();
     super.initState();
+  }
+
+  void getAllBanksAccounts() async {
+    List<Map<String, dynamic>> documentsData = await getAllDocumentsData();
+
+    // Print each document's data
+    for (var documentData in documentsData) {
+      // print("Document Data: $documentData");
+      allDocumentsDataResponse.add(documentData);
+    }
+    logger.d(allDocumentsDataResponse);
+    if (allDocumentsDataResponse[0]['active'] == false) {
+      checkRequirements(allDocumentsDataResponse[0]['accountId'].toString());
+    }
+
+    setState(() {
+      screenLoader = false;
+    });
+  }
+
+  void checkAccountVerification() async {
+    String accountId = allDocumentsDataResponse[0]['accountId'].toString();
+    String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+
+    try {
+      String? statusMessage = await checkDocumentStatus(accountId, apiKey);
+      if (kDebugMode) {
+        print(statusMessage);
+      }
+    } catch (e) {
+      print("Error checking document status: $e");
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAllDocumentsData() async {
+    List<Map<String, dynamic>> allDocumentsData = [];
+    await FirebaseFirestore.instance
+        .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
+        .where('userId', isEqualTo: loginUserId())
+        .get()
+        .then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        // Loop through each document in the snapshot
+        for (var document in snapshot.docs) {
+          if (kDebugMode) {
+            print("Document ID: ${document.id}");
+          }
+
+          // Retrieve all data inside the document
+          Map<String, dynamic> data = document.data();
+
+          // Add the document's data to the array
+          allDocumentsData.add(data);
+        }
+      } else {
+        if (kDebugMode) {
+          print("No documents found for the user.");
+        }
+      }
+    }).catchError((error) {
+      if (kDebugMode) {
+        print("Failed to retrieve data: $error");
+      }
+    });
+
+    // Return the list of all document data
+    return allDocumentsData;
   }
 
   void checkBalance() async {
@@ -56,18 +131,29 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
         await getConnectedAccountBalance(connectedAccountId, apiKey);
 
     if (balanceData != null) {
-      print("Connected Account Balance:");
-      print("Available:");
-      for (var balance in balanceData['available']) {
-        print(balance);
-        print(" - Amount: ${balance['amount']} ${balance['currency']}");
+      if (kDebugMode) {
+        print("Connected Account Balance:");
+        print("Available:");
       }
-      print("Pending:");
+
+      for (var balance in balanceData['available']) {
+        if (kDebugMode) {
+          print(balance);
+          print(" - Amount: ${balance['amount']} ${balance['currency']}");
+        }
+      }
+      if (kDebugMode) {
+        print("Pending:");
+      }
       for (var balance in balanceData['pending']) {
-        print(" - Amount: ${balance['amount']} ${balance['currency']}");
+        if (kDebugMode) {
+          print(" - Amount: ${balance['amount']} ${balance['currency']}");
+        }
       }
     } else {
-      print("Failed to retrieve the balance.");
+      if (kDebugMode) {
+        print("Failed to retrieve the balance.");
+      }
     }
   }
 
@@ -316,45 +402,50 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                           height: 40,
                           color: Colors.transparent,
                           child: Center(
-                            child: textFontORBITRON(
-                              //
-                              'Bank accounts',
-                              Colors.white,
-                              14.0,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: GestureDetector(
-                          onTap: () {
-                            pushToAddBankAccount(context);
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(
-                              left: 16.0,
-                            ),
-                            height: 40,
-                            width: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.circular(
-                                20.0,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: textFontORBITRON(
+                                //
+                                'Bank accounts',
+                                Colors.white,
+                                14.0,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            child: const Icon(
-                              Icons.add,
-                              color: Colors.white,
-                            ),
                           ),
                         ),
                       ),
+                      allDocumentsDataResponse.isNotEmpty
+                          ? const SizedBox()
+                          : Align(
+                              alignment: Alignment.centerRight,
+                              child: GestureDetector(
+                                onTap: () {
+                                  pushToAddBankAccount(context);
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.only(
+                                    left: 16.0,
+                                  ),
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(
+                                      20.0,
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.add,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
                     ],
                   ),
                   const SizedBox(height: 40.0),
-                  for (int i = 0; i < arrBanks.length; i++) ...[
+                  for (int i = 0; i < allDocumentsDataResponse.length; i++) ...[
                     Container(
                       margin: const EdgeInsets.only(bottom: 12.0),
                       decoration: BoxDecoration(
@@ -365,21 +456,21 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                       ),
                       child: ListTile(
                         title: textFontPOOPINS(
-                          "Bank account number",
+                          "AN: ${allDocumentsDataResponse[i]['bankAccountNumber']}",
                           Colors.black,
                           14.0,
                           fontWeight: FontWeight.w600,
                         ),
                         subtitle: textFontPOOPINS(
-                          "**** **** ${arrBanks[i]['bankLast4Digits']}",
+                          "RN: ${allDocumentsDataResponse[i]['bankRoutingNumber']}",
                           Colors.black,
                           12.0,
                         ),
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            if (arrBanks[i]['verified'].toString() ==
-                                'verified') ...[
+                            if (allDocumentsDataResponse[i]['active'] ==
+                                true) ...[
                               IconButton(
                                 onPressed: () {
                                   customToast(
@@ -396,11 +487,9 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                             ] else ...[
                               IconButton(
                                 onPressed: () {
-                                  customToast(
-                                    'This account is not verified.',
-                                    Colors.redAccent,
-                                    ToastGravity.BOTTOM,
-                                  );
+                                  checkRequirements(allDocumentsDataResponse[0]
+                                          ['accountId']
+                                      .toString());
                                 },
                                 icon: const Icon(Icons.info_outline),
                               ),
@@ -410,7 +499,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                         onTap: () {
                           // getBankAccountInfo(arrBanks[i]['bankId'].toString());
                           // fetchAndDisplayStripeBalance(context);
-                          acceptTerms('acct_1QJykvERnsh89gxe');
+                          // acceptTerms('acct_1QJykvERnsh89gxe');
                           // transferMoney();
                         },
                       ),
@@ -466,7 +555,9 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
 
       // You can display this information in your UI as needed
     } else {
-      print('Failed to retrieve bank account details.');
+      if (kDebugMode) {
+        print('Failed to retrieve bank account details.');
+      }
     }
   }
 
@@ -485,7 +576,9 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
     );
 
     if (isAccepted) {
-      print("Terms of Service accepted successfully.");
+      if (kDebugMode) {
+        print("Terms of Service accepted successfully.");
+      }
       checkRequirements(connectedAccountId);
       // updateRequirements(connectedAccountId);
     } else {
@@ -502,21 +595,38 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
         connectedAccountId,
         apiKey,
       );
-      print("Account requirements: $requirements");
-      print(requirements.length);
+      if (kDebugMode) {
+        print("Account requirements: $requirements");
+      }
+      if (kDebugMode) {
+        print(requirements.length);
+      }
       if (requirements.isEmpty) {
-        transferMoney(connectedAccountId);
+        isAnyDocumentMissing = false;
+        // checkAccountVerification();
+        // transferMoney(connectedAccountId);
       }
       // transferMoney
 
       // Based on the requirements, display input fields to the user for each required item.
       for (var requirement in requirements) {
-        print("Please provide: $requirement");
-
-        // Add your UI code here to handle each requirement
+        if (kDebugMode) {
+          print("Please provide: $requirement");
+        }
+        if (requirement == 'individual.verification.document') {
+          isAnyDocumentMissing = true;
+          logger.d('Please upload documents');
+          customToast(
+            'Documents are missing. Please upload your document.',
+            Colors.redAccent,
+            ToastGravity.BOTTOM_RIGHT,
+          );
+        }
       }
     } catch (e) {
-      print("Failed to get account requirements: $e");
+      if (kDebugMode) {
+        print("Failed to get account requirements: $e");
+      }
     }
   }
 
@@ -547,7 +657,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
 
     logger.d(loginUserEmail);
     logger.d(bankId);
-    await manageConnectedAccount(
+    /*await manageConnectedAccount(
       userId: bankId,
       userEmail: loginUserEmail(),
       accountNumber: "000123456789",
@@ -557,7 +667,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
       accountHolderType: "individual",
       transferAmount: 1000,
       routingNumber: "110000000",
-    );
+    );*/
 
     // Step 1: Create a connected account for the user
     /*final connectedAccountId = await createConnectedAccount(

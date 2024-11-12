@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ride_card_app/classes/StripeAPIs/create_bank_account.dart';
 import 'package:ride_card_app/classes/StripeAPIs/create_customer.dart';
+import 'package:ride_card_app/classes/StripeAPIs/link_bank_account.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
@@ -36,6 +37,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
   var storeStripeCustomerId = '';
   final TextEditingController _contAccountNumber = TextEditingController();
   final TextEditingController _contRoutingNumber = TextEditingController();
+  final TextEditingController _contSSN = TextEditingController();
   // final TextEditingController _contAccountType = TextEditingController();
   //
   @override
@@ -159,6 +161,52 @@ class _AddBankScreenState extends State<AddBankScreen> {
                         child: svgImage('email', 14.0, 14.0),
                       ),*/
                     ),
+                    style: GoogleFonts.poppins(
+                      fontSize: 14.0,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return TEXT_FIELD_EMPTY_TEXT;
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20.0),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+              ),
+              child: Container(
+                height: 70,
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 219, 218, 218),
+                  borderRadius: BorderRadius.circular(
+                    12.0,
+                  ),
+                ),
+                child: Center(
+                  child: TextFormField(
+                    readOnly: false,
+                    controller: _contSSN,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: 'SSN',
+                      border: InputBorder.none, // Remove the border
+                      filled: false,
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 15,
+                        horizontal: 10.0,
+                      ),
+                      /*suffixIcon: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: svgImage('email', 14.0, 14.0),
+                      ),*/
+                    ),
+                    maxLength: 9,
                     style: GoogleFonts.poppins(
                       fontSize: 14.0,
                     ),
@@ -350,22 +398,105 @@ class _AddBankScreenState extends State<AddBankScreen> {
   }*/
 
   //
+  String getLast4Digits(String fullString) {
+    // Ensure the string is at least 4 characters long
+    if (fullString.length >= 4) {
+      return fullString.substring(fullString.length - 4);
+    } else {
+      // Handle case where string is too short
+      return fullString;
+    }
+  }
+
   Future<void> addBankAccount() async {
     var id = const Uuid().v4().toString();
-    FirebaseFirestore.instance
-        .collection(
-          'RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS',
-        )
-        .doc(id)
-        .set(
-      {
-        'id': id,
-        'bankAccountNumber': _contAccountNumber.text.toString(),
-        'bankRoutingNumber': _contRoutingNumber.text.toString(),
-        'userId': loginUserId(),
-      },
-    );
-    try {
+    String last4Digits = getLast4Digits(_contSSN.text.toString());
+
+    String userEmail = loginUserEmail();
+    String accountNumber = _contAccountNumber.text.toString();
+    String country = "US";
+    String currency = "usd";
+    String accountHolderName = loginUserName();
+    String accountHolderType = "individual";
+    String routingNumber = _contRoutingNumber.text.toString();
+
+    Map<String, String> result = await connectBankAccount(
+        userEmail: userEmail,
+        accountNumber: accountNumber,
+        country: country,
+        currency: currency,
+        accountHolderName: accountHolderName,
+        accountHolderType: accountHolderType,
+        routingNumber: routingNumber,
+        ssnNumber: _contSSN.text.toString(),
+        ssnNumber4: last4Digits.toString());
+
+    if (result['status'] == 'success') {
+      if (kDebugMode) {
+        print(
+            "Bank account connected successfully. Bank Account ID: ${result['message']}");
+      }
+
+      FirebaseFirestore.instance
+          .collection(
+            'RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS',
+          )
+          .doc(id)
+          .set(
+        {
+          'id': id,
+          'accountId': result['message'].toString(),
+          'bankAccountNumber': _contAccountNumber.text.toString(),
+          'bankRoutingNumber': _contRoutingNumber.text.toString(),
+          'userId': loginUserId(),
+          'active': false,
+        },
+      ).then((v) {
+        _contAccountNumber.text = "";
+        _contRoutingNumber.text = "";
+        dismissKeyboard(context);
+        Navigator.pop(context);
+        customToast(
+          'Successfully created.',
+          Colors.red,
+          ToastGravity.BOTTOM,
+        );
+        // Navigator.pop(context, 'refresh');
+      });
+    } else {
+      if (result['message'] ==
+          'Exception: Failed to create bank account token: Routing number must have 9 digits') {
+        dismissKeyboard(context);
+        Navigator.pop(context);
+        customToast(
+          result['message'].toString(),
+          Colors.red,
+          ToastGravity.BOTTOM,
+        );
+      } else if (result['message'] ==
+          'Exception: Failed to create bank account token: You must use a test bank account number in test mode. Try 000123456789 or see more options at https://stripe.com/docs/connect/testing#account-numbers.') {
+        dismissKeyboard(context);
+        Navigator.pop(context);
+        customToast(
+          'Bank account number is invalid. Please check and enter valid bank account number.',
+          Colors.red,
+          ToastGravity.BOTTOM,
+        );
+      } else {
+        dismissKeyboard(context);
+        Navigator.pop(context);
+        customToast(
+          'Something went wrong. Please try again after sometime.',
+          Colors.red,
+          ToastGravity.BOTTOM,
+        );
+      }
+      if (kDebugMode) {
+        print("Failed to connect bank account: ${result['message']}");
+      }
+    }
+
+    /* try {
       final bankAccountToken = await createBankAccountTokenAPI(
         accountNumber: _contAccountNumber.text.toString(),
         country: 'US',
@@ -394,6 +525,19 @@ class _AddBankScreenState extends State<AddBankScreen> {
           );
           _contAccountNumber.text = "";
           _contRoutingNumber.text = "";
+          FirebaseFirestore.instance
+              .collection(
+                'RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS',
+              )
+              .doc(id)
+              .set(
+            {
+              'id': id,
+              'bankAccountNumber': _contAccountNumber.text.toString(),
+              'bankRoutingNumber': _contRoutingNumber.text.toString(),
+              'userId': loginUserId(),
+            },
+          );
           Navigator.pop(context, 'refresh');
         } else {
           // Parse the error message
@@ -429,6 +573,6 @@ class _AddBankScreenState extends State<AddBankScreen> {
           backgroundColor: Colors.red,
         ),
       );
-    }
+    }*/
   }
 }
