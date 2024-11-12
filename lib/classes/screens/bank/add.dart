@@ -225,18 +225,18 @@ class _AddBankScreenState extends State<AddBankScreen> {
       if (STRIPE_STATUS == 'T') {
         logger.d('Mode: Test');
         if (v["stripe_customer_id_Test"].toString() == '') {
-          createCustomerInStripe(
+          /*createCustomerInStripe(
             '${v["data"]["fullName"]} ${v["data"]["lastName"]}',
             v["data"]["email"].toString(),
-          );
+          );*/
         }
       } else {
         logger.d('Mode: Live');
         if (v["data"]["stripe_customer_id_Live"].toString() == '') {
-          createCustomerInStripe(
+          /*createCustomerInStripe(
             '${v["data"]["fullName"]} ${v["data"]["lastName"]}',
             v["data"]["email"].toString(),
-          );
+          );*/
         } else {
           storeStripeCustomerId =
               v["data"]["stripe_customer_id_Live"].toString();
@@ -247,7 +247,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
   }
 
   // create customer in stripe
-  void createCustomerInStripe(
+  /*void createCustomerInStripe(
     String name,
     String email,
   ) async {
@@ -267,9 +267,9 @@ class _AddBankScreenState extends State<AddBankScreen> {
         print('Failed to create customer.');
       }
     }
-  }
+  }*/
 
-  void editAfterCreateStripeCustomer(
+  /*void editAfterCreateStripeCustomer(
     context,
     customerId,
   ) async {
@@ -347,7 +347,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
     } catch (error) {
       // print(error);
     }
-  }
+  }*/
 
   //
   Future<void> addBankAccount() async {
@@ -365,7 +365,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
         'userId': loginUserId(),
       },
     );
-    /*try {
+    try {
       final bankAccountToken = await createBankAccountTokenAPI(
         accountNumber: _contAccountNumber.text.toString(),
         country: 'US',
@@ -429,6 +429,6 @@ class _AddBankScreenState extends State<AddBankScreen> {
           backgroundColor: Colors.red,
         ),
       );
-    }*/
+    }
   }
 }

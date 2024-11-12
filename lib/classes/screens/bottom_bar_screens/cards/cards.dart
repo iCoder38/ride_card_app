@@ -95,36 +95,41 @@ class _CardsScreenState extends State<CardsScreen> {
   Future<void> fetchProfileData() async {
     await sendRequestToProfileDynamic().then((v) async {
       logger.d(v);
-      SharedPreferences prefs2 = await SharedPreferences.getInstance();
-      prefs2.setString(
-          'Key_save_login_profile_picture', v['data']['image'].toString());
-      prefs2.setString('key_save_user_role', v['data']['role'].toString());
-
-      if (STRIPE_STATUS == 'T') {
-        logger.d('Mode: Test');
-        if (v["stripe_customer_id_Test"].toString() == '') {
-          /* createCustomerInStripe(
-            '${v["data"]["fullName"]} ${v["data"]["lastName"]}',
-            v["data"]["email"].toString(),
-          );*/
-        }
+      if (v == null) {
+        logger.d('Hit again');
+        fetchProfileData();
       } else {
-        logger.d('Mode: Live');
-        if (v["data"]["stripe_customer_id_Live"].toString() == '') {
-          /*createCustomerInStripe(
+        SharedPreferences prefs2 = await SharedPreferences.getInstance();
+        prefs2.setString(
+            'Key_save_login_profile_picture', v['data']['image'].toString());
+        prefs2.setString('key_save_user_role', v['data']['role'].toString());
+
+        if (STRIPE_STATUS == 'T') {
+          logger.d('Mode: Test');
+          if (v["stripe_customer_id_Test"].toString() == '') {
+            /* createCustomerInStripe(
             '${v["data"]["fullName"]} ${v["data"]["lastName"]}',
             v["data"]["email"].toString(),
           );*/
-          logger.d('No, Stripe customer account.');
+          }
         } else {
-          storeStripeCustomerId =
-              v["data"]["stripe_customer_id_Live"].toString();
-          setState(() {
-            screenLoader = false;
-          });
-        }
+          logger.d('Mode: Live');
+          if (v["data"]["stripe_customer_id_Live"].toString() == '') {
+            /*createCustomerInStripe(
+            '${v["data"]["fullName"]} ${v["data"]["lastName"]}',
+            v["data"]["email"].toString(),
+          );*/
+            logger.d('No, Stripe customer account.');
+          } else {
+            storeStripeCustomerId =
+                v["data"]["stripe_customer_id_Live"].toString();
+            setState(() {
+              screenLoader = false;
+            });
+          }
 
-        // addBankAccount('${v["data"]["fullName"]} ${v["data"]["lastName"]}');
+          // addBankAccount('${v["data"]["fullName"]} ${v["data"]["lastName"]}');
+        }
       }
     });
   }

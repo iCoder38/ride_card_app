@@ -43,7 +43,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
   var storeStripeCustomerId = '';
   @override
   void initState() {
-    fetchProfileData();
+    // fetchProfileData();
     // checkBalance();
     super.initState();
   }

@@ -417,6 +417,11 @@ class _AddCardScreenState extends State<AddCardScreen> {
   void _addCardInEvsServer(context) async {
     // debugPrint('API ==> ADD CARD');
     //  showLoadingUI(context, 'please wait...');
+    customToast(
+      '10: add card',
+      Colors.red,
+      ToastGravity.BOTTOM,
+    );
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
@@ -531,6 +536,12 @@ class _AddCardScreenState extends State<AddCardScreen> {
         );
         return;
       }
+      dismissKeyboard(context);
+      customToast(
+        'One',
+        Colors.red,
+        ToastGravity.BOTTOM,
+      );
 
       // storeCustomerId = v['data']['customerId'];
 
@@ -539,8 +550,12 @@ class _AddCardScreenState extends State<AddCardScreen> {
       } else {
         storeStripeCustomerId = v['data']['stripe_customer_id_Live'];
       }
-
-      logger.d('Stripe customer id: ==> $storeStripeCustomerId');
+      customToast(
+        'two',
+        Colors.red,
+        ToastGravity.BOTTOM,
+      );
+      // logger.d('Stripe customer id: ==> $storeStripeCustomerId');
 
       if (storeStripeCustomerId == '') {
         if (kDebugMode) {
@@ -556,6 +571,11 @@ class _AddCardScreenState extends State<AddCardScreen> {
           ToastGravity.BOTTOM,
         );
       } else {
+        customToast(
+          '3:tax',
+          Colors.red,
+          ToastGravity.BOTTOM,
+        );
         getFeesAndTaxes();
       }
     });
@@ -565,7 +585,11 @@ class _AddCardScreenState extends State<AddCardScreen> {
     ApiServiceToGetFeesAndTaxes apiService = ApiServiceToGetFeesAndTaxes();
 
     List<FeeData>? feeList = await apiService.fetchFeesAndTaxes();
-
+    customToast(
+      '4: get fees',
+      Colors.red,
+      ToastGravity.BOTTOM,
+    );
     if (feeList != null) {
       for (var fee in feeList) {
         if (kDebugMode) {
@@ -582,7 +606,12 @@ class _AddCardScreenState extends State<AddCardScreen> {
       debugPrint('Fee amount is: ====> $feesAndTaxesAmount');
       debugPrint('========================');
       // return;
-      if (feesAndTaxesAmount == 0) {
+      customToast(
+        '5: response fees $feesAndTaxesAmount',
+        Colors.red,
+        ToastGravity.BOTTOM,
+      );
+      if (feesAndTaxesAmount == 0 || feesAndTaxesAmount == 0.0) {
         debugPrint('====================================');
         debugPrint('===== BY PASS WITHOUT CONV FEE =====');
         debugPrint('====================================');
@@ -601,6 +630,11 @@ class _AddCardScreenState extends State<AddCardScreen> {
   }
 
   validateCard() {
+    customToast(
+      '6: Validate card',
+      Colors.red,
+      ToastGravity.BOTTOM,
+    );
     if (_contCardHolderName.text == '') {
       exceptionAlert('Name');
       return;
@@ -662,10 +696,19 @@ class _AddCardScreenState extends State<AddCardScreen> {
       if (kDebugMode) {
         print('Token ID: ${result['tokenId']}');
       }
-
-      logger.d(feesAndTaxesAmount);
+      customToast(
+        '7: Token',
+        Colors.red,
+        ToastGravity.BOTTOM,
+      );
+      // logger.d(feesAndTaxesAmount);
       if (isByPass == true) {
         if (feesAndTaxesAmount != 0) {
+          customToast(
+            '8: Fees',
+            Colors.red,
+            ToastGravity.BOTTOM,
+          );
           processPayment(
             context,
             _contCardHolderName.text.toString(),
@@ -681,9 +724,19 @@ class _AddCardScreenState extends State<AddCardScreen> {
           debugPrint('=======================================================');
           debugPrint('======= ADD AND SUBSCRIBE WITHOUT CONV FEES ===========');
           debugPrint('=======================================================');
+          customToast(
+            '7: Add card to evs server',
+            Colors.red,
+            ToastGravity.BOTTOM,
+          );
           _addCardInEvsServer(context);
         }
       } else {
+        customToast(
+          '9: FeesRegister',
+          Colors.red,
+          ToastGravity.BOTTOM,
+        );
         // sucess
         _registerCustomerInStripe(
           cardDetails.cardNumber,
@@ -1175,7 +1228,12 @@ class _AddCardScreenState extends State<AddCardScreen> {
           if (successStatus.toLowerCase() == 'success') {
             //
             // Navigator.pop(context);
-            logger.d('SUCCESS: SUBSCRIPTION');
+            // logger.d('SUCCESS: SUBSCRIPTION');
+            customToast(
+              '12: Subscription',
+              Colors.redAccent,
+              ToastGravity.BOTTOM,
+            );
             sucessEverythingNowGoBack();
           }
         }
