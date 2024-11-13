@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 
@@ -20,7 +21,9 @@ Future<String?> checkDocumentStatus(String accountId, String apiKey) async {
 
     if (missingRequirements != null && missingRequirements.isNotEmpty) {
       // Print each requirement that is currently due
-      print("Currently due requirements:");
+      if (kDebugMode) {
+        print("Currently due requirements:");
+      }
       for (var requirement in missingRequirements) {
         print("- $requirement");
       }

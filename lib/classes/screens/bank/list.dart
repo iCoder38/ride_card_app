@@ -1,26 +1,29 @@
 import 'dart:convert';
+// import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+// import 'package:image_picker/image_picker.dart';
 import 'package:ride_card_app/classes/StripeAPIs/accept_terms.dart';
-import 'package:ride_card_app/classes/StripeAPIs/all_banks.dart';
+// import 'package:ride_card_app/classes/StripeAPIs/all_banks.dart';
 import 'package:ride_card_app/classes/StripeAPIs/bank_details.dart';
 import 'package:ride_card_app/classes/StripeAPIs/check_account_balance.dart';
 import 'package:ride_card_app/classes/StripeAPIs/check_account_requirements.dart';
 import 'package:ride_card_app/classes/StripeAPIs/create_customer.dart';
 import 'package:ride_card_app/classes/StripeAPIs/document_status.dart';
 import 'package:ride_card_app/classes/StripeAPIs/get_connected_bank_balance.dart';
-import 'package:ride_card_app/classes/StripeAPIs/link_bank_account.dart';
-import 'package:ride_card_app/classes/StripeAPIs/update_account_info.dart';
+// import 'package:ride_card_app/classes/StripeAPIs/link_bank_account.dart';
+// import 'package:ride_card_app/classes/StripeAPIs/update_account_info.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
-import 'package:ride_card_app/classes/common/widget/widget.dart';
+// import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/bank/add.dart';
+import 'package:ride_card_app/classes/screens/bank/upload_documents.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
@@ -48,15 +51,19 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
   var allDocumentsDataResponse = [];
   var isAnyDocumentMissing = true;
   //
+  bool _hasFetchedRequirements = false;
+  var storeDocumentId = '';
+  bool _isVerified = false;
   @override
   void initState() {
     //fetchProfileData();
     // checkBalance();
-    getAllBanksAccounts();
+    // getAllBanksAccounts();
+
     super.initState();
   }
 
-  void getAllBanksAccounts() async {
+  /*void getAllBanksAccounts() async {
     List<Map<String, dynamic>> documentsData = await getAllDocumentsData();
 
     // Print each document's data
@@ -72,7 +79,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
     setState(() {
       screenLoader = false;
     });
-  }
+  }*/
 
   void checkAccountVerification() async {
     String accountId = allDocumentsDataResponse[0]['accountId'].toString();
@@ -83,12 +90,75 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
       if (kDebugMode) {
         print(statusMessage);
       }
+      if (statusMessage == 'No verification requirements are currently due.') {
+        // FirebaseFirestore.instance
+        //     .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
+        //     .doc(storeDocumentId)
+        //     .update({
+        //   'active': true,
+        // });
+      } else {
+        // FirebaseFirestore.instance
+        //     .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
+        //     .doc(storeDocumentId)
+        //     .update({
+        //   'active': false,
+        // });
+      }
     } catch (e) {
-      print("Error checking document status: $e");
+      if (kDebugMode) {
+        print("Error checking document status: $e");
+      }
     }
   }
 
-  Future<List<Map<String, dynamic>>> getAllDocumentsData() async {
+  // Function to pick an image
+  /*Future<void> _pickImage(ImageSource source, bool isFront) async {
+    final pickedFile = await _picker.pickImage(source: source);
+    if (pickedFile != null) {
+      setState(() {
+        if (isFront) {
+          _frontImage = File(pickedFile.path);
+        } else {
+          _backImage = File(pickedFile.path);
+        }
+      });
+
+      // Close and reopen the bottom sheet to reflect the updated image
+      Navigator.pop(context); // Close the current bottom sheet
+      _showUploadBottomSheet(context); // Reopen the bottom sheet
+    }
+  }*/
+
+  /*void _showImagePicker(BuildContext context, bool isFront) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Gallery'),
+                onTap: () {
+                  _pickImage(ImageSource.gallery, isFront);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Camera'),
+                onTap: () {
+                  _pickImage(ImageSource.camera, isFront);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }*/
+
+  /*Future<List<Map<String, dynamic>>> getAllDocumentsData() async {
     List<Map<String, dynamic>> allDocumentsData = [];
     await FirebaseFirestore.instance
         .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
@@ -121,7 +191,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
 
     // Return the list of all document data
     return allDocumentsData;
-  }
+  }*/
 
   void checkBalance() async {
     String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
@@ -349,19 +419,296 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
       ),
       child: screenLoader == true
           ? customCircularProgressIndicator()
-          : SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: _UIKitStackBG(context),
-            ),
+          : _UIKitStackBG(context),
     );
   }
 
-  SingleChildScrollView _UIKitStackBG(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: screenLoader == true
-          ? const CircularProgressIndicator()
-          : Padding(
+  Widget _UIKitStackBG(BuildContext context) {
+    return screenLoader == true
+        ? const CircularProgressIndicator()
+        : StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
+                .where('userId', isEqualTo: loginUserId())
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text("Failed to retrieve data: ${snapshot.error}"),
+                );
+              }
+
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return Column(
+                  children: [
+                    const SizedBox(height: 60.0),
+                    Row(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: GestureDetector(
+                            onTap: () {
+                              _scaffoldKey.currentState?.openDrawer();
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(
+                                left: 16.0,
+                              ),
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.orange,
+                                borderRadius: BorderRadius.circular(
+                                  20.0,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.menu,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 40.0,
+                        ),
+                        Expanded(
+                          child: Container(
+                            height: 40,
+                            color: Colors.transparent,
+                            child: Center(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: textFontORBITRON(
+                                  //
+                                  'Bank accounts',
+                                  Colors.white,
+                                  14.0,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: GestureDetector(
+                              onTap: () {
+                                pushToAddBankAccount(context);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(
+                                  left: 16.0,
+                                ),
+                                height: 40,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: BorderRadius.circular(
+                                    20.0,
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 240.0),
+                    Center(
+                      child: textFontPOOPINS(
+                        'No bank account attached.',
+                        Colors.white,
+                        14.0,
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              // Retrieve all document data in a list
+              List<Map<String, dynamic>> allDocumentsData =
+                  snapshot.data!.docs.map((document) {
+                return document.data() as Map<String, dynamic>;
+              }).toList();
+
+              // Call `checkRequirements` once, when data is first available
+              if (!_hasFetchedRequirements && allDocumentsData.isNotEmpty) {
+                _hasFetchedRequirements = true;
+                String accountId = allDocumentsData[0]['accountId'];
+                storeDocumentId = allDocumentsData[0]['id'];
+                _isVerified = allDocumentsData[0]['active'];
+                checkRequirements(accountId);
+              }
+
+              return ListView.builder(
+                itemCount: allDocumentsData.length,
+                itemBuilder: (context, index) {
+                  final data = allDocumentsData[index];
+                  return Column(
+                    children: [
+                      const SizedBox(height: 60.0),
+                      Row(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: GestureDetector(
+                              onTap: () {
+                                _scaffoldKey.currentState?.openDrawer();
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(
+                                  left: 16.0,
+                                ),
+                                height: 40,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.orange,
+                                  borderRadius: BorderRadius.circular(
+                                    20.0,
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.menu,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 40.0,
+                          ),
+                          Expanded(
+                            child: Container(
+                              height: 40,
+                              color: Colors.transparent,
+                              child: Center(
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: textFontORBITRON(
+                                    //
+                                    'Bank accounts',
+                                    Colors.white,
+                                    14.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          data.isNotEmpty
+                              ? const SizedBox()
+                              : Align(
+                                  alignment: Alignment.centerRight,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      pushToAddBankAccount(context);
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.only(
+                                        left: 16.0,
+                                      ),
+                                      height: 40,
+                                      width: 40,
+                                      decoration: BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.circular(
+                                          20.0,
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        ],
+                      ),
+                      const SizedBox(height: 20.0),
+                      //
+                      Card(
+                        child: ListTile(
+                          title: textFontPOOPINS(
+                            "AN: ${data['bankAccountNumber']}",
+                            Colors.black,
+                            14.0,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          subtitle: textFontPOOPINS(
+                            "RN: ${data['bankRoutingNumber']}",
+                            Colors.black,
+                            12.0,
+                          ),
+                          trailing: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (data['active'] == true) ...[
+                                IconButton(
+                                  onPressed: () {
+                                    customToast(
+                                      'Verified.',
+                                      Colors.green,
+                                      ToastGravity.BOTTOM,
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    Icons.verified,
+                                    color: Colors.green,
+                                  ),
+                                ),
+                              ] else ...[
+                                IconButton(
+                                  onPressed: () {
+                                    checkRequirements(
+                                        allDocumentsDataResponse[0]['accountId']
+                                            .toString());
+                                  },
+                                  icon: const Icon(Icons.info_outline),
+                                ),
+                              ]
+                            ],
+                          ),
+                          onTap: () {
+                            data['active'] == true
+                                ? customToast(
+                                    'Verified.',
+                                    Colors.green,
+                                    ToastGravity.BOTTOM,
+                                  )
+                                : Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          FullScreenDocumentUploadPage(
+                                        strBankAccountId: snapshot
+                                            .data!.docs[index]['accountId']
+                                            .toString(),
+                                      ),
+                                    ),
+                                  );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          );
+  }
+
+  /*Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
@@ -501,15 +848,114 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                           // fetchAndDisplayStripeBalance(context);
                           // acceptTerms('acct_1QJykvERnsh89gxe');
                           // transferMoney();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    FullScreenDocumentUploadPage(
+                                      strBankAccountId:
+                                          allDocumentsDataResponse[0]
+                                                  ['accountId']
+                                              .toString(),
+                                    )),
+                          );
                         },
                       ),
                     )
                   ]
                 ],
               ),
-            ),
+            ),*/
+  /*void _showUploadBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          height: 400,
+          child: Column(
+            children: [
+              const Text(
+                'Upload Front and Back of ID',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: () => _showImagePicker(context, true), // For front image
+                child: Container(
+                  height: 150,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  child: _frontImage != null
+                      ? Image.file(_frontImage!, fit: BoxFit.cover)
+                      : const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.upload, size: 40, color: Colors.grey),
+                            SizedBox(height: 10),
+                            Text(
+                              'Tap to upload Front of ID',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: () => _showImagePicker(context, false), // For back image
+                child: Container(
+                  height: 150,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  child: _backImage != null
+                      ? Image.file(_backImage!, fit: BoxFit.cover)
+                      : const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.upload, size: 40, color: Colors.grey),
+                            SizedBox(height: 10),
+                            Text(
+                              'Tap to upload Back of ID',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+              const Spacer(), // Pushes the button to the bottom
+              ElevatedButton(
+                onPressed: () {
+                  // Handle the upload action here
+                  if (kDebugMode) {
+                    print("Documents uploaded");
+                  }
+                  // _uploadDocumentsToStripe;
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize:
+                      const Size(double.infinity, 50), // Full-width button
+                ),
+                child: const Text("Upload Documents"),
+              ),
+            ],
+          ),
+        );
+      },
     );
-  }
+  }*/
 
   void fetchAndDisplayStripeBalance(BuildContext context) async {
     final balanceData = await getStripeBalanceAPI();
@@ -518,7 +964,9 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
       final availableBalance = balanceData['available'][0]['amount'];
       final currency = balanceData['available'][0]['currency'];
 
-      print(availableBalance);
+      if (kDebugMode) {
+        print(availableBalance);
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -582,7 +1030,9 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
       checkRequirements(connectedAccountId);
       // updateRequirements(connectedAccountId);
     } else {
-      print("Failed to accept Terms of Service.");
+      if (kDebugMode) {
+        print("Failed to accept Terms of Service.");
+      }
     }
   }
 
@@ -605,6 +1055,19 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
         isAnyDocumentMissing = false;
         // checkAccountVerification();
         // transferMoney(connectedAccountId);
+        FirebaseFirestore.instance
+            .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
+            .doc(storeDocumentId)
+            .update({
+          'active': true,
+        });
+      } else {
+        FirebaseFirestore.instance
+            .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
+            .doc(storeDocumentId)
+            .update({
+          'active': false,
+        });
       }
       // transferMoney
 
@@ -621,6 +1084,12 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
             Colors.redAccent,
             ToastGravity.BOTTOM_RIGHT,
           );
+          FirebaseFirestore.instance
+              .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
+              .doc(storeDocumentId)
+              .update({
+            'active': false,
+          });
         }
       }
     } catch (e) {
@@ -630,7 +1099,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
     }
   }
 
-  void updateRequirements(String bankId) async {
+  /*void updateRequirements(String bankId) async {
     String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
     String connectedAccountId = bankId;
 
@@ -650,7 +1119,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
     } else {
       print("Failed to update account information.");
     }
-  }
+  }*/
 
   void transferMoney(String bankId) async {
     String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
