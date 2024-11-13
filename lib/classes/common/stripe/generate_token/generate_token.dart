@@ -85,8 +85,11 @@
 // }
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 
 Future<Map<String, dynamic>> createStripeToken({
@@ -116,9 +119,20 @@ Future<Map<String, dynamic>> createStripeToken({
       CreateTokenParams.card(params: cardParams),
     );
 
+    /*customToast(
+      'Token: $token',
+      Colors.red,
+      ToastGravity.BOTTOM,
+    );*/
+
     if (kDebugMode) {
       print('Token created: ${token.id}');
     }
+    /*customToast(
+      'TokenId: ${token.id.toString()}',
+      Colors.red,
+      ToastGravity.BOTTOM,
+    );*/
 
     // Return success with the token ID
     return {
@@ -127,7 +141,9 @@ Future<Map<String, dynamic>> createStripeToken({
     };
   } on StripeException catch (e) {
     // Handle the error by returning a message
-    print('Error creating token: ${e.error.message}');
+    if (kDebugMode) {
+      print('Error creating token: ${e.error.message}');
+    }
     return {
       'success': false,
       'message':

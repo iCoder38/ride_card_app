@@ -537,11 +537,11 @@ class _AddCardScreenState extends State<AddCardScreen> {
         return;
       }
       dismissKeyboard(context);
-      customToast(
-        'One',
+      /*customToast(
+        '1: Init',
         Colors.red,
         ToastGravity.BOTTOM,
-      );
+      );*/
 
       // storeCustomerId = v['data']['customerId'];
 
@@ -550,19 +550,19 @@ class _AddCardScreenState extends State<AddCardScreen> {
       } else {
         storeStripeCustomerId = v['data']['stripe_customer_id_Live'];
       }
-      customToast(
-        'two',
+      /*customToast(
+        '2: Start',
         Colors.red,
         ToastGravity.BOTTOM,
-      );
+      );*/
       // logger.d('Stripe customer id: ==> $storeStripeCustomerId');
 
       if (storeStripeCustomerId == '') {
-        if (kDebugMode) {
+        /*if (kDebugMode) {
           print('=============================================');
           debugPrint('There is no stripe customer key created');
           print('=============================================');
-        }
+        }*/
         // getFeesAndTaxes();
         Navigator.pop(context);
         customToast(
@@ -571,11 +571,11 @@ class _AddCardScreenState extends State<AddCardScreen> {
           ToastGravity.BOTTOM,
         );
       } else {
-        customToast(
+        /*customToast(
           '3:tax',
           Colors.red,
           ToastGravity.BOTTOM,
-        );
+        );*/
         getFeesAndTaxes();
       }
     });
@@ -585,11 +585,11 @@ class _AddCardScreenState extends State<AddCardScreen> {
     ApiServiceToGetFeesAndTaxes apiService = ApiServiceToGetFeesAndTaxes();
 
     List<FeeData>? feeList = await apiService.fetchFeesAndTaxes();
-    customToast(
+    /*customToast(
       '4: get fees',
       Colors.red,
       ToastGravity.BOTTOM,
-    );
+    );*/
     if (feeList != null) {
       for (var fee in feeList) {
         if (kDebugMode) {
@@ -602,24 +602,30 @@ class _AddCardScreenState extends State<AddCardScreen> {
           feesAndTaxesAmount = double.parse(fee.amount.toString());
         }
       }
-      debugPrint('========================');
+      /*debugPrint('========================');
       debugPrint('Fee amount is: ====> $feesAndTaxesAmount');
-      debugPrint('========================');
+      debugPrint('========================');*/
       // return;
-      customToast(
-        '5: response fees $feesAndTaxesAmount',
-        Colors.red,
-        ToastGravity.BOTTOM,
-      );
+
       if (feesAndTaxesAmount == 0 || feesAndTaxesAmount == 0.0) {
         /* debugPrint('====================================');
         debugPrint('===== BY PASS WITHOUT CONV FEE =====');
         debugPrint('====================================');*/
+        /*customToast(
+          '5. No conv fee is: $feesAndTaxesAmount',
+          Colors.red,
+          ToastGravity.BOTTOM,
+        );*/
         validateCard();
       } else {
         /*debugPrint('====================================');
         debugPrint('======= DEDUCT CONV FEE ============');
         debugPrint('====================================');*/
+        /* customToast(
+          '5. Yes, tax amount is: $feesAndTaxesAmount',
+          Colors.red,
+          ToastGravity.BOTTOM,
+        );*/
         validateCard();
       }
     } else {
@@ -630,11 +636,6 @@ class _AddCardScreenState extends State<AddCardScreen> {
   }
 
   validateCard() {
-    customToast(
-      '6: Validate card',
-      Colors.red,
-      ToastGravity.BOTTOM,
-    );
     if (_contCardHolderName.text == '') {
       exceptionAlert('Name');
       return;
@@ -650,28 +651,43 @@ class _AddCardScreenState extends State<AddCardScreen> {
     if (_contCardExpYear.text == '') {
       exceptionAlert('Year');
       return;
-    } else {
-      debugPrint('===============================================');
+    }
+    /*debugPrint('===============================================');
       debugPrint('======= CARD VALIDATE SUCCESSFULLY ============');
-      debugPrint('===============================================');
-      final cardDetails = SavedCardDetails(
-        cardNumber: _contCardNumber.text.toString(),
-        cardholderName: _contCardHolderName.text,
-        expMonth: _contCardExpMonth.text.toString(),
-        expYear: _contCardExpYear.text.toString(),
-        cvv: _contCVV.text.toString(),
-      );
-      if (kDebugMode) {
-        print(cardDetails.cardNumber);
-        print(_contCardHolderName.text);
-        print(cardDetails.expMonth);
-        print(cardDetails.expYear);
-        print(cardDetails.cvv);
-      }
-      //
-      isByPass = true;
-      handleStripeTokenCreation(cardDetails);
-      /*if (storeStripeCustomerId == '') {
+      debugPrint('===============================================');*/
+    /*customToast(
+      '6: Card validate successfully',
+      Colors.red,
+      ToastGravity.BOTTOM,
+    );*/
+    final cardDetails = SavedCardDetails(
+      cardNumber: _contCardNumber.text.toString(),
+      cardholderName: _contCardHolderName.text,
+      expMonth: _contCardExpMonth.text.toString(),
+      expYear: _contCardExpYear.text.toString(),
+      cvv: _contCVV.text.toString(),
+    );
+    /*if (kDebugMode) {
+      print(cardDetails.cardNumber);
+      print(_contCardHolderName.text);
+      print(cardDetails.expMonth);
+      print(cardDetails.expYear);
+      print(cardDetails.cvv);
+    }*/
+    //
+    /*customToast(
+      '7: Stripe Token: ${cardDetails.cardNumber}',
+      Colors.red,
+      ToastGravity.BOTTOM,
+    );*/
+    isByPass = true;
+    handleStripeTokenCreation(cardDetails);
+
+    ///
+    ///
+    ///
+    ///
+    /*if (storeStripeCustomerId == '') {
         debugPrint('There is no stripe customer key created');
         handleStripeTokenCreation(cardDetails);
       } else {
@@ -681,10 +697,15 @@ class _AddCardScreenState extends State<AddCardScreen> {
         isByPass = true;
         handleStripeTokenCreation(cardDetails);
       }*/
-    }
   }
 
   void handleStripeTokenCreation(cardDetails) async {
+    /*customToast(
+      'Name: ${loginUserName()}, Email: ${loginUserEmail()}',
+      Colors.red,
+      ToastGravity.BOTTOM,
+    );*/
+
     final result = await createStripeToken(
       cardNumber: cardDetails.cardNumber,
       expMonth: cardDetails.expMonth,
@@ -693,22 +714,18 @@ class _AddCardScreenState extends State<AddCardScreen> {
     );
 
     if (result['success'] == true) {
-      if (kDebugMode) {
+      /*if (kDebugMode) {
         print('Token ID: ${result['tokenId']}');
-      }
-      customToast(
-        '7: Token',
-        Colors.red,
-        ToastGravity.BOTTOM,
-      );
+      }*/
+
       // logger.d(feesAndTaxesAmount);
       if (isByPass == true) {
-        if (feesAndTaxesAmount != 0) {
-          customToast(
+        if (feesAndTaxesAmount != 0 || feesAndTaxesAmount != 0.0) {
+          /*customToast(
             '8: Fees',
             Colors.red,
             ToastGravity.BOTTOM,
-          );
+          );*/
           processPayment(
             context,
             _contCardHolderName.text.toString(),
@@ -724,19 +741,19 @@ class _AddCardScreenState extends State<AddCardScreen> {
           debugPrint('=======================================================');
           debugPrint('======= ADD AND SUBSCRIBE WITHOUT CONV FEES ===========');
           debugPrint('=======================================================');
-          customToast(
+          /*customToast(
             '7: Add card to evs server',
             Colors.red,
             ToastGravity.BOTTOM,
-          );
+          );*/
           _addCardInEvsServer(context);
         }
       } else {
-        customToast(
+        /*customToast(
           '9: FeesRegister',
           Colors.red,
           ToastGravity.BOTTOM,
-        );
+        );*/
         // sucess
         _registerCustomerInStripe(
           cardDetails.cardNumber,
@@ -1176,7 +1193,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
 
   // now subscripbe this card
   void createStripeCustomerAccount(customerId) async {
-    debugPrint('API ==> Stripe subscription');
+    // debugPrint('API ==> Stripe subscription');
     //
     // showLoadingUI(context, 'please wait...');
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1229,11 +1246,11 @@ class _AddCardScreenState extends State<AddCardScreen> {
             //
             // Navigator.pop(context);
             // logger.d('SUCCESS: SUBSCRIPTION');
-            customToast(
+            /*customToast(
               '12: Subscription',
               Colors.redAccent,
               ToastGravity.BOTTOM,
-            );
+            );*/
             sucessEverythingNowGoBack();
           }
         }
