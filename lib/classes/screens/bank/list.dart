@@ -15,6 +15,8 @@ import 'package:ride_card_app/classes/StripeAPIs/check_account_requirements.dart
 import 'package:ride_card_app/classes/StripeAPIs/create_customer.dart';
 import 'package:ride_card_app/classes/StripeAPIs/document_status.dart';
 import 'package:ride_card_app/classes/StripeAPIs/get_connected_bank_balance.dart';
+import 'package:ride_card_app/classes/StripeAPIs/link_bank_account.dart';
+import 'package:ride_card_app/classes/common/alerts/alert.dart';
 // import 'package:ride_card_app/classes/StripeAPIs/link_bank_account.dart';
 // import 'package:ride_card_app/classes/StripeAPIs/update_account_info.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
@@ -55,6 +57,8 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
   var storeDocumentId = '';
   bool _isVerified = false;
   bool isOneMinuteCross = false;
+  bool isDocumentScreenUpload = false;
+  //
   @override
   void initState() {
     //fetchProfileData();
@@ -543,14 +547,6 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                 return document.data() as Map<String, dynamic>;
               }).toList();
 
-              // Call `checkRequirements` once, when data is first available
-              if (!_hasFetchedRequirements && allDocumentsData.isNotEmpty) {
-                _hasFetchedRequirements = true;
-                String accountId = allDocumentsData[0]['accountId'];
-                storeDocumentId = allDocumentsData[0]['id'];
-                _isVerified = allDocumentsData[0]['active'];
-                checkRequirements(accountId);
-              }
               // check time stamp
               bool result = isTimestampOlderThanOneMinute(
                   allDocumentsData[0]['timeStamp']);
@@ -562,6 +558,22 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
               } else {
                 isOneMinuteCross = true;
               }
+
+              // Call `checkRequirements` once, when data is first available
+              if (!_hasFetchedRequirements && allDocumentsData.isNotEmpty) {
+                _hasFetchedRequirements = true;
+                String accountId = allDocumentsData[0]['accountId'];
+                storeDocumentId = allDocumentsData[0]['id'];
+                _isVerified = allDocumentsData[0]['active'];
+                if (isOneMinuteCross != true) {
+                  checkRequirements(accountId);
+                }
+              }
+              //
+              checkAccountStatus(
+                allDocumentsData[0]['accountId'],
+                dotenv.env["STRIPE_SK_KEY"]!,
+              );
 
               return ListView.builder(
                 itemCount: allDocumentsData.length,
@@ -707,17 +719,23 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                                           Colors.green,
                                           ToastGravity.BOTTOM,
                                         )
-                                      : Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                FullScreenDocumentUploadPage(
-                                              strBankAccountId: snapshot.data!
-                                                  .docs[index]['accountId']
-                                                  .toString(),
-                                            ),
-                                          ),
-                                        );
+                                      : checkRequirements(snapshot
+                                          .data!.docs[index]['accountId']
+                                          .toString());
+                                  /*isDocumentScreenUpload == false
+                                          ? const SizedBox()
+                                          : Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    FullScreenDocumentUploadPage(
+                                                  strBankAccountId: snapshot
+                                                      .data!
+                                                      .docs[index]['accountId']
+                                                      .toString(),
+                                                ),
+                                              ),
+                                            );*/
                                 },
                               ),
                             ),
@@ -1086,6 +1104,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
       }
       if (requirements.isEmpty) {
         isAnyDocumentMissing = false;
+        isDocumentScreenUpload = false;
         // checkAccountVerification();
         // transferMoney(connectedAccountId);
         FirebaseFirestore.instance
@@ -1093,6 +1112,8 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
             .doc(storeDocumentId)
             .update({
           'active': true,
+        }).then((v) {
+          logger.d('Yes, It is');
         });
       } else {
         FirebaseFirestore.instance
@@ -1111,6 +1132,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
         }
         if (requirement == 'individual.verification.document') {
           isAnyDocumentMissing = true;
+          isDocumentScreenUpload = true;
           logger.d('Please upload documents');
           customToast(
             'Documents are missing. Please upload your document.',
@@ -1122,6 +1144,32 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
               .doc(storeDocumentId)
               .update({
             'active': false,
+          }).then((v) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FullScreenDocumentUploadPage(
+                  strBankAccountId: bankId.toString(),
+                ),
+              ),
+            );
+          });
+        } else if (requirement == 'individual.id_number') {
+          isAnyDocumentMissing = true;
+          isDocumentScreenUpload = false;
+          logger.d('Please upload documents');
+          customToast(
+            'Please provide valid SSN number.',
+            Colors.redAccent,
+            ToastGravity.BOTTOM_RIGHT,
+          );
+          FirebaseFirestore.instance
+              .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
+              .doc(storeDocumentId)
+              .update({
+            'active': false,
+          }).then((v) {
+            showBottomSheetWithTextField(context, connectedAccountId);
           });
         }
       }
@@ -1129,6 +1177,79 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
       if (kDebugMode) {
         print("Failed to get account requirements: $e");
       }
+    }
+  }
+
+  Future<String?> showBottomSheetWithTextField(
+    BuildContext context,
+    bankId,
+  ) {
+    final TextEditingController textController = TextEditingController();
+
+    return showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true, // Makes the sheet adjust to the keyboard
+      builder: (BuildContext context) {
+        return Padding(
+          padding: MediaQuery.of(context).viewInsets, // Adjusts for keyboard
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: textController, // Assign the controller
+                  decoration: const InputDecoration(
+                    labelText: 'Enter value',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    logger.d(textController.text);
+                    Navigator.pop(context);
+                    updateRequirements(
+                      bankId,
+                      textController.text.toString(),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(double.infinity, 50), // Full-width button
+                  ),
+                  child: const Text('Update'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void updateRequirements(
+    String bankId,
+    String idNumber,
+  ) async {
+    dismissKeyboard(context);
+    showLoadingUI(context, 'please wait...');
+    String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+    final result = await updateIdNumber(
+      accountId: bankId,
+      idNumber: idNumber,
+      apiKey: apiKey,
+    );
+
+    if (result['status'] == 'success') {
+      if (kDebugMode) {
+        print(result['message']);
+      }
+      Navigator.pop(context);
+    } else {
+      if (kDebugMode) {
+        print('Error: ${result['message']}');
+      }
+      Navigator.pop(context);
     }
   }
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
@@ -133,7 +134,7 @@ Future<String?> createConnectedAccount(
       //
       'business_type': 'individual',
       'business_profile[mcc]': '7372',
-      'business_profile[url]': 'https://ridewallets.com',
+      'business_profile[url]': 'https://ridewallets.com/terms.html',
       'individual[first_name]': firstName.toString(),
       'individual[last_name]': lastName.toString(),
       'individual[dob][day]': dobDate.toString(),
@@ -152,6 +153,7 @@ Future<String?> createConnectedAccount(
       'tos_acceptance[date]':
           (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString(),
       'tos_acceptance[ip]': "203.0.113.42",
+      // terms
     },
   );
 
@@ -222,12 +224,75 @@ Future<String?> linkBankAccountToConnectedAccount(
 
   if (response.statusCode == 200) {
     final responseData = json.decode(response.body);
-    return responseData[
-        'id']; // Return the bank account ID after successful link
+    return responseData['id'];
   } else {
     final errorData = json.decode(response.body);
     final errorMessage = errorData['error']['message'];
     throw Exception('Failed to link bank account: $errorMessage');
+  }
+}
+
+Future<Map<String, String>> updateIdNumber({
+  required String accountId,
+  required String idNumber,
+  required String apiKey,
+}) async {
+  final url = Uri.parse('https://api.stripe.com/v1/accounts/$accountId');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: {
+        'individual[id_number]': idNumber,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return {
+        'status': 'success',
+        'message': 'ID number updated successfully.'
+      };
+    } else {
+      final errorResponse = json.decode(response.body);
+      return {
+        'status': 'error',
+        'message':
+            errorResponse['error']['message'] ?? 'Unknown error occurred.'
+      };
+    }
+  } catch (e) {
+    return {'status': 'error', 'message': e.toString()};
+  }
+}
+
+Future<void> checkAccountStatus(String accountId, String apiKey) async {
+  final url = Uri.parse('https://api.stripe.com/v1/accounts/$accountId');
+
+  final response = await http.get(
+    url,
+    headers: {
+      'Authorization': 'Bearer $apiKey',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    if (kDebugMode) {
+      print(data);
+      print("Account Status: ${data['requirements']['disabled_reason']}");
+      print("Account Status: ${data['requirements']['disabled_reason']}");
+      print("Currently Due: ${data['requirements']['currently_due']}");
+      print("Past Due: ${data['requirements']['past_due']}");
+      print("Pending Verification: ${data['requirements']['eventually_due']}");
+    }
+  } else {
+    if (kDebugMode) {
+      print("Failed to retrieve account status: ${response.body}");
+    }
   }
 }
 

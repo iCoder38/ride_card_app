@@ -115,11 +115,11 @@ class _CardsScreenState extends State<CardsScreen> {
         } else {
           logger.d('Mode: Live');
           if (v["data"]["stripe_customer_id_Live"].toString() == '') {
-            /*createCustomerInStripe(
-            '${v["data"]["fullName"]} ${v["data"]["lastName"]}',
-            v["data"]["email"].toString(),
-          );*/
             logger.d('No, Stripe customer account.');
+            createCustomerInStripe(
+              '${v["data"]["fullName"]} ${v["data"]["lastName"]}',
+              v["data"]["email"].toString(),
+            );
           } else {
             storeStripeCustomerId =
                 v["data"]["stripe_customer_id_Live"].toString();
@@ -285,6 +285,7 @@ class _CardsScreenState extends State<CardsScreen> {
           //
           logger.d("Stripe customer created successfully");
           // createStripeCustomerAccount(customerId);
+          showCCPanelFunc(context);
         }
       } else {
         customToast(successStatus, Colors.redAccent, ToastGravity.TOP);

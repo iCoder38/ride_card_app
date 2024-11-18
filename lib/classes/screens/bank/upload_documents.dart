@@ -86,7 +86,7 @@ class _FullScreenDocumentUploadPageState
             GestureDetector(
               onTap: () => _showImagePicker(context, true), // For front image
               child: Container(
-                height: 150,
+                height: 220,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
@@ -108,11 +108,11 @@ class _FullScreenDocumentUploadPageState
                       ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             GestureDetector(
               onTap: () => _showImagePicker(context, false), // For back image
               child: Container(
-                height: 150,
+                height: 220,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
@@ -186,6 +186,7 @@ class _FullScreenDocumentUploadPageState
             ),
           ),
         );
+        Navigator.pop(context);
       }
     } catch (e) {
       if (kDebugMode) {
