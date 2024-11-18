@@ -1,16 +1,19 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<Map<String, dynamic>?> getConnectedAccountBalance(
-    String connectedAccountId, String apiKey) async {
+  String connectedAccountId,
+  String apiKey,
+) async {
   final url = Uri.parse('https://api.stripe.com/v1/balance');
 
   final response = await http.get(
     url,
     headers: {
       'Authorization': 'Bearer $apiKey',
-      'Stripe-Account': connectedAccountId, // Specify the connected account
+      'Stripe-Account': connectedAccountId,
     },
   );
 
@@ -27,7 +30,9 @@ Future<Map<String, dynamic>?> getConnectedAccountBalance(
           .toList()
     };
   } else {
-    print('Failed to retrieve balance: ${response.body}');
+    if (kDebugMode) {
+      print('Failed to retrieve balance: ${response.body}');
+    }
     return null; // Return null if the request failed
   }
 }

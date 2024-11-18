@@ -405,17 +405,27 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
         Navigator.pop(context);
       } else {
         String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
-
         double payoutAmount = double.parse(contEnterAmount.text.toString());
-        const String currency = 'usd';
-
-        // Convert payout amount from double to integer in the smallest unit
         final int amountInSmallestUnit = (payoutAmount * 100).toInt();
         logger.d(amountInSmallestUnit);
-        await createPayout(
-          apiKey: apiKey,
+        // const amount = amountInSmallestUnit;
+        const currency = 'usd';
+        String connectedAccountId = storeBankAccountId;
+
+        // Step 1: Transfer funds to the connected Stripe account
+        await createTransfer(
           amount: amountInSmallestUnit,
           currency: currency,
+          connectedAccountId: connectedAccountId,
+          stripeSecretKey: apiKey,
+        );
+
+        // Step 2: Payout funds to the user's external bank account
+        await createPayout(
+          amount: amountInSmallestUnit,
+          currency: currency,
+          connectedAccountId: connectedAccountId,
+          stripeSecretKey: apiKey,
         );
       }
     } else {
