@@ -54,6 +54,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
   bool _hasFetchedRequirements = false;
   var storeDocumentId = '';
   bool _isVerified = false;
+  bool isOneMinuteCross = false;
   @override
   void initState() {
     //fetchProfileData();
@@ -550,6 +551,17 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                 _isVerified = allDocumentsData[0]['active'];
                 checkRequirements(accountId);
               }
+              // check time stamp
+              bool result = isTimestampOlderThanOneMinute(
+                  allDocumentsData[0]['timeStamp']);
+              if (kDebugMode) {
+                print("Is timestamp older than 1 minute? $result");
+              }
+              if (result == false) {
+                isOneMinuteCross = false;
+              } else {
+                isOneMinuteCross = true;
+              }
 
               return ListView.builder(
                 itemCount: allDocumentsData.length,
@@ -637,69 +649,78 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                       ),
                       const SizedBox(height: 20.0),
                       //
-                      Card(
-                        child: ListTile(
-                          title: textFontPOOPINS(
-                            "AN: ${data['bankAccountNumber']}",
-                            Colors.black,
-                            14.0,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          subtitle: textFontPOOPINS(
-                            "RN: ${data['bankRoutingNumber']}",
-                            Colors.black,
-                            12.0,
-                          ),
-                          trailing: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (data['active'] == true) ...[
-                                IconButton(
-                                  onPressed: () {
-                                    customToast(
-                                      'Verified.',
-                                      Colors.green,
-                                      ToastGravity.BOTTOM,
-                                    );
-                                  },
-                                  icon: const Icon(
-                                    Icons.verified,
-                                    color: Colors.green,
-                                  ),
+                      isOneMinuteCross == false
+                          ? Column(
+                              children: [
+                                const SizedBox(height: 140),
+                                textFontOPENSANS(
+                                    'In Process...', Colors.white, 14.0),
+                              ],
+                            )
+                          : Card(
+                              child: ListTile(
+                                title: textFontPOOPINS(
+                                  "AN: ${data['bankAccountNumber']}",
+                                  Colors.black,
+                                  14.0,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                              ] else ...[
-                                IconButton(
-                                  onPressed: () {
-                                    checkRequirements(
-                                        allDocumentsDataResponse[0]['accountId']
-                                            .toString());
-                                  },
-                                  icon: const Icon(Icons.info_outline),
+                                subtitle: textFontPOOPINS(
+                                  "RN: ${data['bankRoutingNumber']}",
+                                  Colors.black,
+                                  12.0,
                                 ),
-                              ]
-                            ],
-                          ),
-                          onTap: () {
-                            data['active'] == true
-                                ? customToast(
-                                    'Verified.',
-                                    Colors.green,
-                                    ToastGravity.BOTTOM,
-                                  )
-                                : Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          FullScreenDocumentUploadPage(
-                                        strBankAccountId: snapshot
-                                            .data!.docs[index]['accountId']
-                                            .toString(),
+                                trailing: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (data['active'] == true) ...[
+                                      IconButton(
+                                        onPressed: () {
+                                          customToast(
+                                            'Verified.',
+                                            Colors.green,
+                                            ToastGravity.BOTTOM,
+                                          );
+                                        },
+                                        icon: const Icon(
+                                          Icons.verified,
+                                          color: Colors.green,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                          },
-                        ),
-                      ),
+                                    ] else ...[
+                                      IconButton(
+                                        onPressed: () {
+                                          checkRequirements(
+                                              allDocumentsDataResponse[0]
+                                                      ['accountId']
+                                                  .toString());
+                                        },
+                                        icon: const Icon(Icons.info_outline),
+                                      ),
+                                    ]
+                                  ],
+                                ),
+                                onTap: () {
+                                  data['active'] == true
+                                      ? customToast(
+                                          'Verified.',
+                                          Colors.green,
+                                          ToastGravity.BOTTOM,
+                                        )
+                                      : Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                FullScreenDocumentUploadPage(
+                                              strBankAccountId: snapshot.data!
+                                                  .docs[index]['accountId']
+                                                  .toString(),
+                                            ),
+                                          ),
+                                        );
+                                },
+                              ),
+                            ),
                     ],
                   );
                 },
@@ -956,6 +977,18 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
       },
     );
   }*/
+  bool isTimestampOlderThanOneMinute(int timestamp) {
+    // Get the current time in milliseconds
+    int currentTime = DateTime.now().millisecondsSinceEpoch;
+
+    // Convert the given timestamp to milliseconds (if it’s in seconds)
+    if (timestamp.toString().length == 10) {
+      timestamp *= 1000; // Convert seconds to milliseconds
+    }
+
+    // Check if the difference is greater than 1 minute (60,000 milliseconds)
+    return (currentTime - timestamp) > 60000;
+  }
 
   void fetchAndDisplayStripeBalance(BuildContext context) async {
     final balanceData = await getStripeBalanceAPI();

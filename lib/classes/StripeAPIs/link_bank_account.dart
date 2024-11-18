@@ -17,7 +17,17 @@ Future<Map<String, String>> connectBankAccount({
   required String accountHolderType,
   required String ssnNumber,
   required String ssnNumber4,
-  String? routingNumber,
+  required String routingNumber,
+  required String firstName,
+  required String lastName,
+  required String dobDate,
+  required String dobMonth,
+  required String dobYear,
+  required String address,
+  required String city,
+  required String state,
+  required String zipcode,
+  required String phone,
 }) async {
   String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
 
@@ -28,6 +38,16 @@ Future<Map<String, String>> connectBankAccount({
       apiKey,
       ssnNumber,
       ssnNumber4,
+      firstName,
+      lastName,
+      dobDate,
+      dobMonth,
+      dobYear,
+      address,
+      city,
+      state,
+      zipcode,
+      phone,
     );
     if (connectedAccountId == null) {
       throw Exception('Failed to create connected account.');
@@ -60,8 +80,21 @@ Future<Map<String, String>> connectBankAccount({
     // Success: return the bank account ID
     return {'status': 'success', 'message': connectedAccountId};
   } catch (e) {
-    // Return the error message if something goes wrong
-    return {'status': 'error', 'message': e.toString()};
+    // Improved error handling
+    try {
+      // Check if the error is JSON and extract the message
+      final errorJson = json.decode(e.toString());
+      if (errorJson is Map &&
+          errorJson.containsKey('error') &&
+          errorJson['error'].containsKey('message')) {
+        return {'status': 'error', 'message': errorJson['error']['message']};
+      } else {
+        return {'status': 'error', 'message': 'An unknown error occurred.'};
+      }
+    } catch (_) {
+      // Return a clean string message if parsing fails
+      return {'status': 'error', 'message': e.toString()};
+    }
   }
 }
 
@@ -71,6 +104,16 @@ Future<String?> createConnectedAccount(
   String apiKey,
   String ssnNumber,
   String ssnNumber4,
+  String firstName,
+  String lastName,
+  String dobDate,
+  String dobMonth,
+  String dobYear,
+  String address,
+  String city,
+  String state,
+  String zipcode,
+  String phone,
 ) async {
   final url = Uri.parse('https://api.stripe.com/v1/accounts');
   final response = await http.post(
@@ -91,21 +134,21 @@ Future<String?> createConnectedAccount(
       'business_type': 'individual',
       'business_profile[mcc]': '7372',
       'business_profile[url]': 'https://ridewallets.com',
-      'individual[first_name]': loginUserName(),
-      'individual[last_name]': 'lastName',
-      'individual[dob][day]': '06',
-      'individual[dob][month]': '06',
-      'individual[dob][year]': '1992',
+      'individual[first_name]': firstName.toString(),
+      'individual[last_name]': lastName.toString(),
+      'individual[dob][day]': dobDate.toString(),
+      'individual[dob][month]': dobMonth.toString(),
+      'individual[dob][year]': dobYear.toString(),
       'individual[email]': loginUserEmail(),
-      'individual[phone]': '4025156413',
+      'individual[phone]': phone.toString(),
       // address
-      'individual[address][line1]': 'addressLine1',
-      'individual[address][city]': 'Maryland',
-      'individual[address][postal_code]': '11004',
-      'individual[address][state]': 'LA',
+      'individual[address][line1]': address.toString(),
+      'individual[address][city]': city.toString(),
+      'individual[address][postal_code]': zipcode.toString(),
+      'individual[address][state]': state.toString(),
       // id
-      'individual[id_number]': ssnNumber, // Full ID number if required
-      'individual[ssn_last_4]': ssnNumber4, // Last 4 digits of SSN
+      'individual[id_number]': ssnNumber,
+      'individual[ssn_last_4]': ssnNumber4,
       'tos_acceptance[date]':
           (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString(),
       'tos_acceptance[ip]': "203.0.113.42",
