@@ -1148,7 +1148,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
           Colors.red,
           ToastGravity.BOTTOM,
         );
-        // Navigator.pop(context, 'refresh');
+        Navigator.pop(context);
       });
     } else {
       if (kDebugMode) {

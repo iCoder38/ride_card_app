@@ -39,7 +39,7 @@ class AllBanksScreen extends StatefulWidget {
 }
 
 class _AllBanksScreenState extends State<AllBanksScreen> {
-  var screenLoader = false;
+  var screenLoader = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   final ApiService _apiService = ApiService();
@@ -58,14 +58,92 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
   bool _isVerified = false;
   bool isOneMinuteCross = false;
   bool isDocumentScreenUpload = false;
-  //
+  // new
+  bool isAccountStatusComplete = false;
+  String storeAccountNumber = '';
+  String storeRoutingNumber = '';
   @override
   void initState() {
     //fetchProfileData();
     // checkBalance();
-    // getAllBanksAccounts();
+    getAllDocumentsData();
 
     super.initState();
+  }
+
+  Future<List<Map<String, dynamic>>> getAllDocumentsData() async {
+    List<Map<String, dynamic>> allDocumentsData = [];
+    await FirebaseFirestore.instance
+        .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
+        .where('userId', isEqualTo: loginUserId())
+        .get()
+        .then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        // Loop through each document in the snapshot
+        for (var document in snapshot.docs) {
+          if (kDebugMode) {
+            print("Document ID: ${document.id}");
+          }
+
+          // Retrieve all data inside the document
+          Map<String, dynamic> data = document.data();
+          logger.d(data);
+          storeDocumentId = document.id;
+          checkBankAccountStatus(data['accountId'].toString());
+
+          // Add the document's data to the array
+          /*allDocumentsData.add(data);
+          setState(() {
+            screenLoader = false;
+          });*/
+        }
+      } else {
+        if (kDebugMode) {
+          print("No documents found for the user.");
+        }
+        setState(() {
+          screenLoader = false;
+        });
+      }
+    }).catchError((error) {
+      if (kDebugMode) {
+        print("Failed to retrieve data: $error");
+      }
+    });
+
+    // Return the list of all document data
+    return allDocumentsData;
+  }
+
+  void checkBankAccountStatus(String bankId) async {
+    String accountId = bankId;
+    //  String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+
+    checkRequirements(accountId.toString());
+
+    /* var result = await checkAccountStatus(accountId, apiKey);
+
+    logger.d(result);
+    logger.d(result['status']);
+    if (result['status'] == 'Account is fully verified and active.') {
+      logger.d(result);
+    } else if (result['status'] == 'Account has issues.') {
+      logger.d(result['eventually_due'][0]);
+      
+    }*/
+    /*if (result.containsKey("error")) {
+      if (kDebugMode) {
+        print("Error: ${result['error']}");
+      }
+    } else {
+      if (kDebugMode) {
+        print("Charges Enabled: ${result['charges_enabled']}");
+        print("Payouts Enabled: ${result['payouts_enabled']}");
+        print("Disabled Reason: ${result['disabled_reason']}");
+        print("Currently Due: ${result['currently_due']}");
+        print("Past Due: ${result['past_due']}");
+      }
+    }*/
   }
 
   /*void getAllBanksAccounts() async {
@@ -81,9 +159,9 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
       checkRequirements(allDocumentsDataResponse[0]['accountId'].toString());
     }
 
-    setState(() {
+    /*setState(() {
       screenLoader = false;
-    });
+    });*/
   }*/
 
   void checkAccountVerification() async {
@@ -161,41 +239,6 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
         );
       },
     );
-  }*/
-
-  /*Future<List<Map<String, dynamic>>> getAllDocumentsData() async {
-    List<Map<String, dynamic>> allDocumentsData = [];
-    await FirebaseFirestore.instance
-        .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
-        .where('userId', isEqualTo: loginUserId())
-        .get()
-        .then((snapshot) {
-      if (snapshot.docs.isNotEmpty) {
-        // Loop through each document in the snapshot
-        for (var document in snapshot.docs) {
-          if (kDebugMode) {
-            print("Document ID: ${document.id}");
-          }
-
-          // Retrieve all data inside the document
-          Map<String, dynamic> data = document.data();
-
-          // Add the document's data to the array
-          allDocumentsData.add(data);
-        }
-      } else {
-        if (kDebugMode) {
-          print("No documents found for the user.");
-        }
-      }
-    }).catchError((error) {
-      if (kDebugMode) {
-        print("Failed to retrieve data: $error");
-      }
-    });
-
-    // Return the list of all document data
-    return allDocumentsData;
   }*/
 
   void checkBalance() async {
@@ -570,10 +613,10 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                 }
               }
               //
-              checkAccountStatus(
+              /*checkAccountStatus(
                 allDocumentsData[0]['accountId'],
                 dotenv.env["STRIPE_SK_KEY"]!,
-              );
+              );*/
 
               return ListView.builder(
                 itemCount: allDocumentsData.length,
@@ -702,10 +745,10 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                                     ] else ...[
                                       IconButton(
                                         onPressed: () {
-                                          checkRequirements(
+                                          /*checkRequirements(
                                               allDocumentsDataResponse[0]
                                                       ['accountId']
-                                                  .toString());
+                                                  .toString());*/
                                         },
                                         icon: const Icon(Icons.info_outline),
                                       ),
@@ -713,7 +756,10 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                                   ],
                                 ),
                                 onTap: () {
-                                  data['active'] == true
+                                  checkRequirements(snapshot
+                                      .data!.docs[index]['accountId']
+                                      .toString());
+                                  /*data['active'] == true
                                       ? customToast(
                                           'Verified.',
                                           Colors.green,
@@ -721,7 +767,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                                         )
                                       : checkRequirements(snapshot
                                           .data!.docs[index]['accountId']
-                                          .toString());
+                                          .toString());*/
                                   /*isDocumentScreenUpload == false
                                           ? const SizedBox()
                                           : Navigator.push(
@@ -1114,6 +1160,14 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
           'active': true,
         }).then((v) {
           logger.d('Yes, It is');
+          setState(() {
+            customToast(
+              'Verified.',
+              Colors.green,
+              ToastGravity.BOTTOM,
+            );
+            screenLoader = false;
+          });
         });
       } else {
         FirebaseFirestore.instance
@@ -1169,6 +1223,9 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
               .update({
             'active': false,
           }).then((v) {
+            setState(() {
+              screenLoader = false;
+            });
             showBottomSheetWithTextField(context, connectedAccountId);
           });
         }

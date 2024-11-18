@@ -269,32 +269,56 @@ Future<Map<String, String>> updateIdNumber({
   }
 }
 
-Future<void> checkAccountStatus(String accountId, String apiKey) async {
+// check account status
+/*Future<Map<String, dynamic>> checkAccountStatus(
+    String accountId, String apiKey) async {
   final url = Uri.parse('https://api.stripe.com/v1/accounts/$accountId');
 
-  final response = await http.get(
-    url,
-    headers: {
-      'Authorization': 'Bearer $apiKey',
-    },
-  );
+  try {
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+      },
+    );
 
-  if (response.statusCode == 200) {
-    final data = json.decode(response.body);
-    if (kDebugMode) {
-      print(data);
-      print("Account Status: ${data['requirements']['disabled_reason']}");
-      print("Account Status: ${data['requirements']['disabled_reason']}");
-      print("Currently Due: ${data['requirements']['currently_due']}");
-      print("Past Due: ${data['requirements']['past_due']}");
-      print("Pending Verification: ${data['requirements']['eventually_due']}");
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      // Determine if account is fully verified
+      final isSuccess = data['requirements']['currently_due'].isEmpty &&
+          data['requirements']['past_due'].isEmpty &&
+          data['requirements']['disabled_reason'] == null &&
+          data['charges_enabled'] == true &&
+          data['payouts_enabled'] == true;
+
+      return {
+        "success": isSuccess,
+        "status": isSuccess
+            ? "Account is fully verified and active."
+            : "Account has issues.",
+        "details": {
+          "disabled_reason": data['requirements']['disabled_reason'],
+          "currently_due": data['requirements']['currently_due'],
+          "past_due": data['requirements']['past_due'],
+          "eventually_due": data['requirements']['eventually_due'],
+        },
+      };
+    } else {
+      return {
+        "success": false,
+        "status": "Failed to retrieve account status.",
+        "error": json.decode(response.body)['error']['message'],
+      };
     }
-  } else {
-    if (kDebugMode) {
-      print("Failed to retrieve account status: ${response.body}");
-    }
+  } catch (e) {
+    return {
+      "success": false,
+      "status": "An exception occurred.",
+      "error": e.toString(),
+    };
   }
-}
+}*/
 
 /*Future<void> manageConnectedAccount({
   required String userId, // Unique ID for the user in your system

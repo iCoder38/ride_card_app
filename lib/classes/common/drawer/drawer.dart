@@ -310,7 +310,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 );
               },
             ),
-            ListTile(
+            /*ListTile(
               leading: const Icon(
                 Icons.assured_workload,
                 color: Colors.white,
@@ -328,8 +328,8 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       builder: (context) => const BankToBankTransfterScreen()),
                 );
               },
-            ),
-            ListTile(
+            ),*/
+            /*ListTile(
               leading: const Icon(
                 Icons.account_balance,
                 color: Colors.white,
@@ -347,7 +347,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       builder: (context) => const SelfTransferScreen()),
                 );
               },
-            ),
+            ),*/
 
             ListTile(
               leading: const Icon(

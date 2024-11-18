@@ -82,7 +82,8 @@ class ApiService {
       token = token;
     }
     final url = Uri.parse(
-        'https://demo4.evirtualservices.net/ridewallet/webroot/strip_master/strip_master/subscribe_test.php');
+        // 'https://demo4.evirtualservices.net/ridewallet/webroot/strip_master/strip_master/subscribe_test.php');
+        'https://app.ridewallets.com/webroot/strip_master/strip_master/subscribe.php');
     final response = await http.post(
       url,
       headers: {

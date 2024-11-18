@@ -858,7 +858,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: textFontPOOPINS(
-            'Add money',
+            'Add money 22',
             Colors.black,
             16.0,
             fontWeight: FontWeight.w600,
@@ -900,10 +900,10 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
 
                   if (strUserSelectCardType == '2') {
                     // payment unit
-                    debugPrint('UNIT PAYMENT');
+                    logger.d('UNIT PAYMENT');
                   } else {
                     // evs api: add money
-                    debugPrint('STRIPE PAYMENT 3');
+                    logger.d('STRIPE PAYMENT 3');
                     generateStripeToken(
                       cardNumber: strUserSelectCardNumber,
                       expMonth: expMonth,

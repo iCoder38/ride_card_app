@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -6,6 +7,10 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ride_card_app/classes/StripeAPIs/bank_details.dart';
+import 'package:ride_card_app/classes/StripeAPIs/check_account_balance.dart';
+import 'package:ride_card_app/classes/StripeAPIs/get_connected_bank_balance.dart';
+import 'package:ride_card_app/classes/StripeAPIs/payout_pay.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
@@ -60,10 +65,54 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
   bool isUserSelectSavedCard = false;
   var storeStripeCustomerId = '';
   var storeStripeToken = '';
+  String storeDocumentId = '';
+  String storeBankAccountId = '';
   @override
   void initState() {
-    fetchProfileData();
+    getAllDocumentsData();
+
     super.initState();
+  }
+
+  Future<List<Map<String, dynamic>>> getAllDocumentsData() async {
+    List<Map<String, dynamic>> allDocumentsData = [];
+    await FirebaseFirestore.instance
+        .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
+        .where('userId', isEqualTo: loginUserId())
+        .get()
+        .then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        // Loop through each document in the snapshot
+        for (var document in snapshot.docs) {
+          if (kDebugMode) {
+            print("Document ID: ${document.id}");
+          }
+
+          // Retrieve all data inside the document
+          Map<String, dynamic> data = document.data();
+          logger.d(data);
+          storeDocumentId = document.id;
+          storeBankAccountId = data['accountId'].toString();
+          logger.d(storeBankAccountId);
+          contYourBankAccount.text = data['bankAccountNumber'].toString();
+          fetchProfileData();
+        }
+      } else {
+        if (kDebugMode) {
+          print("No documents found for the user.");
+        }
+        setState(() {
+          screenLoader = false;
+        });
+      }
+    }).catchError((error) {
+      if (kDebugMode) {
+        print("Failed to retrieve data: $error");
+      }
+    });
+
+    // Return the list of all document data
+    return allDocumentsData;
   }
 
   @override
@@ -242,17 +291,17 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 14.0,
                   ),
-                  onTap: () {
+                  /*onTap: () {
                     _showAccountSelectionSheet(context);
 
                     // Open the bottom sheet when tapped
-                  },
-                  validator: (value) {
+                  },*/
+                  /*validator: (value) {
                     if (value == null || value.isEmpty) {
                       return TEXT_FIELD_EMPTY_TEXT;
                     }
                     return null;
-                  },
+                  },*/
                 ),
               ),
             ),
@@ -283,7 +332,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                     showLoadingUI(context, 'please wait...');
                     /*logger.d(dotenv.env['UNIT_BANK_ID'].toString());
                     logger.d(selectedAccountId.toString());*/
-                    final amount = convertDollarsToCentsAsString(
+                    /*final amount = convertDollarsToCentsAsString(
                         contEnterAmount.text.toString());
                     logger.d(amount.toString());
 
@@ -293,7 +342,8 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
 
                     // first send payment to client as convenience fees
 
-                    getFeesAndTaxes();
+                    getFeesAndTaxes();*/
+                    payoutAndPay();
                   }
                 }
               },
@@ -321,6 +371,61 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
         ],
       ),
     );
+  }
+
+  void payoutAndPay() async {
+    fetchAndDisplayStripeBalance(context);
+  }
+
+  void fetchAndDisplayStripeBalance(BuildContext context) async {
+    final balanceData = await getStripeBalanceAPI();
+
+    if (balanceData != null) {
+      final availableBalance = balanceData['available'][0]['amount'];
+      final currency = balanceData['available'][0]['currency'];
+
+      if (kDebugMode) {
+        print(availableBalance);
+      }
+
+      /*ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Available Balance: ${(availableBalance / 100).toStringAsFixed(2)} $currency'),
+        ),
+      );*/
+      logger.d(
+          'Available Balance: ${(availableBalance / 100).toStringAsFixed(2)} $currency');
+      if (availableBalance == 0 || availableBalance == 0.0) {
+        customToast(
+          'Something went wrong. Please contact admin.',
+          Colors.redAccent,
+          ToastGravity.BOTTOM,
+        );
+        Navigator.pop(context);
+      } else {
+        String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+
+        double payoutAmount = double.parse(contEnterAmount.text.toString());
+        const String currency = 'usd';
+
+        // Convert payout amount from double to integer in the smallest unit
+        final int amountInSmallestUnit = (payoutAmount * 100).toInt();
+        logger.d(amountInSmallestUnit);
+        await createPayout(
+          apiKey: apiKey,
+          amount: amountInSmallestUnit,
+          currency: currency,
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to retrieve Stripe balance.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void getFeesAndTaxes() async {
@@ -488,15 +593,48 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
       logger.d(v);
       customerID = v['data']['customerId'].toString();
       balanceIs = v['data']['wallet'].toString();
-      debugPrint('CUSTOM ID ==> $customerID');
-      fetchAccountDetails();
+      logger.d('Balance is: ==> $balanceIs');
+      // fetchAccountDetails();
+      getBankAccountInfo(storeBankAccountId);
+      setState(() {
+        screenLoader = false;
+      });
     });
+  }
+
+  void getBankAccountInfo(String bankAccountId) async {
+    String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+    final bankAccountDetails = await getConnectedAccountBalance(
+      storeBankAccountId,
+      apiKey,
+    );
+
+    if (bankAccountDetails != null) {
+      if (kDebugMode) {
+        print(bankAccountDetails);
+        /*print('Bank Name: ${bankAccountDetails['bank_name']}');
+        print(
+            'Account Holder Name: ${bankAccountDetails['account_holder_name']}');
+        print('Routing Number: ${bankAccountDetails['routing_number']}');
+        print(
+            'Last 4 Digits of Account Number: ${bankAccountDetails['last4']}');*/
+      }
+
+      // You can display this information in your UI as needed
+    } else {
+      if (kDebugMode) {
+        print('Failed to retrieve bank account details.');
+      }
+    }
   }
 
   Future<void> fetchAccountDetails() async {
     accountDetails = await GetAllUnitAccountsService
         .getParticularAccountDetailsViaCustomerId(customerID);
     logger.d(accountDetails?[0]);
+    if (kDebugMode) {
+      print(storeBankAccountId);
+    }
     if (showLoader == '1') {
       showLoader = '0';
       Navigator.pop(context);

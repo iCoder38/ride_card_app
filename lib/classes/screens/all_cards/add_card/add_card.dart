@@ -417,11 +417,11 @@ class _AddCardScreenState extends State<AddCardScreen> {
   void _addCardInEvsServer(context) async {
     // debugPrint('API ==> ADD CARD');
     //  showLoadingUI(context, 'please wait...');
-    customToast(
+    /*customToast(
       '10: add card',
       Colors.red,
       ToastGravity.BOTTOM,
-    );
+    );*/
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
     var userId = prefs.getString('Key_save_login_user_id').toString();
