@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
-import 'package:ride_card_app/classes/screens/all_accounts/all_accounts.dart';
+// import 'package:ride_card_app/classes/screens/all_accounts/all_accounts.dart';
+import 'package:ride_card_app/classes/screens/bank/list.dart';
 
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/send_money.dart';
@@ -16,10 +17,14 @@ Widget widgetDashboardUpperDeck(context) {
         child: GestureDetector(
           onTap: () {
             //
-            Navigator.push(
+            /*Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => const AllAccountsScreen()),
+            );*/
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AllBanksScreen()),
             );
           },
           child: Container(

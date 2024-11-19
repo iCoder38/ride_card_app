@@ -11,6 +11,7 @@ import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
+import 'package:ride_card_app/classes/screens/login/forgot_password.dart';
 import 'package:ride_card_app/classes/screens/register/register.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool evsRegistered = false;
   final TextEditingController _textController = TextEditingController();
   //
+  var storeEmailAddress = '';
   @override
   void initState() {
     // _sendToLogin(context);
@@ -297,20 +299,22 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
+                keyboardType: TextInputType.emailAddress,
                 controller: _textController,
-                decoration: InputDecoration(labelText: 'Enter text here'),
+                decoration: const InputDecoration(labelText: 'Enter text here'),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
+                    storeEmailAddress = _textController.text;
                     Navigator.pop(
                       context,
                       _textController.text,
                     ); // Pass the text back
                   },
-                  child: Text('Submit'),
+                  child: const Text('Submit'),
                 ),
               ),
             ],
@@ -367,6 +371,14 @@ class _LoginScreenState extends State<LoginScreen> {
               successMessage,
               Colors.green,
               ToastGravity.BOTTOM,
+            );
+            // showCustomBottomSheet(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    ForgotPasswordScreen(emailAddress: storeEmailAddress),
+              ),
             );
           } else if (successStatus == 'Fails') {
             Navigator.pop(context);
@@ -553,4 +565,93 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     });
   }
+
+  void showCustomBottomSheet(BuildContext context) {
+    final TextEditingController otpController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled:
+          true, // Allows the bottom sheet to resize for the keyboard
+      isDismissible: false,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context)
+                .viewInsets
+                .bottom, // Adjust for the keyboard
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: otpController,
+                  decoration: const InputDecoration(
+                    labelText: 'OTP',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: passwordController,
+                  decoration: const InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(),
+                  ),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        // Handle Submit button logic here
+                        Navigator.pop(context);
+                        String otp = otpController.text;
+                        String password = passwordController.text;
+
+                        // Print or use the values
+                        if (kDebugMode) {
+                          print("OTP: $otp, Password: $password");
+                        }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ForgotPasswordScreen(
+                                emailAddress: storeEmailAddress),
+                          ),
+                        );
+                        // resetOTP(context, otp, password);
+                      },
+                      child: const Text('Submit'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Dismiss the bottom sheet
+                      },
+                      child: const Text('Dismiss'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+/*
+action:resetpassword
+email:
+OTP:
+password:
+*/
 }
