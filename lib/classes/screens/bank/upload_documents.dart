@@ -46,16 +46,16 @@ class _FullScreenDocumentUploadPageState
           child: Wrap(
             children: <Widget>[
               ListTile(
-                leading: Icon(Icons.photo_library),
-                title: Text('Gallery'),
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Gallery'),
                 onTap: () {
                   _pickImage(ImageSource.gallery, isFront);
                   Navigator.of(context).pop();
                 },
               ),
               ListTile(
-                leading: Icon(Icons.camera_alt),
-                title: Text('Camera'),
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Camera'),
                 onTap: () {
                   _pickImage(ImageSource.camera, isFront);
                   Navigator.of(context).pop();
@@ -72,17 +72,17 @@ class _FullScreenDocumentUploadPageState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Upload Documents'),
+        title: const Text('Upload Documents'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Text(
+            const Text(
               'Upload Front and Back of ID',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             GestureDetector(
               onTap: () => _showImagePicker(context, true), // For front image
               child: Container(
@@ -95,7 +95,7 @@ class _FullScreenDocumentUploadPageState
                 ),
                 child: _frontImage != null
                     ? Image.file(_frontImage!, fit: BoxFit.cover)
-                    : Column(
+                    : const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.upload, size: 40, color: Colors.grey),

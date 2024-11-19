@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:ride_card_app/classes/screens/welcome/welcome.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 clearCache() {
@@ -27,9 +28,14 @@ clearCache() {
   manager.emptyCache();
 }
 
-Future<void> signOut() async {
+Future<void> signOut(context) async {
   await FirebaseAuth.instance.signOut().then((value) => {
-        //
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const WelcomeScreen(),
+          ),
+        )
       });
 }
 

@@ -505,7 +505,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 prefs2.remove('Key_save_login_user_id');
                 prefs2.remove('Key_save_login_profile_picture');
                 //
-                signOut();
+                signOut(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -541,8 +541,9 @@ class _CustomDrawerState extends State<CustomDrawer> {
               ),
               const SizedBox(height: 16),
               const Center(
-                child:
-                    Text('Your account will be deleted account permanently.'),
+                child: Text(
+                  'Your account will be deleted account permanently.',
+                ),
               ),
               const SizedBox(height: 20),
               Center(
@@ -555,7 +556,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                     prefs2.remove('Key_save_login_user_id');
                     prefs2.remove('Key_save_login_profile_picture');
                     //
-                    signOut();
+                    signOut(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(

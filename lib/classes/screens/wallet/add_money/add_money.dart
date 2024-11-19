@@ -858,7 +858,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: textFontPOOPINS(
-            'Add money 22',
+            'Add money',
             Colors.black,
             16.0,
             fontWeight: FontWeight.w600,

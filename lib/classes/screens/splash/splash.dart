@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/get_started_now/get_started_now.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
+import 'package:ride_card_app/classes/screens/welcome/welcome.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -252,11 +253,18 @@ checkUserIsLoginOrNot(context) {
       if (kDebugMode) {
         print('User is currently signed out!');
       }
-      Navigator.pushAndRemoveUntil(
+      Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const GetStartedNowScreen()),
-        (Route<dynamic> route) => false,
+        MaterialPageRoute(
+          // builder: (context) => const HomeFeedScreen(),
+          builder: (context) => const GetStartedNowScreen(),
+        ),
       );
+      /*Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+        (Route<dynamic> route) => false,
+      );*/
     } else {
       if (kDebugMode) {
         print('User is signed in!');

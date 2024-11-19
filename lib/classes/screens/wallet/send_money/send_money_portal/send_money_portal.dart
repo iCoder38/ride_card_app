@@ -498,7 +498,8 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
             'userId': receiverId, // receiverId
             'amount': deductAmountWithCommision,
             'type': type,
-            'admincharge': fees,
+            'admincharge': '0',
+            // fees,
           }
         : parameters = {
             'action': 'sendmoney',
@@ -506,7 +507,8 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
             'userId': userId, // login id
             'amount': deductAmountWithCommision,
             'type': type,
-            'admincharge': fees,
+            'admincharge': '0',
+            // fees,
           };
     if (kDebugMode) {
       print(parameters);

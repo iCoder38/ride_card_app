@@ -79,9 +79,9 @@ class _CardsScreenState extends State<CardsScreen> {
   showCCPanelFunc(context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     showCCPanel = prefs.getString('key_show_cc_panel').toString();
-    if (kDebugMode) {
+    /*if (kDebugMode) {
       print('panel ==> $showCCPanel');
-    }
+    }*/
     if (showCCPanel == 'yes') {
       //
       prefs.remove('key_show_cc_panel');
@@ -96,7 +96,7 @@ class _CardsScreenState extends State<CardsScreen> {
     await sendRequestToProfileDynamic().then((v) async {
       logger.d(v);
       if (v == null) {
-        logger.d('Hit again');
+        // logger.d('Hit again');
         fetchProfileData();
       } else {
         SharedPreferences prefs2 = await SharedPreferences.getInstance();
@@ -105,7 +105,7 @@ class _CardsScreenState extends State<CardsScreen> {
         prefs2.setString('key_save_user_role', v['data']['role'].toString());
 
         if (STRIPE_STATUS == 'T') {
-          logger.d('Mode: Test');
+          // logger.d('Mode: Test');
           if (v["stripe_customer_id_Test"].toString() == '') {
             /* createCustomerInStripe(
             '${v["data"]["fullName"]} ${v["data"]["lastName"]}',
@@ -113,7 +113,7 @@ class _CardsScreenState extends State<CardsScreen> {
           );*/
           }
         } else {
-          logger.d('Mode: Live');
+          // logger.d('Mode: Live');
           if (v["data"]["stripe_customer_id_Live"].toString() == '') {
             logger.d('No, Stripe customer account.');
             createCustomerInStripe(
@@ -127,7 +127,6 @@ class _CardsScreenState extends State<CardsScreen> {
               screenLoader = false;
             });
           }
-
           // addBankAccount('${v["data"]["fullName"]} ${v["data"]["lastName"]}');
         }
       }
