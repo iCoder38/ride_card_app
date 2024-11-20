@@ -442,7 +442,10 @@ class _WalletScreenState extends State<WalletScreen> {
                     builder: (context) => SuccessScreen(
                       receiverData: arrAllUser[i],
                       responseData: arrAllUser[i],
-                      amount: arrAllUser[i]['amount'].toString(),
+                      amount: calculateTotalAmount(
+                          arrAllUser[i]['amount'].toString(),
+                          arrAllUser[i]['admincharge'].toString()),
+                      // arrAllUser[i]['amount'].toString(),
                       showButton: false,
                       status: '1',
                     ),
