@@ -15,8 +15,8 @@ import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
-import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
-import 'package:ride_card_app/classes/screens/register_complete_profile_business/register_complete_profile_business.dart';
+// import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
+// import 'package:ride_card_app/classes/screens/register_complete_profile_business/register_complete_profile_business.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1194,9 +1194,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   // CREATE ACCOUNT IN UNIT
   Future<void> createCustomerInUnit(context) async {
-    //
-    debugPrint('==============================================');
-    debugPrint('============= UNIT ===========================');
+    logger.d('============= UNIT ===========================');
     UUID_KEY_FOR_REGISTRATION = const Uuid().v4();
     //
     String baseUrl = CREATE_APPLICATION_URL;
@@ -1247,6 +1245,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     if (kDebugMode) {
       print(body);
     }
+    logger.d(widget.getEmail.toString());
 
     try {
       final response = await http.post(
@@ -1266,11 +1265,12 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         final jsonData = json.decode(response.body);
         // print(jsonData['data']);
         // print(jsonData['data']['attributes']['status']);
-        debugPrint('=================== S');
-        if (kDebugMode) {
+
+        /*if (kDebugMode) {
+          print('=================== S');
           print(jsonData);
-          debugPrint('===================');
-        }
+          print('===================');
+        }*/
         //
         // var decodedData = json.decode(jsonData);
         //  var attributes = jsonData['data']['attributes'];
@@ -1289,7 +1289,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           return;
         } else if (jsonData['data']['attributes']['status'] ==
             'AwaitingDocuments') {
-          debugPrint('======> AWAITED DOCUMENTS <=======');
+          logger.d('======> AWAITED DOCUMENTS <=======');
           //
           createdCustomerId = jsonData['included'][0]['id'].toString();
           if (kDebugMode) {
@@ -1300,7 +1300,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
             Colors.redAccent,
             ToastGravity.BOTTOM,
           );
-          createCustomerInSquare(UUID_KEY_FOR_REGISTRATION);
+          // createCustomerInSquare(UUID_KEY_FOR_REGISTRATION);
+          _sendRequestToCompleteProfile(UUID_KEY_FOR_REGISTRATION);
         } else {
           debugPrint('======> APPROVED <=======');
           // if (kDebugMode) {
@@ -1310,7 +1311,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   ['data']['id']
               .toString();
           // _sendRequestToCompleteProfile();
-          createCustomerInSquare(UUID_KEY_FOR_REGISTRATION);
+          // createCustomerInSquare(UUID_KEY_FOR_REGISTRATION);
+          _sendRequestToCompleteProfile(UUID_KEY_FOR_REGISTRATION);
         }
 
         //
@@ -1353,7 +1355,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     }
   }
 
-  createCustomerInSquare(generateUUID) async {
+  /*createCustomerInSquare(generateUUID) async {
     debugPrint('=============================================');
     debugPrint('======== SQUARE CUSTOMER ==============');
     debugPrint('=============================================');
@@ -1422,7 +1424,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     } catch (error) {
       print('Failed to create customer: $error');
     }*/
-  }
+  }*/
 
   // API
   void _sendRequestToCompleteProfile(String squareCustomerId) async {
@@ -1452,8 +1454,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       'PlaceOfWork': _contSourceOfIncome.text.toString(),
       'address': _contAddress.text.toString(),
       'occupation': _contOccupation.text.toString(),
-      'key_data': UUID_KEY_FOR_REGISTRATION,
-      'firebaseId': squareCustomerId.toString(),
+      'key_data': squareCustomerId,
+      'firebaseId': '', //squareCustomerId.toString(),
       'customerId': createdCustomerId,
     };
     if (kDebugMode) {
@@ -1489,9 +1491,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           )
               .then((v) {
             //
-            if (kDebugMode) {
+            /*if (kDebugMode) {
               print('TOKEN ==> $v');
-            }
+            }*/
             // again click
             _sendRequestToCompleteProfile(squareCustomerId);
           });
@@ -1584,15 +1586,17 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   }
 
   successfullyCreatedAccount(status, message) {
-    //
     customToast(message, Colors.green, ToastGravity.BOTTOM);
     Navigator.pop(context);
-    Navigator.push(
+    Navigator.pop(context);
+    Navigator.pop(context);
+    /*Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => BottomBar(
-                selectedIndex: 0,
-              )),
-    );
+        builder: (context) => BottomBar(
+          selectedIndex: 0,
+        ),
+      ),
+    );*/
   }
 }

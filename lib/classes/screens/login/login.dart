@@ -13,6 +13,7 @@ import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/cards.dart';
 import 'package:ride_card_app/classes/screens/login/forgot_password.dart';
 import 'package:ride_card_app/classes/screens/register/register.dart';
+import 'package:ride_card_app/classes/screens/register_complete_profile/register_complete_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -428,7 +429,7 @@ class _LoginScreenState extends State<LoginScreen> {
       String successMessage = jsonResponse['msg'];
 
       if (response.statusCode == 200) {
-        debugPrint('LOGIN: RESPONSE ==> SUCCESS');
+        // debugPrint('LOGIN: RESPONSE ==> SUCCESS');
         //
         if (successMessage == 'Email or password is wrong.') {
           //
@@ -437,21 +438,39 @@ class _LoginScreenState extends State<LoginScreen> {
         } else {
           //
           if (successStatus == 'success') {
-            SharedPreferences prefs2 = await SharedPreferences.getInstance();
-            prefs2.setString('Key_save_login_user_id',
-                jsonResponse['data']['userId'].toString());
-            prefs2.setString(
-              'key_save_user_role',
-              jsonResponse['data']['role'].toString(),
-            );
             //
-            evsRegistered = true;
-            _loginViaFirebase(
-              context,
-              jsonResponse['data']['fullName'],
-              jsonResponse['data']['lastName'],
-              jsonResponse['data']['email'],
-            );
+
+            logger.d(jsonResponse);
+            if (jsonResponse['data']['dob'].toString() == '') {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CompleteProfileScreen(
+                    getFirstName: jsonResponse['data']['fullName'].toString(),
+                    getLastName: jsonResponse['data']['lastName'].toString(),
+                    getContactNumber:
+                        jsonResponse['data']['contactNumber'].toString(),
+                    getEmail: jsonResponse['data']['email'].toString(),
+                    userId: jsonResponse['data']['userId'].toString(),
+                  ),
+                ),
+              );
+            } else {
+              SharedPreferences prefs2 = await SharedPreferences.getInstance();
+              prefs2.setString('Key_save_login_user_id',
+                  jsonResponse['data']['userId'].toString());
+              prefs2.setString(
+                'key_save_user_role',
+                jsonResponse['data']['role'].toString(),
+              );
+              evsRegistered = true;
+              _loginViaFirebase(
+                context,
+                jsonResponse['data']['fullName'],
+                jsonResponse['data']['lastName'],
+                jsonResponse['data']['email'],
+              );
+            }
           } else {
             customToast(
               'Something went wrong with server',
@@ -488,9 +507,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (kDebugMode) {
         print(e);
       } // Handle errors here
-      debugPrint('FIREBASE ERROR');
+      // debugPrint('FIREBASE ERROR');
       if (evsRegistered == true) {
-        //
         createAnAccountInFirebase(context, firstName, lastName, email);
       }
     }
@@ -498,8 +516,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   createAnAccountInFirebase(context, firstName, lastName, email) async {
     //
-    debugPrint('==================================================');
-    debugPrint('============= FIREBASE ===========================');
+    // debugPrint('==================================================');
+    logger.d('============= FIREBASE ===========================');
     // showLoadingUI(context, PLEASE_WAIT);
     try {
       await FirebaseAuth.instance
@@ -508,8 +526,6 @@ class _LoginScreenState extends State<LoginScreen> {
             password: 'firebase_password_rca_!',
           )
           .then((value) => {
-                //
-                // debugPrint('REGISTERED IN FIREBASE'),
                 updateUserName(context, firstName, lastName)
                 //
               });
@@ -554,7 +570,7 @@ class _LoginScreenState extends State<LoginScreen> {
     await FirebaseAuth.instance.currentUser!
         .updateDisplayName(mergeName)
         .then((v) {
-      debugPrint('REGISTERED NAME ALSO');
+      logger.d('REGISTERED NAME ALSO');
       //
       Navigator.pop(context);
       Navigator.push(

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
@@ -27,6 +28,7 @@ import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -115,7 +117,7 @@ class _CardsScreenState extends State<CardsScreen> {
         } else {
           // logger.d('Mode: Live');
           if (v["data"]["stripe_customer_id_Live"].toString() == '') {
-            logger.d('No, Stripe customer account.');
+            // logger.d('No, Stripe customer account.');
             createCustomerInStripe(
               '${v["data"]["fullName"]} ${v["data"]["lastName"]}',
               v["data"]["email"].toString(),
@@ -523,7 +525,8 @@ class _CardsScreenState extends State<CardsScreen> {
                 }
                 // again click
               });*/
-              getUserFullDataToSendNotification('nILM0K6h3pWHweAhKcI5cZDTGky1');
+              // getUserFullDataToSendNotification('nILM0K6h3pWHweAhKcI5cZDTGky1');
+              // openLink();
             },
             child: Container(
               height: 60,
@@ -562,6 +565,7 @@ class _CardsScreenState extends State<CardsScreen> {
               //   MaterialPageRoute(
               //       builder: (context) => const RegisterScreen()),
               // );
+              openLink();
             },
             child: Container(
               height: 60,
@@ -593,6 +597,20 @@ class _CardsScreenState extends State<CardsScreen> {
     );
   }
 
+  void openLink() async {
+    String androidLink =
+        "https://play.google.com/store/apps/details?id=ridemobility.app";
+    String iosLink = "https://apps.apple.com/lt/app/id1619072901";
+    // Determine the link based on the platform
+    final String link = Platform.isAndroid ? androidLink : iosLink;
+
+    // Try launching the URL
+    if (await canLaunch(link)) {
+      await launch(link);
+    } else {
+      throw 'Could not launch $link';
+    }
+  }
   /*Future<void> fetchCreditScore() async {
     print('object 2 ');
     try {

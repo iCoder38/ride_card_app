@@ -70,8 +70,9 @@ class _AddBankScreenState extends State<AddBankScreen> {
       userData = v['data'];
       setState(() {
         // name
-        _contFirstName.text = userData['fullName'].toString();
-        _contLastName.text = userData['lastName'].toString();
+        _contFirstName.text = ''; //userData['fullName'].toString();
+        _contLastName.text = '';
+        // userData['lastName'].toString();
         // dob
         String date = userData['dob'].toString();
         List<String> dateParts = date.split('-');

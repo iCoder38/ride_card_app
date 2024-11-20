@@ -39,7 +39,7 @@ class AllBanksScreen extends StatefulWidget {
 }
 
 class _AllBanksScreenState extends State<AllBanksScreen> {
-  var screenLoader = true;
+  var screenLoader = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   final ApiService _apiService = ApiService();
@@ -709,7 +709,9 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                               children: [
                                 const SizedBox(height: 140),
                                 textFontOPENSANS(
-                                    'In Process...', Colors.white, 14.0),
+                                    'In Process... Please check after sometime.',
+                                    Colors.white,
+                                    12.0),
                               ],
                             )
                           : Card(
@@ -1427,8 +1429,8 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
     if (!mounted) return;
     //
     if (result == 'refresh') {
-      arrBanks.clear();
-      fetchProfileData();
+      // arrBanks.clear();
+      // fetchProfileData();
     }
   }
 }

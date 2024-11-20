@@ -2,11 +2,13 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
+import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 
 class FullScreenDocumentUploadPage extends StatefulWidget {
   const FullScreenDocumentUploadPage(
@@ -192,6 +194,12 @@ class _FullScreenDocumentUploadPageState
       if (kDebugMode) {
         print("Error uploading documents to Stripe: $e");
       }
+      Navigator.pop(context);
+      customToast(
+        'Something went wrong while uploading your documents. Please try again after sometime.',
+        Colors.red,
+        ToastGravity.BOTTOM,
+      );
     }
   }
 
