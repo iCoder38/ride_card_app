@@ -1,10 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
+import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
 
 class SuccessScreen extends StatefulWidget {
   const SuccessScreen(
@@ -26,6 +31,7 @@ class SuccessScreen extends StatefulWidget {
 }
 
 class _SuccessScreenState extends State<SuccessScreen> {
+  final ScreenshotController screenshotController = ScreenshotController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String formattedDate = DateFormat('dd MMMM yyyy').format(DateTime.now());
   //
@@ -42,10 +48,13 @@ class _SuccessScreenState extends State<SuccessScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: const CustomDrawer(),
-      body: _UIKit(context),
+    return Screenshot(
+      controller: screenshotController,
+      child: Scaffold(
+        key: _scaffoldKey,
+        drawer: const CustomDrawer(),
+        body: _UIKit(context),
+      ),
     );
   }
 
@@ -367,7 +376,40 @@ class _SuccessScreenState extends State<SuccessScreen> {
               right: 16.0,
             ),
             child: GestureDetector(
-              onTap: () {},
+              onTap: () async {
+                logger.d('share click');
+
+                try {
+                  final image = await screenshotController.capture();
+                  if (image != null) {
+                    final tempDir = Directory.systemTemp;
+                    final file =
+                        await File('${tempDir.path}/screenshot.png').create();
+                    await file.writeAsBytes(image);
+
+                    if (kDebugMode) {
+                      print('File saved at: ${file.path}');
+                    } // Debug log
+
+                    await Share.shareXFiles(
+                      [XFile(file.path)],
+                      text: 'Check out my screenshot!',
+                    );
+
+                    if (kDebugMode) {
+                      print('Share dialog opened successfully');
+                    }
+                  } else {
+                    if (kDebugMode) {
+                      print('Screenshot capture failed.');
+                    }
+                  }
+                } catch (e) {
+                  if (kDebugMode) {
+                    print('Error while sharing: $e');
+                  }
+                }
+              },
               child: Container(
                 color: Colors.transparent,
                 child: Center(

@@ -304,7 +304,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
                     child: TextFormField(
                       readOnly: false,
                       controller: _contAddress,
-                      keyboardType: TextInputType.number,
+                      //keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                         hintText: 'Address',
                         border: InputBorder.none, // Remove the border
@@ -362,7 +362,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
                     child: TextFormField(
                       readOnly: false,
                       controller: _contCity,
-                      keyboardType: TextInputType.number,
+                      // keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                         hintText: 'City',
                         border: InputBorder.none, // Remove the border
@@ -421,7 +421,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
                     child: TextFormField(
                       readOnly: false,
                       controller: _contState,
-                      keyboardType: TextInputType.number,
+                      // keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                         hintText: 'State',
                         border: InputBorder.none, // Remove the border
