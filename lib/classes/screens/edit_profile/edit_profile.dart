@@ -425,7 +425,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ),
             ),
-            Padding(
+            /*Padding(
               padding: const EdgeInsets.only(
                 left: 16.0,
                 right: 16.0,
@@ -471,7 +471,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
               ),
-            ),
+            ),*/
           ],
         ),
       ),

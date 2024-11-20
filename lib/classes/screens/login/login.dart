@@ -440,7 +440,7 @@ class _LoginScreenState extends State<LoginScreen> {
           if (successStatus == 'success') {
             //
 
-            logger.d(jsonResponse);
+            /*
             if (jsonResponse['data']['dob'].toString() == '') {
               Navigator.pop(context);
               Navigator.of(context).push(
@@ -455,22 +455,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               );
-            } else {
-              SharedPreferences prefs2 = await SharedPreferences.getInstance();
-              prefs2.setString('Key_save_login_user_id',
-                  jsonResponse['data']['userId'].toString());
-              prefs2.setString(
-                'key_save_user_role',
-                jsonResponse['data']['role'].toString(),
-              );
-              evsRegistered = true;
-              _loginViaFirebase(
-                context,
-                jsonResponse['data']['fullName'],
-                jsonResponse['data']['lastName'],
-                jsonResponse['data']['email'],
-              );
-            }
+            } else {*/
+            logger.d(jsonResponse);
+            dismissKeyboard(context);
+            SharedPreferences prefs2 = await SharedPreferences.getInstance();
+            prefs2.setString('Key_save_login_user_id',
+                jsonResponse['data']['userId'].toString());
+            prefs2.setString(
+              'key_save_user_role',
+              jsonResponse['data']['role'].toString(),
+            );
+            // evsRegistered = true;
+            _loginViaFirebase(
+              context,
+              jsonResponse['data']['fullName'],
+              jsonResponse['data']['lastName'],
+              jsonResponse['data']['email'],
+            );
+            //}
           } else {
             customToast(
               'Something went wrong with server',
@@ -508,9 +510,9 @@ class _LoginScreenState extends State<LoginScreen> {
         print(e);
       } // Handle errors here
       // debugPrint('FIREBASE ERROR');
-      if (evsRegistered == true) {
-        createAnAccountInFirebase(context, firstName, lastName, email);
-      }
+      // if (evsRegistered == true) {
+      createAnAccountInFirebase(context, firstName, lastName, email);
+      // }
     }
   }
 
@@ -539,7 +541,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } else if (e.code == 'email-already-in-use') {
         Navigator.pop(context);
-        FocusScope.of(context).unfocus();
+        // FocusScope.of(context).unfocus();
         customToast(
           //
           TEXT_ALREADY_BEEN_EXIST,

@@ -16,8 +16,10 @@ import 'package:ride_card_app/classes/common/hive/hive.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
+import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 import 'package:ride_card_app/classes/screens/register_complete_profile/register_complete_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
@@ -48,7 +50,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.initState();
   }
 
-  dummyCreate() async {
+  /*dummyCreate() async {
     final SquareRepository squareRepository = SquareRepository();
 
     try {
@@ -59,9 +61,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         idempotencyKey: const Uuid().v4(),
         givenName: "Dishant",
       );
-      print('Customer created: $customer');
+      if (kDebugMode) {
+        print('Customer created: $customer');
+      }
     } catch (error) {
-      print('Failed to create customer: $error');
+      if (kDebugMode) {
+        print('Failed to create customer: $error');
+      }
     }
     /*try {
       final customer = await squareRepository.addCustomer(
@@ -82,7 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } catch (error) {
       print('Failed to create customer: $error');
     }*/
-  }
+  }*/
 
   @override
   void dispose() {
@@ -471,7 +477,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       String successMessage = jsonResponse['msg'];
 
       if (response.statusCode == 200) {
-        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        // debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
 
         if (successStatus == 'Fails') {
           dismissKeyboard(context);
@@ -527,16 +533,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
       print('OUTPUT ====> $userId');
       print('OUTPUT ====> $role');
     }
+    SharedPreferences prefs2 = await SharedPreferences.getInstance();
+    prefs2.setString(
+        'Key_save_login_user_id', data2['data']['userId'].toString());
+    prefs2.setString(
+      'key_save_user_role',
+      data2['data']['role'].toString(),
+    );
     // DATA SAVED LOCALLY IN HIVE
-    var box = await Hive.openBox<MyData>('myBox1');
+    /*var box = await Hive.openBox<MyData>('myBox1');
     var saveUserId = MyData(userId, role);
     await box.add(saveUserId);
-    await box.close();
+    await box.close();*/
 
     customToast(message, Colors.green, ToastGravity.BOTTOM);
-    Navigator.pop(context);
-    debugPrint('here');
-    Navigator.of(context).push(
+    // Navigator.pop(context);
+    // debugPrint('here');
+    createAnAccountInFirebase();
+    /*Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => CompleteProfileScreen(
           getFirstName: _contFirstName.text,
@@ -546,7 +560,75 @@ class _RegisterScreenState extends State<RegisterScreen> {
           userId: userId.toString(),
         ),
       ),
-    );
+    );*/
+  }
+
+  createAnAccountInFirebase() async {
+    //
+    /*debugPrint('==================================================');
+    debugPrint('============= FIREBASE ===========================');*/
+    // showLoadingUI(context, PLEASE_WAIT);
+    try {
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: _contEmail.text.toString(),
+            password: 'firebase_password_rca_!',
+          )
+          .then((value) => {
+                //
+                // debugPrint('REGISTERED IN FIREBASE'),
+                updateUserName(context)
+                //
+              });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        /*Navigator.pop(context);
+        customToast(
+          'The password provided is too weak.',
+          Colors.redAccent,
+          ToastGravity.TOP,
+        );*/
+      } else if (e.code == 'email-already-in-use') {
+        /*Navigator.pop(context);
+        FocusScope.of(context).unfocus();
+        customToast(
+          //
+          TEXT_ALREADY_BEEN_EXIST,
+          hexToColor(appREDcolorHexCode),
+          ToastGravity.TOP,
+        );*/
+      } else {
+        debugPrint('Error');
+        /*Navigator.pop(context);
+        customToast(
+          //
+          TEXT_F_ERROR,
+          Colors.redAccent,
+          ToastGravity.TOP,
+        );*/
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      Navigator.pop(context);
+    }
+  }
+
+  updateUserName(context) async {
+    var mergeName = '${_contFirstName.text} ${_contFirstName.text}';
+    //debugPrint(mergeName);
+    await FirebaseAuth.instance.currentUser!
+        .updateDisplayName(mergeName)
+        .then((v) {
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BottomBar(selectedIndex: 0),
+        ),
+      );
+    });
   }
 
   void openGalleryOrCamera(

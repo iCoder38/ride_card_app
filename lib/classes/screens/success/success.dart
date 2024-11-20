@@ -116,7 +116,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     //
                     TEXT_NAVIGATION_TITLE_SUCCESS,
                     Colors.white,
-                    18.0,
+                    16.0,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

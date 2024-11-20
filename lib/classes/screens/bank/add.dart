@@ -70,7 +70,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
       userData = v['data'];
       setState(() {
         // name
-        _contFirstName.text = ''; //userData['fullName'].toString();
+        /* _contFirstName.text = ''; //userData['fullName'].toString();
         _contLastName.text = '';
         // userData['lastName'].toString();
         // dob
@@ -88,7 +88,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
         _contState.text = userData['state'].toString();
         _contCountry.text = userData['country'].toString();
         _contzipcode.text = userData['zipcode'].toString();
-        _contPhone.text = userData['contactNumber'].toString();
+        _contPhone.text = userData['contactNumber'].toString();*/
 
         screenLoader = false;
       });

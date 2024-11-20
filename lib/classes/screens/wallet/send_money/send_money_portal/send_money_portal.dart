@@ -403,15 +403,15 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
             'ID: ${fee.id}, Name: ${fee.name}, Type: ${fee.type}, Amount: ${fee.amount}',
           );
         }
-        if (fee.name == 'instantDeposit') {
+        if (fee.name == 'walletToWalletFee') {
           if (fee.type == TAX_TYPE_PERCENTAGE) {
-            debugPrint(fee.type);
+            // debugPrint(fee.type);
             feesAndTaxesType = fee.type.toString();
             feesAndTaxesAmount = double.parse(fee.amount.toString());
             showConvenienceFeesOnPopup = (feesAndTaxesAmount * 10) / 100;
             totalAmountAfterCalculateFee = (feesAndTaxesAmount * 10) / 100;
           } else {
-            debugPrint(fee.type);
+            // debugPrint(fee.type);
             feesAndTaxesType = fee.type.toString();
             feesAndTaxesAmount = double.parse(fee.amount.toString());
             showConvenienceFeesOnPopup = feesAndTaxesAmount;
@@ -424,6 +424,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
         String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
         showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
         // FEES CALCULATOR
+
         widget.title == '1'
             ? // pushToPaymentTaxScreen(context)
             _sendMoney(
@@ -445,6 +446,8 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
       } else {
         String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
         showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
+        // logger.d(showConvenienceFeesOnPopup);
+        // return;
         widget.title == '1'
             ? // pushToPaymentTaxScreen(context)
             _sendMoney(
@@ -471,6 +474,10 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
     }
   }
 
+  double roundToTwoDecimalPlaces(double value) {
+    return (value * 100).roundToDouble() / 100;
+  }
+
   // send money
 // API
   void _sendMoney(
@@ -481,7 +488,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
     String type,
     String fees,
   ) async {
-    debugPrint('API ==> SEND MONEY');
+    // debugPrint('API ==> SEND MONEY');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
@@ -491,28 +498,65 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
     final parameters;
     var deductAmountWithCommision =
         double.parse(amount.toString()) - double.parse(fees);
+    // logger.d(amount);
+    // logger.d(fees);
+    // logger.d(deductAmountWithCommision);
+    // logger.d('current balance: $myCurrentBalance');
+    double currentBalance = double.parse(myCurrentBalance);
+    double enteredAmount = double.parse(amount);
+    double adminFee = double.parse(fees);
+    // logger.d(currentBalance);
+    // logger.d(enteredAmount);
+    if (currentBalance < enteredAmount) {
+      // logger.d('not procceed');
+      dismissKeyboard(context);
+      Navigator.pop(context);
+      customToast(
+        'Insufficient balance in your wallet. Add more money to send.',
+        Colors.red,
+        ToastGravity.BOTTOM,
+      );
+      return;
+    }
+    if (adminFee > enteredAmount) {
+      logger.d('Admin fee is greater than entered amount');
+      dismissKeyboard(context);
+      Navigator.pop(context);
+      customToast(
+        'Amount should be greater than \$${adminFee.toString()}',
+        Colors.red,
+        ToastGravity.BOTTOM,
+      );
+      return;
+    }
+
+    String numberString = deductAmountWithCommision.toString();
+    double number = double.parse(numberString);
+    double roundedNumber = roundToTwoDecimalPlaces(number);
+    String roundedString = roundedNumber.toString(); // "123.46"
+    if (kDebugMode) {
+      print(roundedString);
+    }
     widget.title == '1'
         ? parameters = {
             'action': 'sendmoney',
             'senderId': userId,
             'userId': receiverId, // receiverId
-            'amount': deductAmountWithCommision,
+            'amount': roundedString,
             'type': type,
-            'admincharge': '0',
-            // fees,
+            'admincharge': fees,
           }
         : parameters = {
             'action': 'sendmoney',
             'senderId': receiverId, // receiver id
             'userId': userId, // login id
-            'amount': deductAmountWithCommision,
+            'amount': roundedString,
             'type': type,
-            'admincharge': '0',
-            // fees,
+            'admincharge': fees,
           };
-    if (kDebugMode) {
-      print(parameters);
-    }
+
+    logger.d(parameters);
+    // return;
 
     try {
       final response = await _apiService.postRequest(parameters, token);
@@ -554,8 +598,11 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
             Navigator.pop(context);
             dismissKeyboard(context);
             // Navigator.pop(context);
-            customToast(successMessage, hexToColor(appORANGEcolorHexCode),
-                ToastGravity.BOTTOM);
+            customToast(
+              successMessage,
+              hexToColor(appORANGEcolorHexCode),
+              ToastGravity.BOTTOM,
+            );
           } else {
             Navigator.pop(context);
             widget.title == '1'

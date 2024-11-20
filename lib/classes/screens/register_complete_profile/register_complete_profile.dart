@@ -1303,7 +1303,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           // createCustomerInSquare(UUID_KEY_FOR_REGISTRATION);
           _sendRequestToCompleteProfile(UUID_KEY_FOR_REGISTRATION);
         } else {
-          debugPrint('======> APPROVED <=======');
+          // debugPrint('======> APPROVED <=======');
           // if (kDebugMode) {
           //   print('CUSTOMER ID ==> $createdCustomerId');
           // }
@@ -1428,11 +1428,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   // API
   void _sendRequestToCompleteProfile(String squareCustomerId) async {
-    debugPrint('=============================================');
+    /*debugPrint('=============================================');
     debugPrint('======== API: COMPLETE PROFILE ==============');
-    debugPrint('=============================================');
+    debugPrint('=============================================');*/
 
-    var box = await Hive.openBox<MyData>('myBox1');
+    //var box = await Hive.openBox<MyData>('myBox1');
     // var myData = box.getAt(0);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1455,13 +1455,13 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       'address': _contAddress.text.toString(),
       'occupation': _contOccupation.text.toString(),
       'key_data': squareCustomerId,
-      'firebaseId': '', //squareCustomerId.toString(),
+      'firebaseId': squareCustomerId,
       'customerId': createdCustomerId,
     };
     if (kDebugMode) {
       print(parameters);
     }
-    await box.close();
+    // await box.close();
 
     try {
       final response = await _apiService.postRequest(parameters, token);
