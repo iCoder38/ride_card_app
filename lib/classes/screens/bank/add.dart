@@ -1090,7 +1090,8 @@ class _AddBankScreenState extends State<AddBankScreen> {
 
     String userEmail = loginUserEmail();
     String accountNumber = _contAccountNumber.text.toString();
-    String country = _contCountry.text.toString();
+    String country = 'US';
+    //_contCountry.text.toString();
     String currency = "usd";
     String accountHolderName = loginUserName();
     String accountHolderType = "individual";

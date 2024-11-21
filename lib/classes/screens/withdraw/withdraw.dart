@@ -69,6 +69,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
   String storeBankAccountId = '';
   @override
   void initState() {
+    // fetchAndDisplayStripeBalance(context);
     getAllDocumentsData();
 
     super.initState();
@@ -384,9 +385,8 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
       final availableBalance = balanceData['available'][0]['amount'];
       final currency = balanceData['available'][0]['currency'];
 
-      if (kDebugMode) {
-        print(availableBalance);
-      }
+      logger.d(availableBalance);
+      // }
 
       /*ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
