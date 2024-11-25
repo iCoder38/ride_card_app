@@ -711,7 +711,19 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
   }
 
   void payoutAndPay() async {
-    fetchAndDisplayStripeBalance(context);
+    double enteredAmountIs = double.parse(contEnterAmount.text.toString());
+    if (doubleStripeAvailableAmount > enteredAmountIs) {
+      logger.d("Stripe has balance");
+      fetchAndDisplayStripeBalance(context);
+    } else {
+      logger.d("Stripe main account does not have balance");
+      Navigator.pop(context);
+      customToast(
+        "Error: NEB: Something went wrong. Please contact admin.",
+        Colors.red,
+        ToastGravity.BOTTOM,
+      );
+    }
   }
 
   void fetchAndDisplayStripeBalance(BuildContext context) async {
@@ -786,30 +798,6 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     required String connectedAccountId,
     required String stripeSecretKey,
   }) async {
-    // wallet - (enteredAmount+adminFee)
-    /*double calculateEditWalletAmount =
-        doubleWalletBalance - double.parse(contEnterAmount.text.toString());
-    if (kDebugMode) {
-      print(calculateEditWalletAmount);
-    }
-
-    double addAmountAndAdminFee =
-        doubleSAdminFee + double.parse(contEnterAmount.text.toString());
-    if (kDebugMode) {
-      print(addAmountAndAdminFee);
-    }
-
-    // check is this amount available in wallet or not
-    double walletBalance = double.parse(balanceIs.toString());
-    if (kDebugMode) {
-      print('Wallet balance: $walletBalance');
-    }
-
-    */
-    /*double calculateEditWalletAmount = doubleFinalAmount;
-    if (kDebugMode) {
-      print('Total Amount: $doubleFinalAmount');
-    }*/
     if (kDebugMode) {
       print('Total Amount: $doubleFinalAmount');
     }
@@ -832,7 +820,20 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
       return;
     }
 
-    // return;
+    // send amount with deduct conv fee
+    double amountSendToCustom = doubleFinalAmount - doubleSAdminFee;
+    if (kDebugMode) {
+      String formattedValue = amountSendToCustom.toStringAsFixed(2);
+      print('final amount Is: evs:  $doubleFinalAmount');
+      print('final amount $formattedValue');
+      print('Conv fee $doubleSAdminFee');
+      print(amountSendToCustom + doubleSAdminFee);
+    }
+
+    // double amountSendToStripe = 0.0;
+// 10 : 4+1 = 5
+// 5
+
     final transferSuccess = await createTransfer(
       amount: amount,
       currency: currency,
@@ -907,9 +908,24 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
       if (requirements.isEmpty) {
         //convert double amount to int
         // double amountToTransfer = doubleFinalAmount * 100;
-        int amountToTransfer = (doubleFinalAmount * 100).toInt();
-        logger.d(amountToTransfer);
+
         String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+        //
+        double amountSendToCustom = doubleFinalAmount - doubleSAdminFee;
+
+        String formattedValue = amountSendToCustom.toStringAsFixed(2);
+        if (kDebugMode) {
+          print('final amount Is: evs:  $doubleFinalAmount');
+          print('final amount $formattedValue');
+          print('Conv fee $doubleSAdminFee');
+          print(amountSendToCustom + doubleSAdminFee);
+        }
+
+        int amountToTransfer =
+            (double.parse(formattedValue.toString()) * 100).toInt();
+        logger.d(amountToTransfer);
+
+        // return;
         processTransferAndPayout(
           amount: amountToTransfer,
           currency: 'USD',
@@ -1473,7 +1489,6 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     debugPrint('API ==> EDIT PROFILE');
 
     double amountToServer = double.parse(balanceIs) - doubleFinalAmount;
-
     String formattedValue = amountToServer.toStringAsFixed(2);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1484,7 +1499,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     final parameters = {
       'action': 'editProfile',
       'userId': userId,
-      // 'wallet': amount.toString(),
+      // 'wallet': '2.9'.toString(),
       'wallet': formattedValue.toString(),
     };
     if (kDebugMode) {
@@ -1530,7 +1545,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
           });
         } else {
           //
-          contYourBankAccount.text = "";
+          // contYourBankAccount.text = "";
           contEnterAmount.text = "";
           dismissKeyboard(context);
 
