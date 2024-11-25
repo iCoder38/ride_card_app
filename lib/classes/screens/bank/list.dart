@@ -65,7 +65,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
   @override
   void initState() {
     //fetchProfileData();
-    // checkBalance();
+    //
     getAllDocumentsData();
 
     super.initState();
@@ -241,9 +241,9 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
     );
   }*/
 
-  void checkBalance() async {
+  void checkBalance(String bankAccount) async {
     String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
-    String connectedAccountId = "acct_1QJykvERnsh89gxe";
+    String connectedAccountId = bankAccount;
 
     final balanceData =
         await getConnectedAccountBalance(connectedAccountId, apiKey);
@@ -1169,6 +1169,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
               ToastGravity.BOTTOM,
             );
             screenLoader = false;
+            checkBalance(connectedAccountId);
           });
         });
       } else {

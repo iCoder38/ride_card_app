@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ride_card_app/classes/StripeAPIs/bank_details.dart';
 import 'package:ride_card_app/classes/StripeAPIs/check_account_balance.dart';
+import 'package:ride_card_app/classes/StripeAPIs/check_account_requirements.dart';
 import 'package:ride_card_app/classes/StripeAPIs/get_connected_bank_balance.dart';
 import 'package:ride_card_app/classes/StripeAPIs/payout_pay.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
@@ -18,6 +19,7 @@ import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/tax_and_fees/get_price/get_price.dart';
 import 'package:ride_card_app/classes/common/tax_and_fees/get_price/model/model.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
+import 'package:ride_card_app/classes/screens/bank/list.dart';
 import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/get_customer_accounts_list/get_customer_account_list.dart';
 import 'package:ride_card_app/classes/service/UNIT/send_to_client/send_to_client.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
@@ -35,6 +37,8 @@ class WithdrawScreen extends StatefulWidget {
 class _WithdrawScreenState extends State<WithdrawScreen> {
   final ApiService _apiService2 = ApiService();
   final GenerateTokenService _apiServiceGT = GenerateTokenService();
+
+  final ApiService _apiService = ApiService();
 
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -67,12 +71,230 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
   var storeStripeToken = '';
   String storeDocumentId = '';
   String storeBankAccountId = '';
+  // new
+  String storeStripeAvailableAmount = '';
+  bool isReceiptShow = false;
+  bool isConvenienceFeeShow = false;
+  double doubleStripeAvailableAmount = 0;
+  double doubleWalletBalance = 0;
+  double doubleSAdminFee = 0;
+  double doubleFinalAmount = 0;
+  bool isTotalAmountValid = false;
+  String transactionId = '';
   @override
   void initState() {
-    // fetchAndDisplayStripeBalance(context);
+    transactionId = generateRandomString(8);
     getAllDocumentsData();
+    // editWalletBalance(context);
 
+    //
     super.initState();
+  }
+
+  Future<void> fetchStripeBalance() async {
+    String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+    String secretKey = apiKey;
+    logger.d(secretKey);
+
+    // Stripe API endpoint for fetching balance
+    const String url = 'https://api.stripe.com/v1/balance';
+    logger.d(url);
+    try {
+      // Make the HTTP GET request
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $secretKey',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      // Check the response status
+      if (response.statusCode == 200) {
+        // Parse the response body
+        final data = json.decode(response.body);
+        logger.d(data);
+        // logger.d('Available amount: ${data["available"][0]["amount"]}');
+        storeStripeAvailableAmount = data["available"][0]["amount"].toString();
+        logger.d('Available amount: ==> $storeStripeAvailableAmount');
+        //
+        // calculate after get amount
+        calculateAfterGetMoney();
+      } else {
+        if (kDebugMode) {
+          print('Failed to fetch balance. Error: ${response.statusCode}');
+          print('Response: ${response.body}');
+        }
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('An error occurred: $error');
+      }
+    }
+  }
+
+  calculateAfterGetMoney() {
+    double calculate =
+        double.parse(storeStripeAvailableAmount.toString()) / 100;
+    logger.d('After Stripe calculate: (Available amount)==> $calculate');
+    storeStripeAvailableAmount = '$calculate';
+    // get fee and taxes
+    getFeesAndTaxesNewVersion();
+  }
+
+  void getFeesAndTaxesNewVersion() async {
+    ApiServiceToGetFeesAndTaxes apiService = ApiServiceToGetFeesAndTaxes();
+
+    List<FeeData>? feeList = await apiService.fetchFeesAndTaxes();
+
+    if (feeList != null) {
+      for (var fee in feeList) {
+        /*if (kDebugMode) {
+          print(
+            '''ID: ${fee.id},
+            Name: ${fee.name},
+            Type: ${fee.type},
+            Amount: ${fee.amount}''',
+          );
+        }*/
+
+        if (fee.name == 'instantDeposit') {
+          if (kDebugMode) {
+            print('===========================');
+            print('====> Instant deposit <====');
+            print(fee.id);
+            print(fee.name);
+            print(fee.type);
+            print(fee.amount);
+            print('==========================');
+            print('==========================');
+          }
+          feesAndTaxesType = fee.type.toString();
+          feesAndTaxesAmount = double.parse(fee.amount.toString());
+          showConvenienceFeesOnPopup = feesAndTaxesAmount;
+          totalAmountAfterCalculateFee = feesAndTaxesAmount;
+
+          /*if (fee.type == TAX_TYPE_PERCENTAGE) {
+            feesAndTaxesType = fee.type.toString();
+            feesAndTaxesAmount = double.parse(fee.amount.toString());
+            showConvenienceFeesOnPopup = (feesAndTaxesAmount * 10) / 100;
+            totalAmountAfterCalculateFee = (feesAndTaxesAmount * 10) / 100;
+          } else {
+            debugPrint(fee.type);
+            feesAndTaxesType = fee.type.toString();
+            feesAndTaxesAmount = double.parse(fee.amount.toString());
+            showConvenienceFeesOnPopup = feesAndTaxesAmount;
+            // (feesAndTaxesAmount * 10) / 100;
+            totalAmountAfterCalculateFee = feesAndTaxesAmount;
+            // (feesAndTaxesAmount * 10) / 100;
+            // return;
+          }*/
+        }
+      }
+      /*if (kDebugMode) {
+        print('==========================');
+        print('====> After response <====');
+        print(feesAndTaxesType);
+        print(feesAndTaxesAmount);
+        /*print(showConvenienceFeesOnPopup);
+        print(totalAmountAfterCalculateFee);*/
+        print('==========================');
+        print('==========================');
+      }*/
+      calculatePriceAfterFee();
+    } else {
+      if (kDebugMode) {
+        print('Failed to retrieve fee data.');
+      }
+    }
+  }
+
+  calculatePriceAfterFee() {
+    if (kDebugMode) {
+      print('========================================');
+      print('====> After response now calculate <====');
+      print(feesAndTaxesType);
+      print(feesAndTaxesAmount);
+      /*print(showConvenienceFeesOnPopup);
+        print(totalAmountAfterCalculateFee);*/
+      print('========================================');
+      print('========================================');
+    }
+    // delete tax amount from main amount
+
+    // make it double
+
+    doubleStripeAvailableAmount = double.parse(
+      storeStripeAvailableAmount.toString(),
+    );
+    doubleWalletBalance = double.parse(
+      balanceIs.toString(),
+    );
+    doubleSAdminFee = double.parse(
+      feesAndTaxesAmount.toString(),
+    );
+    //
+    logger.d('Stripe bank balance: ====> $doubleStripeAvailableAmount');
+    logger.d('Wallet amount: ====> $doubleWalletBalance');
+    logger.d('Admin fees: ====> $doubleSAdminFee');
+    //
+    if (doubleSAdminFee == 0 || doubleSAdminFee == 0.0) {
+      isReceiptShow = true;
+      isConvenienceFeeShow = false;
+    } else {
+      isReceiptShow = true;
+      isConvenienceFeeShow = true;
+    }
+    // validate stripe account balance
+    if (doubleStripeAvailableAmount == 0 ||
+        doubleStripeAvailableAmount == 0.0) {
+      logger.d("Stripe balance is low. Unable to transfer money");
+      Navigator.pop(context);
+      dismissKeyboard(context);
+      customToast('Something went wrong.', Colors.red, ToastGravity.BOTTOM);
+      return;
+    } else {
+      logger.d("There is money in stripe balance account.");
+    }
+
+    // validate and check commision fee should be less than stripe balance
+
+    if (doubleSAdminFee < doubleStripeAvailableAmount) {
+      //
+      logger.d("Good to go.");
+      //Navigator.pop(context);
+      if (contEnterAmount.text != "") {
+        setState(() {});
+      }
+    } else {
+      logger.d("Commision should be less than available amount in stripe.");
+      return;
+    }
+  }
+
+  calculateWhenUserEnterAmount() {
+    double finalAmountAfterCalculation =
+        double.parse(contEnterAmount.text.toString()) - doubleSAdminFee;
+    logger.d(finalAmountAfterCalculation);
+    double amount = finalAmountAfterCalculation;
+    String formattedAmount = amount.toStringAsFixed(2);
+
+    if (formattedAmount.startsWith("-")) {
+      if (kDebugMode) {
+        print("The string starts with a '-' sign.");
+      }
+      isTotalAmountValid = true;
+    } else {
+      if (kDebugMode) {
+        print("The string does not start with a '-' sign.");
+      }
+      isTotalAmountValid = false;
+    }
+
+    doubleFinalAmount = double.parse(formattedAmount.toString());
+
+    // check sign
+    setState(() {});
   }
 
   Future<List<Map<String, dynamic>>> getAllDocumentsData() async {
@@ -91,12 +313,12 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
 
           // Retrieve all data inside the document
           Map<String, dynamic> data = document.data();
-          logger.d(data);
+          // logger.d(data);
           storeDocumentId = document.id;
           storeBankAccountId = data['accountId'].toString();
-          logger.d(storeBankAccountId);
+          // logger.d(storeBankAccountId);
           contYourBankAccount.text = data['bankAccountNumber'].toString();
-          fetchProfileData();
+          fetchProfileData('no');
         }
       } else {
         if (kDebugMode) {
@@ -243,6 +465,9 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 14.0,
                   ),
+                  onChanged: (value) {
+                    calculateWhenUserEnterAmount();
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return TEXT_FIELD_EMPTY_TEXT;
@@ -307,68 +532,178 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(
-              left: 16.0,
-              right: 16.0,
-              top: 16.0,
-            ),
-            child: GestureDetector(
-              onTap: () async {
-                //  print(double.parse(contEnterAmount.text.toString()));
-                // print(double.parse(balanceIs.toString()));
-                if (_formKey.currentState!.validate()) {
-                  if (double.parse(contEnterAmount.text.toString()) >
-                      double.parse(balanceIs.toString())) {
-                    logger.d("You don't have enough money in your wallet.");
-                    dismissKeyboard(context);
-                    customToast(
-                      'Entered amount should be less then wallet amount.',
-                      Colors.redAccent,
-                      ToastGravity.BOTTOM,
-                    );
-                  } else {
-                    dismissKeyboard(context);
-                    showLoader = '1';
-                    showLoadingUI(context, 'please wait...');
-                    /*logger.d(dotenv.env['UNIT_BANK_ID'].toString());
-                    logger.d(selectedAccountId.toString());*/
-                    /*final amount = convertDollarsToCentsAsString(
-                        contEnterAmount.text.toString());
-                    logger.d(amount.toString());
-
-                    // amountToSend = amount;
-
-                    // logger.d(amountToSend);
-
-                    // first send payment to client as convenience fees
-
-                    getFeesAndTaxes();*/
-                    payoutAndPay();
-                  }
-                }
-              },
-              child: Container(
-                height: 60,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: appREDcolor,
-                  borderRadius: BorderRadius.circular(
-                    12.0,
+          isReceiptShow == false
+              ? const SizedBox()
+              : Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
+                    // height: 60,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(
+                        12.0,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              textFontPOOPINS(
+                                'Withdraw amount:',
+                                Colors.black,
+                                14.0,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              const Spacer(),
+                              textFontPOOPINS(
+                                '\$${contEnterAmount.text.toString()}',
+                                Colors.black,
+                                14.0,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ],
+                          ),
+                        ),
+                        isConvenienceFeeShow == false
+                            ? const SizedBox()
+                            : const Divider(),
+                        isConvenienceFeeShow == false
+                            ? const SizedBox()
+                            : Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    textFontPOOPINS(
+                                      'Convenience fee:',
+                                      Colors.black,
+                                      14.0,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    const Spacer(),
+                                    textFontPOOPINS(
+                                      '\$${doubleSAdminFee.toString()}',
+                                      Colors.black,
+                                      14.0,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                        const Divider(),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              textFontPOOPINS(
+                                'Transaction Id:',
+                                Colors.black,
+                                14.0,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              const Spacer(),
+                              textFontPOOPINS(
+                                transactionId,
+                                Colors.black,
+                                14.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Divider(),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              textFontPOOPINS(
+                                'Total amount:',
+                                Colors.black,
+                                14.0,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              const Spacer(),
+                              isTotalAmountValid == true
+                                  ? textFontPOOPINS(
+                                      '\$$doubleFinalAmount',
+                                      Colors.red,
+                                      18.0,
+                                      fontWeight: FontWeight.w600,
+                                    )
+                                  : textFontPOOPINS(
+                                      '\$$doubleFinalAmount',
+                                      Colors.black,
+                                      18.0,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                child: Center(
-                  child: textFontPOOPINS(
-                    //
-                    'Withdraw',
-                    Colors.white,
-                    18.0,
-                    fontWeight: FontWeight.w600,
+          isTotalAmountValid == true
+              ? const SizedBox()
+              : Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16.0,
+                    right: 16.0,
+                    top: 16.0,
+                  ),
+                  child: GestureDetector(
+                    onTap: () async {
+                      //  print(double.parse(contEnterAmount.text.toString()));
+                      // print(double.parse(balanceIs.toString()));
+                      if (_formKey.currentState!.validate()) {
+                        if (double.parse(contEnterAmount.text.toString()) >
+                            double.parse(balanceIs.toString())) {
+                          logger
+                              .d("You don't have enough money in your wallet.");
+                          dismissKeyboard(context);
+                          customToast(
+                            'Entered amount should be less then wallet amount.',
+                            Colors.redAccent,
+                            ToastGravity.BOTTOM,
+                          );
+                        } else {
+                          dismissKeyboard(context);
+                          showLoader = '1';
+                          showLoadingUI(context, 'please wait...');
+
+                          payoutAndPay();
+                        }
+                      }
+                    },
+                    child: Container(
+                      height: 60,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        color: appREDcolor,
+                        borderRadius: BorderRadius.circular(
+                          12.0,
+                        ),
+                      ),
+                      child: Center(
+                        child: isReceiptShow == false
+                            ? textFontPOOPINS(
+                                'Withdraw',
+                                Colors.white,
+                                18.0,
+                                fontWeight: FontWeight.w600,
+                              )
+                            : textFontPOOPINS(
+                                'Withdraw \$${doubleFinalAmount.toString()}',
+                                Colors.white,
+                                18.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -386,14 +721,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
       final currency = balanceData['available'][0]['currency'];
 
       logger.d(availableBalance);
-      // }
 
-      /*ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Available Balance: ${(availableBalance / 100).toStringAsFixed(2)} $currency'),
-        ),
-      );*/
       logger.d(
           'Available Balance: ${(availableBalance / 100).toStringAsFixed(2)} $currency');
       if (availableBalance == 0 || availableBalance == 0.0) {
@@ -411,6 +739,19 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
         // const amount = amountInSmallestUnit;
         const currency = 'usd';
         String connectedAccountId = storeBankAccountId;
+        logger.d(connectedAccountId);
+
+        // check bank requirements
+        checkRequirements(connectedAccountId);
+
+        if (kDebugMode) {
+          print(doubleFinalAmount);
+          print('USD');
+          print(connectedAccountId);
+          print(apiKey);
+        }
+
+        /*return;
 
         // Step 1: Transfer funds to the connected Stripe account
         await createTransfer(
@@ -426,7 +767,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
           currency: currency,
           connectedAccountId: connectedAccountId,
           stripeSecretKey: apiKey,
-        );
+        );*/
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -435,6 +776,188 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
           backgroundColor: Colors.red,
         ),
       );
+    }
+  }
+
+  Future<void> processTransferAndPayout({
+    required int amount,
+    required String currency,
+    required String connectedAccountId,
+    required String stripeSecretKey,
+  }) async {
+    if (kDebugMode) {
+      print(amount);
+      print(currency);
+      print(connectedAccountId);
+      print(stripeSecretKey);
+    }
+
+    double calculateEditWalletAmount =
+        doubleWalletBalance - double.parse(contEnterAmount.text.toString());
+    if (kDebugMode) {
+      print(calculateEditWalletAmount);
+    }
+
+    ///
+    // return;
+    final transferSuccess = await createTransfer(
+      amount: amount,
+      currency: currency,
+      connectedAccountId: connectedAccountId,
+      stripeSecretKey: stripeSecretKey,
+    );
+
+    if (transferSuccess) {
+      if (kDebugMode) {
+        print('Transfer was successful. Proceeding with payout...');
+      }
+
+      final payoutSuccess = await createPayout(
+        amount: amount,
+        currency: currency,
+        connectedAccountId: connectedAccountId,
+        stripeSecretKey: stripeSecretKey,
+      );
+
+      if (payoutSuccess) {
+        if (kDebugMode) {
+          print('Payout was successful.');
+        }
+        isReceiptShow = false;
+
+        // edit wallet balance
+        editWalletBalance(
+          context,
+          calculateEditWalletAmount.toString(),
+        );
+      } else {
+        if (kDebugMode) {
+          print('Payout failed.');
+        }
+        dismissKeyboard(context);
+        Navigator.pop(context);
+        customToast(
+          "Payout failed.",
+          Colors.red,
+          ToastGravity.BOTTOM,
+        );
+      }
+    } else {
+      if (kDebugMode) {
+        print('Transfer failed. Aborting payout.');
+      }
+      dismissKeyboard(context);
+      Navigator.pop(context);
+      customToast(
+        "Payout failed.",
+        Colors.red,
+        ToastGravity.BOTTOM,
+      );
+    }
+  }
+
+  void checkRequirements(String bankId) async {
+    String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+    String connectedAccountId = bankId;
+
+    try {
+      List<String> requirements = await getAccountRequirements(
+        connectedAccountId,
+        apiKey,
+      );
+      if (kDebugMode) {
+        print("Account requirements: $requirements");
+      }
+      if (kDebugMode) {
+        print(requirements.length);
+      }
+      if (requirements.isEmpty) {
+        //convert double amount to int
+        // double amountToTransfer = doubleFinalAmount * 100;
+        int amountToTransfer = (doubleFinalAmount * 100).toInt();
+        logger.d(amountToTransfer);
+        String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+        processTransferAndPayout(
+          amount: amountToTransfer,
+          currency: 'USD',
+          connectedAccountId: connectedAccountId,
+          stripeSecretKey: apiKey,
+        );
+      } else {
+        /*FirebaseFirestore.instance
+            .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
+            .doc(storeDocumentId)
+            .update({
+          'active': false,
+        });*/
+      }
+      // transferMoney
+
+      // Based on the requirements, display input fields to the user for each required item.
+      for (var requirement in requirements) {
+        if (kDebugMode) {
+          print("Please provide: $requirement");
+        }
+        if (requirement == 'individual.verification.document') {
+          Navigator.pop(context);
+          customToast(
+            'Documents are missing. Please upload your document.',
+            Colors.redAccent,
+            ToastGravity.BOTTOM_RIGHT,
+          );
+          return;
+          // isAnyDocumentMissing = true;
+          // isDocumentScreenUpload = true;
+          /*logger.d('Please upload documents');
+          customToast(
+            'Documents are missing. Please upload your document.',
+            Colors.redAccent,
+            ToastGravity.BOTTOM_RIGHT,
+          );*/
+          /*FirebaseFirestore.instance
+              .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
+              .doc(storeDocumentId)
+              .update({
+            'active': false,
+          }).then((v) {
+            /*Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FullScreenDocumentUploadPage(
+                  strBankAccountId: bankId.toString(),
+                ),
+              ),
+            );*/
+          });*/
+        } else if (requirement == 'individual.id_number') {
+          // isAnyDocumentMissing = true;
+          // isDocumentScreenUpload = false;
+          logger.d('Please upload documents');
+          Navigator.pop(context);
+          customToast(
+            'Please provide valid SSN number.',
+            Colors.redAccent,
+            ToastGravity.BOTTOM_RIGHT,
+          );
+          return;
+          /*FirebaseFirestore.instance
+              .collection('RIDE_WALLET/STRIPE_CONNECT_ACCOUNTS/BANK_ACCOUNTS')
+              .doc(storeDocumentId)
+              .update({
+            'active': false,
+          }).then((v) {
+            setState(() {
+              screenLoader = false;
+            });
+            // showBottomSheetWithTextField(context, connectedAccountId);
+          });*/
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Failed to get account requirements: $e");
+      }
+      return;
     }
   }
 
@@ -598,18 +1121,106 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     sendPayment();
   }
 
-  Future<void> fetchProfileData() async {
+  Future<void> fetchProfileData(String stopLoader) async {
     await sendRequestToProfileDynamic().then((v) {
       logger.d(v);
       customerID = v['data']['customerId'].toString();
       balanceIs = v['data']['wallet'].toString();
-      logger.d('Balance is: ==> $balanceIs');
+      // logger.d('Balance is: ==> $balanceIs');
       // fetchAccountDetails();
-      getBankAccountInfo(storeBankAccountId);
+      // getBankAccountInfo(storeBankAccountId);
+      ///
+      ///
+      ///
+      if (stopLoader == 'yes') {
+        Navigator.pop(context);
+      }
+
+      fetchStripeBalance();
       setState(() {
         screenLoader = false;
       });
     });
+  }
+
+  void editAfterCreateStripeCustomer(
+    context,
+    customerId,
+  ) async {
+    debugPrint('API ==> EDIT PROFILE');
+    // String parseDevice = await deviceIs();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
+
+    final parameters;
+    if (STRIPE_STATUS == 'T') {
+      parameters = {
+        'action': 'editProfile',
+        'userId': userId,
+        'stripe_customer_id_Test': customerId,
+      };
+    } else {
+      parameters = {
+        'action': 'editProfile',
+        'userId': userId,
+        'stripe_customer_id_Live': customerId,
+      };
+    }
+
+    if (kDebugMode) {
+      print(parameters);
+    }
+    // return;
+
+    try {
+      final response = await _apiService.postRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+      if (kDebugMode) {
+        print('STATUS ==> $successStatus');
+        print(successMessage);
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          _apiServiceGT
+              .generateToken(
+            userId,
+            loginUserEmail(),
+            roleIs.toString(),
+          )
+              .then((v) {
+            //
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            editAfterCreateStripeCustomer(context, customerId);
+          });
+        } else {
+          //
+          // createStripeCustomerAccount(customerId);
+          logger.d('message');
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      // print(error);
+    }
   }
 
   void getBankAccountInfo(String bankAccountId) async {
@@ -797,7 +1408,6 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
           if (paymentSuccess) {
             // Payment was successful
             debugPrint('Payment was successful');
-            editWalletBalance(context);
           } else {
             // Payment failed
             customToast(
@@ -825,12 +1435,13 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
 
   void editWalletBalance(
     context,
+    String editWalletAmount,
   ) async {
     debugPrint('API ==> EDIT PROFILE');
     // String parseDevice = await deviceIs();
 
-    var amount = double.parse(balanceIs.toString()) -
-        double.parse(contEnterAmount.text.toString());
+    /*var amount = double.parse(balanceIs.toString()) -
+        double.parse(contEnterAmount.text.toString());*/
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
@@ -840,7 +1451,8 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     final parameters = {
       'action': 'editProfile',
       'userId': userId,
-      'wallet': amount.toString(),
+      // 'wallet': amount.toString(),
+      'wallet': editWalletAmount,
     };
     if (kDebugMode) {
       print(parameters);
@@ -880,6 +1492,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
             // again click
             editWalletBalance(
               context,
+              editWalletAmount,
             );
           });
         } else {
@@ -889,12 +1502,17 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
           dismissKeyboard(context);
 
           customToast(
-            'Transaction completed.',
+            'Successfully transferred.',
             Colors.green,
             ToastGravity.BOTTOM,
           );
-
-          fetchProfileData();
+          /*Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AllBanksScreen(),
+            ),
+          );*/
+          fetchProfileData('yes');
         }
       } else {
         customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
