@@ -81,11 +81,12 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
   double doubleFinalAmount = 0;
   bool isTotalAmountValid = false;
   String transactionId = '';
+  double finalWithdrawAmount = 0.0;
   @override
   void initState() {
     transactionId = generateRandomString(8);
     getAllDocumentsData();
-    // editWalletBalance(context);
+    // editWalletBalance(context, '2.9');
 
     //
     super.initState();
@@ -274,7 +275,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
 
   calculateWhenUserEnterAmount() {
     double finalAmountAfterCalculation =
-        double.parse(contEnterAmount.text.toString()) - doubleSAdminFee;
+        double.parse(contEnterAmount.text.toString()) + doubleSAdminFee;
     logger.d(finalAmountAfterCalculation);
     double amount = finalAmountAfterCalculation;
     String formattedAmount = amount.toStringAsFixed(2);
@@ -695,7 +696,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                                 fontWeight: FontWeight.w600,
                               )
                             : textFontPOOPINS(
-                                'Withdraw \$${doubleFinalAmount.toString()}',
+                                'Withdraw',
                                 Colors.white,
                                 18.0,
                                 fontWeight: FontWeight.w600,
@@ -785,20 +786,52 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     required String connectedAccountId,
     required String stripeSecretKey,
   }) async {
-    if (kDebugMode) {
-      print(amount);
-      print(currency);
-      print(connectedAccountId);
-      print(stripeSecretKey);
-    }
-
-    double calculateEditWalletAmount =
+    // wallet - (enteredAmount+adminFee)
+    /*double calculateEditWalletAmount =
         doubleWalletBalance - double.parse(contEnterAmount.text.toString());
     if (kDebugMode) {
       print(calculateEditWalletAmount);
     }
 
-    ///
+    double addAmountAndAdminFee =
+        doubleSAdminFee + double.parse(contEnterAmount.text.toString());
+    if (kDebugMode) {
+      print(addAmountAndAdminFee);
+    }
+
+    // check is this amount available in wallet or not
+    double walletBalance = double.parse(balanceIs.toString());
+    if (kDebugMode) {
+      print('Wallet balance: $walletBalance');
+    }
+
+    */
+    /*double calculateEditWalletAmount = doubleFinalAmount;
+    if (kDebugMode) {
+      print('Total Amount: $doubleFinalAmount');
+    }*/
+    if (kDebugMode) {
+      print('Total Amount: $doubleFinalAmount');
+    }
+    if (doubleWalletBalance > double.parse(contEnterAmount.text.toString())) {
+      // logger.d('Yes, wallet have enough balance');
+      if (kDebugMode) {
+        print(amount);
+        print(currency);
+        print(connectedAccountId);
+        print(stripeSecretKey);
+      }
+    } else {
+      // logger.d("No, wallet don't have enough balance");
+      Navigator.pop(context);
+      customToast(
+        'Not enough money in your wallet.',
+        Colors.red,
+        ToastGravity.BOTTOM,
+      );
+      return;
+    }
+
     // return;
     final transferSuccess = await createTransfer(
       amount: amount,
@@ -828,7 +861,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
         // edit wallet balance
         editWalletBalance(
           context,
-          calculateEditWalletAmount.toString(),
+          doubleFinalAmount.toString(),
         );
       } else {
         if (kDebugMode) {
@@ -1438,10 +1471,10 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     String editWalletAmount,
   ) async {
     debugPrint('API ==> EDIT PROFILE');
-    // String parseDevice = await deviceIs();
 
-    /*var amount = double.parse(balanceIs.toString()) -
-        double.parse(contEnterAmount.text.toString());*/
+    double amountToServer = double.parse(balanceIs) - doubleFinalAmount;
+
+    String formattedValue = amountToServer.toStringAsFixed(2);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
@@ -1452,7 +1485,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
       'action': 'editProfile',
       'userId': userId,
       // 'wallet': amount.toString(),
-      'wallet': editWalletAmount,
+      'wallet': formattedValue.toString(),
     };
     if (kDebugMode) {
       print(parameters);
