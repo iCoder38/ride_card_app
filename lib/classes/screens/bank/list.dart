@@ -62,6 +62,11 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
   bool isAccountStatusComplete = false;
   String storeAccountNumber = '';
   String storeRoutingNumber = '';
+  //
+  String stripeConnectedBankAccountAmount = '';
+  String stripeConnectedBankAccountAmountPending = '';
+  String stripeConnectedBankAccountCurrency = '';
+  bool isThereAmountInConnectedBankAccount = false;
   @override
   void initState() {
     //fetchProfileData();
@@ -115,6 +120,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
     return allDocumentsData;
   }
 
+  checkAccountTotalBalance() {}
   void checkBankAccountStatus(String bankId) async {
     String accountId = bankId;
     //  String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
@@ -245,8 +251,10 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
     String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
     String connectedAccountId = bankAccount;
 
-    final balanceData =
-        await getConnectedAccountBalance(connectedAccountId, apiKey);
+    final balanceData = await getConnectedAccountBalance(
+      connectedAccountId,
+      apiKey,
+    );
 
     if (balanceData != null) {
       if (kDebugMode) {
@@ -259,6 +267,22 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
           print(balance);
           print(" - Amount: ${balance['amount']} ${balance['currency']}");
         }
+        if (balance['amount'].toString() != "0" ||
+            balance['amount'].toString() != "0.0") {
+          // Yes, there is money
+          isThereAmountInConnectedBankAccount = true;
+          //
+          double convertItIntoStripeAmount =
+              double.parse(balance['amount'].toString()) / 100;
+          stripeConnectedBankAccountAmount =
+              convertItIntoStripeAmount.toString();
+          stripeConnectedBankAccountCurrency = balance['currency'].toString();
+          stripeConnectedBankAccountAmountPending =
+              balance['currency'].toString();
+          //
+          // logger.d(stripeConnectedBankAccountAmount);
+          // setState(() {});
+        }
       }
       if (kDebugMode) {
         print("Pending:");
@@ -266,6 +290,21 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
       for (var balance in balanceData['pending']) {
         if (kDebugMode) {
           print(" - Amount: ${balance['amount']} ${balance['currency']}");
+        }
+        if (balance['amount'].toString() != "0" ||
+            balance['amount'].toString() != "0.0") {
+          // Yes, there is money
+          isThereAmountInConnectedBankAccount = true;
+          //
+          double convertItIntoStripeAmount =
+              double.parse(balance['amount'].toString()) / 100;
+          stripeConnectedBankAccountAmountPending =
+              convertItIntoStripeAmount.toString();
+          stripeConnectedBankAccountCurrency = balance['currency'].toString();
+
+          //
+          // logger.d(stripeConnectedBankAccountAmount);
+          setState(() {});
         }
       }
     } else {
@@ -714,78 +753,163 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                                     12.0),
                               ],
                             )
-                          : Card(
-                              child: ListTile(
-                                title: textFontPOOPINS(
-                                  "AN: ${data['bankAccountNumber']}",
-                                  Colors.black,
-                                  14.0,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                subtitle: textFontPOOPINS(
-                                  "RN: ${data['bankRoutingNumber']}",
-                                  Colors.black,
-                                  12.0,
-                                ),
-                                trailing: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    if (data['active'] == true) ...[
-                                      IconButton(
-                                        onPressed: () {
-                                          customToast(
-                                            'Verified.',
-                                            Colors.green,
-                                            ToastGravity.BOTTOM,
-                                          );
-                                        },
-                                        icon: const Icon(
-                                          Icons.verified,
-                                          color: Colors.green,
-                                        ),
-                                      ),
-                                    ] else ...[
-                                      IconButton(
-                                        onPressed: () {
-                                          /*checkRequirements(
-                                              allDocumentsDataResponse[0]
-                                                      ['accountId']
-                                                  .toString());*/
-                                        },
-                                        icon: const Icon(Icons.info_outline),
-                                      ),
-                                    ]
-                                  ],
-                                ),
-                                onTap: () {
-                                  checkRequirements(snapshot
-                                      .data!.docs[index]['accountId']
-                                      .toString());
-                                  /*data['active'] == true
-                                      ? customToast(
-                                          'Verified.',
-                                          Colors.green,
-                                          ToastGravity.BOTTOM,
-                                        )
-                                      : checkRequirements(snapshot
+                          : Column(
+                              children: [
+                                Card(
+                                  child: ListTile(
+                                    title: textFontPOOPINS(
+                                      "AN: ${data['bankAccountNumber']}",
+                                      Colors.black,
+                                      14.0,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    subtitle: textFontPOOPINS(
+                                      "RN: ${data['bankRoutingNumber']}",
+                                      Colors.black,
+                                      12.0,
+                                    ),
+                                    trailing: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        if (data['active'] == true) ...[
+                                          IconButton(
+                                            onPressed: () {
+                                              customToast(
+                                                'Verified.',
+                                                Colors.green,
+                                                ToastGravity.BOTTOM,
+                                              );
+                                            },
+                                            icon: const Icon(
+                                              Icons.verified,
+                                              color: Colors.green,
+                                            ),
+                                          ),
+                                        ] else ...[
+                                          IconButton(
+                                            onPressed: () {
+                                              /*checkRequirements(
+                                                  allDocumentsDataResponse[0]
+                                                          ['accountId']
+                                                      .toString());*/
+                                            },
+                                            icon:
+                                                const Icon(Icons.info_outline),
+                                          ),
+                                        ]
+                                      ],
+                                    ),
+                                    onTap: () {
+                                      checkRequirements(snapshot
                                           .data!.docs[index]['accountId']
-                                          .toString());*/
-                                  /*isDocumentScreenUpload == false
-                                          ? const SizedBox()
-                                          : Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    FullScreenDocumentUploadPage(
-                                                  strBankAccountId: snapshot
-                                                      .data!
-                                                      .docs[index]['accountId']
-                                                      .toString(),
+                                          .toString());
+                                      /*data['active'] == true
+                                          ? customToast(
+                                              'Verified.',
+                                              Colors.green,
+                                              ToastGravity.BOTTOM,
+                                            )
+                                          : checkRequirements(snapshot
+                                              .data!.docs[index]['accountId']
+                                              .toString());*/
+                                      /*isDocumentScreenUpload == false
+                                              ? const SizedBox()
+                                              : Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        FullScreenDocumentUploadPage(
+                                                      strBankAccountId: snapshot
+                                                          .data!
+                                                          .docs[index]['accountId']
+                                                          .toString(),
+                                                    ),
+                                                  ),
+                                                );*/
+                                    },
+                                  ),
+                                ),
+                                isThereAmountInConnectedBankAccount == true
+                                    ? Column(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Container(
+                                              // height: 60,
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(12.0),
+                                              ),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Row(
+                                                  children: [
+                                                    textFontPOOPINS(
+                                                      'Pending Amount:',
+                                                      Colors.black,
+                                                      14.0,
+                                                    ),
+                                                    const Spacer(),
+                                                    textFontPOOPINS(
+                                                      '\$$stripeConnectedBankAccountAmountPending',
+                                                      Colors.orange,
+                                                      14.0,
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
-                                            );*/
-                                },
-                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 8.0,
+                                              right: 8.0,
+                                            ),
+                                            child: Container(
+                                              // height: 60,
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(12.0),
+                                              ),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Row(
+                                                  children: [
+                                                    textFontPOOPINS(
+                                                      'Available Amount:',
+                                                      Colors.black,
+                                                      14.0,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                    const Spacer(),
+                                                    textFontPOOPINS(
+                                                      '\$$stripeConnectedBankAccountAmount',
+                                                      Colors.green,
+                                                      16.0,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : const SizedBox(),
+                              ],
                             ),
                     ],
                   );
@@ -1162,15 +1286,15 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
           'active': true,
         }).then((v) {
           logger.d('Yes, It is');
-          setState(() {
-            customToast(
-              'Verified.',
-              Colors.green,
-              ToastGravity.BOTTOM,
-            );
-            screenLoader = false;
-            checkBalance(connectedAccountId);
-          });
+          // setState(() {
+          customToast(
+            'Verified.',
+            Colors.green,
+            ToastGravity.BOTTOM,
+          );
+          screenLoader = false;
+          checkBalance(connectedAccountId);
+          // });
         });
       } else {
         FirebaseFirestore.instance
