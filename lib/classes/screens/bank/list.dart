@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 // import 'package:image_picker/image_picker.dart';
 import 'package:ride_card_app/classes/StripeAPIs/accept_terms.dart';
 // import 'package:ride_card_app/classes/StripeAPIs/all_banks.dart';
@@ -68,7 +69,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
   String stripeConnectedBankAccountAmountPending = '';
   String stripeConnectedBankAccountCurrency = '';
   bool isThereAmountInConnectedBankAccount = false;
-  var _transactions = [];
+  var _payouts = [];
   @override
   void initState() {
     //fetchProfileData();
@@ -78,7 +79,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
     super.initState();
   }
 
-  connextedBankAccountTransactions(connectedAccountNumber) async {
+  connextedBankAccountPayouts(connectedAccountNumber) async {
     String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
     String secretKey = apiKey;
 
@@ -90,7 +91,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
       }
       logger.d(transactions);
       logger.d(transactions.length);
-      _transactions = transactions;
+      _payouts = transactions;
       setState(() {
         screenLoader = false;
       });
@@ -272,6 +273,45 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
     );
   }*/
 
+  checkBalanceTwoPoint(String bankAccount) async {
+    String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+    final shouldFetch = await showConfirmationDialog(context);
+    if (shouldFetch) {
+      await fetchConnectedBankBalance(bankAccount, apiKey);
+    } else {
+      if (kDebugMode) {
+        print('User chose not to fetch balance.');
+      }
+    }
+  }
+
+  Future<bool> showConfirmationDialog(BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Confirm Action'),
+              content: Text('Do you want to fetch the bank balance?'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false); // Return false
+                  },
+                  child: Text('No'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // Return true
+                  },
+                  child: Text('Yes'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Default to false if dialog is dismissed
+  }
+
   void checkBalance(String bankAccount) async {
     String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
     String connectedAccountId = bankAccount;
@@ -308,7 +348,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
           // logger.d(stripeConnectedBankAccountAmount);
           // setState(() {});
         } else {
-          connextedBankAccountTransactions(connectedAccountId.toString());
+          connextedBankAccountPayouts(connectedAccountId.toString());
         }
       }
       if (kDebugMode) {
@@ -330,9 +370,9 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
           stripeConnectedBankAccountCurrency = balance['currency'].toString();
 
           // logger.d(stripeConnectedBankAccountAmount);
-          connextedBankAccountTransactions(connectedAccountId.toString());
+          connextedBankAccountPayouts(connectedAccountId.toString());
         } else {
-          connextedBankAccountTransactions(connectedAccountId.toString());
+          connextedBankAccountPayouts(connectedAccountId.toString());
         }
       }
     } else {
@@ -864,7 +904,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                                 isThereAmountInConnectedBankAccount == true
                                     ? Column(
                                         children: [
-                                          Padding(
+                                          /*Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Container(
                                               // height: 60,
@@ -897,47 +937,53 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              left: 8.0,
-                                              right: 8.0,
-                                            ),
-                                            child: Container(
-                                              // height: 60,
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(12.0),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Row(
-                                                  children: [
-                                                    textFontPOOPINS(
-                                                      'Available Amount:',
-                                                      Colors.black,
-                                                      14.0,
-                                                      fontWeight:
-                                                          FontWeight.w600,
+                                          ),*/
+                                          _payouts.isEmpty
+                                              ? const SizedBox()
+                                              : Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                    left: 8.0,
+                                                    right: 8.0,
+                                                  ),
+                                                  child: Container(
+                                                    // height: 60,
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12.0),
                                                     ),
-                                                    const Spacer(),
-                                                    textFontPOOPINS(
-                                                      '\$$stripeConnectedBankAccountAmount',
-                                                      Colors.green,
-                                                      16.0,
-                                                      fontWeight:
-                                                          FontWeight.w600,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Row(
+                                                        children: [
+                                                          textFontPOOPINS(
+                                                            'Transferred Amount:',
+                                                            Colors.black,
+                                                            14.0,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                          const Spacer(),
+                                                          textFontPOOPINS(
+                                                            '\$$stripeConnectedBankAccountAmount',
+                                                            Colors.green,
+                                                            16.0,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
-                                                  ],
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
-                                          ),
                                         ],
                                       )
                                     : const SizedBox(),
@@ -945,24 +991,26 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                                 ///
                                 ///
                                 ///
-                                const Divider(),
+                                _payouts.isEmpty
+                                    ? const SizedBox()
+                                    : const Divider(),
                                 Align(
                                   alignment: Alignment.centerLeft,
                                   child: Row(
                                     children: [
                                       const SizedBox(width: 20.0),
-                                      textFontPOOPINS(
-                                        'All transactions',
-                                        Colors.white,
-                                        24.0,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                      _payouts.isEmpty
+                                          ? const SizedBox()
+                                          : textFontPOOPINS(
+                                              'All payouts history',
+                                              Colors.white,
+                                              24.0,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                     ],
                                   ),
                                 ),
-                                for (int i = 0;
-                                    i < _transactions.length;
-                                    i++) ...[
+                                for (int i = 0; i < _payouts.length; i++) ...[
                                   _transactionUIKit(i),
                                 ],
                               ],
@@ -992,127 +1040,277 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
         .toStringAsFixed(2); // You can adjust the decimal places as needed
   }
 
+  String convertTimestampToDate(int timestamp, {String format = 'yyyy-MM-dd'}) {
+    final date = DateTime.fromMillisecondsSinceEpoch(
+        timestamp * 1000); // Convert seconds to milliseconds
+    return DateFormat(format).format(date);
+  }
+
+  String getAmountText(int amount) {
+    if (amount < 0) {
+      // If the amount is negative
+      return 'Amount is negative: $amount';
+    } else {
+      // If the amount is positive or zero
+      return 'Amount is positive: $amount';
+    }
+  }
+
   Widget _transactionUIKit(int i) {
-    return Container(
-      // margin: EdgeInsets.only(bottom: 2.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(0),
-      ),
-      child: Column(
-        children: [
-          // const SizedBox(height: 2.0),
-          if (_transactions[i]['type'] == 'payout' &&
-              _transactions[i]['status'] == 'available') ...[
-            // const SizedBox(height: 4.0),
-            ListTile(
-              title: textFontPOOPINS(
-                'Successfully transfered',
-                Colors.black,
-                16.0,
-                fontWeight: FontWeight.w600,
-              ),
-              subtitle: textFontPOOPINS(
-                '\$${removeNegativeAmountAndDivide(_transactions[i]['amount'].toString())}',
-                Colors.green,
-                14.0,
-                fontWeight: FontWeight.w600,
-              ),
-              trailing: const Icon(
-                Icons.check,
-                color: Colors.green,
-              ),
-              onTap: () async {
-                String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
-                String transactionId = _transactions[i]['id'];
-                logger.d(transactionId);
-                String secretKey = apiKey;
-
-                try {
-                  var transactionDetails =
-                      await getTransactionDetails(transactionId, secretKey);
-                  if (kDebugMode) {
-                    print('Transaction Details: $transactionDetails');
-                  }
-                } catch (e) {
-                  if (kDebugMode) {
-                    print('Error: $e');
-                  }
-                }
-              },
-            )
-          ] else if (_transactions[i]['type'] == 'payout' &&
-              _transactions[i]['status'] == 'pending') ...[
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        // margin: EdgeInsets.only(bottom: 2.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(0),
+        ),
+        child: Column(
+          children: [
             // const SizedBox(height: 2.0),
-            ListTile(
-              title: textFontPOOPINS(
-                'In-Transit',
-                Colors.black,
-                16.0,
-                fontWeight: FontWeight.w600,
-              ),
-              subtitle: textFontPOOPINS(
-                '\$${removeNegativeAmountAndDivide(_transactions[i]['amount'].toString())}',
-                Colors.orange,
-                14.0,
-                fontWeight: FontWeight.w600,
-              ),
-              trailing: const Icon(
-                Icons.pending_outlined,
-                color: Colors.orange,
-              ),
-              onTap: () async {
-                String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
-                String transactionId = _transactions[i]['id'];
-                logger.d(transactionId);
-                String secretKey = apiKey;
+            if (_payouts[i]['status'] == 'paid') ...[
+              // const SizedBox(height: 4.0),
+              ListTile(
+                title: textFontPOOPINS(
+                  'Successfully Transferred',
+                  Colors.black,
+                  14.0,
+                  fontWeight: FontWeight.w600,
+                ),
+                subtitle: textFontPOOPINS(
+                  '\$${_payouts[i]['amount'].toString()}',
+                  Colors.green,
+                  12.0,
+                  fontWeight: FontWeight.w600,
+                ),
+                leading: const Icon(
+                  Icons.check,
+                  color: Colors.green,
+                ),
+                onTap: () async {
+                  String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+                  String transactionId = _payouts[i]['id'];
+                  logger.d(transactionId);
+                  String secretKey = apiKey;
 
-                try {
-                  var transactionDetails =
-                      await getTransactionDetails(transactionId, secretKey);
-                  print('Transaction Details: $transactionDetails');
-                } catch (e) {
-                  print('Error: $e');
-                }
-              },
-            )
-          ] else if (_transactions[i]['type'] == 'payout_cancel' &&
-              _transactions[i]['status'] == 'available') ...[
-            // const SizedBox(height: 2.0),
-            ListTile(
-              title: textFontPOOPINS(
-                'Cancelled',
-                Colors.black,
-                16.0,
-                fontWeight: FontWeight.w600,
-              ),
-              subtitle: textFontPOOPINS(
-                '\$${removeNegativeAmountAndDivide(_transactions[i]['amount'].toString())}',
-                Colors.red,
-                14.0,
-                fontWeight: FontWeight.w600,
-              ),
-              trailing: const Icon(
-                Icons.cancel_outlined,
-                color: Colors.red,
-              ),
-              onTap: () async {
-                String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
-                String transactionId = _transactions[i]['id'];
-                logger.d(transactionId);
-                String secretKey = apiKey;
+                  try {
+                    var transactionDetails =
+                        await getTransactionDetails(transactionId, secretKey);
+                    if (kDebugMode) {
+                      print('Transaction Details: $transactionDetails');
+                    }
+                  } catch (e) {
+                    if (kDebugMode) {
+                      print('Error: $e');
+                    }
+                  }
+                },
+              )
+            ] else if (_payouts[i]['status'] == 'in_transit') ...[
+              // const SizedBox(height: 2.0),
+              ListTile(
+                title: textFontPOOPINS(
+                  'In-Transit',
+                  Colors.black,
+                  16.0,
+                  fontWeight: FontWeight.w600,
+                ),
+                subtitle: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: textFontPOOPINS(
+                        '\$${removeNegativeAmountAndDivide(_payouts[i]['amount'].toString())}',
+                        Colors.orange,
+                        14.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: textFontPOOPINS(
+                        'Est. arrival date: ${convertTimestampToDate(_payouts[i]['arrival_date'], format: 'dd-MM-yyyy')}',
+                        Colors.brown,
+                        10.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                leading: const Icon(
+                  Icons.timelapse_sharp,
+                  color: Colors.orange,
+                ),
+                onTap: () async {
+                  String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+                  String transactionId = _payouts[i]['balance_transaction'];
+                  logger.d(transactionId);
+                  String secretKey = apiKey;
 
-                try {
-                  var transactionDetails =
-                      await getTransactionDetails(transactionId, secretKey);
-                  print('Transaction Details: $transactionDetails');
-                } catch (e) {
-                  print('Error: $e');
-                }
-              },
-            )
-          ]
-        ],
+                  try {
+                    var transactionDetails =
+                        await getTransactionDetails(transactionId, secretKey);
+                    if (kDebugMode) {
+                      print('Transaction Details: $transactionDetails');
+                    }
+                  } catch (e) {
+                    if (kDebugMode) {
+                      print('Error: $e');
+                    }
+                  }
+                },
+              )
+            ] else if (_payouts[i]['status'] == 'pending') ...[
+              // const SizedBox(height: 2.0),
+              ListTile(
+                title: textFontPOOPINS(
+                  _payouts[i]['amount'] < 0 ? 'Payout Reversed' : 'Pending',
+                  _payouts[i]['amount'] < 0 ? Colors.redAccent : Colors.black,
+                  16.0,
+                  fontWeight: FontWeight.w600,
+                ),
+                subtitle: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: textFontPOOPINS(
+                        '\$${removeNegativeAmountAndDivide(_payouts[i]['amount'].toString())}',
+                        _payouts[i]['amount'] < 0
+                            ? Colors.redAccent
+                            : Colors.yellow[800],
+                        14.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    _payouts[i]['amount'] < 0
+                        ? Align(
+                            alignment: Alignment.centerLeft,
+                            child: textFontPOOPINS(
+                              'Est. date: ${convertTimestampToDate(_payouts[i]['arrival_date'], format: 'dd-MM-yyyy')}',
+                              _payouts[i]['amount'] < 0
+                                  ? Colors.redAccent
+                                  : Colors.yellow[800],
+                              10.0,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )
+                        : Align(
+                            alignment: Alignment.centerLeft,
+                            child: textFontPOOPINS(
+                              'Est. arrival date: ${convertTimestampToDate(_payouts[i]['arrival_date'], format: 'dd-MM-yyyy')}',
+                              Colors.brown,
+                              10.0,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ],
+                ),
+                leading: Icon(
+                  Icons.pending_outlined,
+                  color: _payouts[i]['amount'] < 0
+                      ? Colors.redAccent
+                      : Colors.yellow[800],
+                ),
+                onTap: () async {
+                  String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+                  String transactionId = _payouts[i]['balance_transaction'];
+                  logger.d(transactionId);
+                  String secretKey = apiKey;
+
+                  try {
+                    var transactionDetails =
+                        await getTransactionDetails(transactionId, secretKey);
+                    if (kDebugMode) {
+                      print('Transaction Details: $transactionDetails');
+                    }
+                  } catch (e) {
+                    if (kDebugMode) {
+                      print('Error: $e');
+                    }
+                  }
+                },
+              )
+            ] else if (_payouts[i]['status'] == 'canceled') ...[
+              // const SizedBox(height: 2.0),
+              ListTile(
+                title: textFontPOOPINS(
+                  'Cancelled',
+                  Colors.red,
+                  16.0,
+                  fontWeight: FontWeight.w600,
+                ),
+                subtitle: textFontPOOPINS(
+                  '\$${removeNegativeAmountAndDivide(_payouts[i]['amount'].toString())}',
+                  Colors.red,
+                  14.0,
+                  fontWeight: FontWeight.w600,
+                ),
+                leading: const Icon(
+                  Icons.cancel_outlined,
+                  color: Colors.red,
+                ),
+                onTap: () async {
+                  String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+                  String transactionId = _payouts[i]['balance_transaction'];
+                  logger.d(transactionId);
+                  String secretKey = apiKey;
+
+                  try {
+                    var transactionDetails =
+                        await getTransactionDetails(transactionId, secretKey);
+                    if (kDebugMode) {
+                      print('Transaction Details: $transactionDetails');
+                    }
+                  } catch (e) {
+                    if (kDebugMode) {
+                      print('Error: $e');
+                    }
+                  }
+                },
+              )
+            ] else if (_payouts[i]['status'] == 'failed') ...[
+              // const SizedBox(height: 2.0),
+              ListTile(
+                title: textFontPOOPINS(
+                  'Failed',
+                  Colors.red,
+                  16.0,
+                  fontWeight: FontWeight.w600,
+                ),
+                subtitle: textFontPOOPINS(
+                  '\$${removeNegativeAmountAndDivide(_payouts[i]['amount'].toString())}',
+                  Colors.red,
+                  14.0,
+                  fontWeight: FontWeight.w600,
+                ),
+                leading: const Icon(
+                  Icons.cancel_outlined,
+                  color: Colors.red,
+                ),
+                onTap: () async {
+                  String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+                  String transactionId = _payouts[i]['balance_transaction'];
+                  logger.d(transactionId);
+                  String secretKey = apiKey;
+
+                  try {
+                    var transactionDetails =
+                        await getTransactionDetails(transactionId, secretKey);
+                    if (kDebugMode) {
+                      print('Transaction Details: $transactionDetails');
+                    }
+                  } catch (e) {
+                    if (kDebugMode) {
+                      print('Error: $e');
+                    }
+                  }
+                },
+              )
+            ] else ...[
+              const SizedBox()
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -1492,6 +1690,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
           );
           // screenLoader = false;
           checkBalance(connectedAccountId);
+          // checkBalanceTwoPoint(connectedAccountId);
           // });
         });
       } else {
