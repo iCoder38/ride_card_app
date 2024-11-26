@@ -12,6 +12,7 @@ import 'package:ride_card_app/classes/StripeAPIs/accept_terms.dart';
 import 'package:ride_card_app/classes/StripeAPIs/bank_details.dart';
 import 'package:ride_card_app/classes/StripeAPIs/check_account_balance.dart';
 import 'package:ride_card_app/classes/StripeAPIs/check_account_requirements.dart';
+import 'package:ride_card_app/classes/StripeAPIs/connected_account_transactions.dart';
 import 'package:ride_card_app/classes/StripeAPIs/create_customer.dart';
 import 'package:ride_card_app/classes/StripeAPIs/document_status.dart';
 import 'package:ride_card_app/classes/StripeAPIs/get_connected_bank_balance.dart';
@@ -39,7 +40,7 @@ class AllBanksScreen extends StatefulWidget {
 }
 
 class _AllBanksScreenState extends State<AllBanksScreen> {
-  var screenLoader = false;
+  var screenLoader = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   final ApiService _apiService = ApiService();
@@ -67,6 +68,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
   String stripeConnectedBankAccountAmountPending = '';
   String stripeConnectedBankAccountCurrency = '';
   bool isThereAmountInConnectedBankAccount = false;
+  var _transactions = [];
   @override
   void initState() {
     //fetchProfileData();
@@ -74,6 +76,29 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
     getAllDocumentsData();
 
     super.initState();
+  }
+
+  connextedBankAccountTransactions(connectedAccountNumber) async {
+    String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+    String secretKey = apiKey;
+
+    try {
+      var transactions = await getConnectedAccountTransactions(
+          secretKey, connectedAccountNumber);
+      if (kDebugMode) {
+        // print('Transactions for connected account: $transactions');
+      }
+      logger.d(transactions);
+      logger.d(transactions.length);
+      _transactions = transactions;
+      setState(() {
+        screenLoader = false;
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error: $e');
+      }
+    }
   }
 
   Future<List<Map<String, dynamic>>> getAllDocumentsData() async {
@@ -282,6 +307,8 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
           //
           // logger.d(stripeConnectedBankAccountAmount);
           // setState(() {});
+        } else {
+          connextedBankAccountTransactions(connectedAccountId.toString());
         }
       }
       if (kDebugMode) {
@@ -297,20 +324,24 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
           isThereAmountInConnectedBankAccount = true;
           //
           double convertItIntoStripeAmount =
-              double.parse(balance['amount'].toString()) / 100;
+              double.parse(balance['amount'].toString());
           stripeConnectedBankAccountAmountPending =
               convertItIntoStripeAmount.toString();
           stripeConnectedBankAccountCurrency = balance['currency'].toString();
 
-          //
           // logger.d(stripeConnectedBankAccountAmount);
-          setState(() {});
+          connextedBankAccountTransactions(connectedAccountId.toString());
+        } else {
+          connextedBankAccountTransactions(connectedAccountId.toString());
         }
       }
     } else {
       if (kDebugMode) {
         print("Failed to retrieve the balance.");
       }
+      setState(() {
+        screenLoader = false;
+      });
     }
   }
 
@@ -857,7 +888,8 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                                                     ),
                                                     const Spacer(),
                                                     textFontPOOPINS(
-                                                      '\$$stripeConnectedBankAccountAmountPending',
+                                                      '\$${removeNegativeAmountAndDivide(stripeConnectedBankAccountAmountPending)}',
+                                                      // '\$$stripeConnectedBankAccountAmountPending',
                                                       Colors.orange,
                                                       14.0,
                                                     ),
@@ -909,6 +941,30 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
                                         ],
                                       )
                                     : const SizedBox(),
+
+                                ///
+                                ///
+                                ///
+                                const Divider(),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Row(
+                                    children: [
+                                      const SizedBox(width: 20.0),
+                                      textFontPOOPINS(
+                                        'All transactions',
+                                        Colors.white,
+                                        24.0,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                for (int i = 0;
+                                    i < _transactions.length;
+                                    i++) ...[
+                                  _transactionUIKit(i),
+                                ],
                               ],
                             ),
                     ],
@@ -917,6 +973,148 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
               );
             },
           );
+  }
+
+  String removeNegativeAmountAndDivide(String input) {
+    // Check if the input contains a negative number (e.g., "-40")
+    RegExp negativeAmountRegExp =
+        RegExp(r'^-'); // Only remove the negative sign at the beginning
+
+    // Replace the negative sign with an empty string
+    String result = input.replaceAll(negativeAmountRegExp, '');
+
+    // Convert the result to a number, divide by 100, and convert it back to a string
+    double amount = double.parse(result);
+    double dividedAmount = amount / 100;
+
+    // Return the result as a string, formatted to two decimal places (optional)
+    return dividedAmount
+        .toStringAsFixed(2); // You can adjust the decimal places as needed
+  }
+
+  Widget _transactionUIKit(int i) {
+    return Container(
+      // margin: EdgeInsets.only(bottom: 2.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(0),
+      ),
+      child: Column(
+        children: [
+          // const SizedBox(height: 2.0),
+          if (_transactions[i]['type'] == 'payout' &&
+              _transactions[i]['status'] == 'available') ...[
+            // const SizedBox(height: 4.0),
+            ListTile(
+              title: textFontPOOPINS(
+                'Successfully transfered',
+                Colors.black,
+                16.0,
+                fontWeight: FontWeight.w600,
+              ),
+              subtitle: textFontPOOPINS(
+                '\$${removeNegativeAmountAndDivide(_transactions[i]['amount'].toString())}',
+                Colors.green,
+                14.0,
+                fontWeight: FontWeight.w600,
+              ),
+              trailing: const Icon(
+                Icons.check,
+                color: Colors.green,
+              ),
+              onTap: () async {
+                String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+                String transactionId = _transactions[i]['id'];
+                logger.d(transactionId);
+                String secretKey = apiKey;
+
+                try {
+                  var transactionDetails =
+                      await getTransactionDetails(transactionId, secretKey);
+                  if (kDebugMode) {
+                    print('Transaction Details: $transactionDetails');
+                  }
+                } catch (e) {
+                  if (kDebugMode) {
+                    print('Error: $e');
+                  }
+                }
+              },
+            )
+          ] else if (_transactions[i]['type'] == 'payout' &&
+              _transactions[i]['status'] == 'pending') ...[
+            // const SizedBox(height: 2.0),
+            ListTile(
+              title: textFontPOOPINS(
+                'In-Transit',
+                Colors.black,
+                16.0,
+                fontWeight: FontWeight.w600,
+              ),
+              subtitle: textFontPOOPINS(
+                '\$${removeNegativeAmountAndDivide(_transactions[i]['amount'].toString())}',
+                Colors.orange,
+                14.0,
+                fontWeight: FontWeight.w600,
+              ),
+              trailing: const Icon(
+                Icons.pending_outlined,
+                color: Colors.orange,
+              ),
+              onTap: () async {
+                String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+                String transactionId = _transactions[i]['id'];
+                logger.d(transactionId);
+                String secretKey = apiKey;
+
+                try {
+                  var transactionDetails =
+                      await getTransactionDetails(transactionId, secretKey);
+                  print('Transaction Details: $transactionDetails');
+                } catch (e) {
+                  print('Error: $e');
+                }
+              },
+            )
+          ] else if (_transactions[i]['type'] == 'payout_cancel' &&
+              _transactions[i]['status'] == 'available') ...[
+            // const SizedBox(height: 2.0),
+            ListTile(
+              title: textFontPOOPINS(
+                'Cancelled',
+                Colors.black,
+                16.0,
+                fontWeight: FontWeight.w600,
+              ),
+              subtitle: textFontPOOPINS(
+                '\$${removeNegativeAmountAndDivide(_transactions[i]['amount'].toString())}',
+                Colors.red,
+                14.0,
+                fontWeight: FontWeight.w600,
+              ),
+              trailing: const Icon(
+                Icons.cancel_outlined,
+                color: Colors.red,
+              ),
+              onTap: () async {
+                String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
+                String transactionId = _transactions[i]['id'];
+                logger.d(transactionId);
+                String secretKey = apiKey;
+
+                try {
+                  var transactionDetails =
+                      await getTransactionDetails(transactionId, secretKey);
+                  print('Transaction Details: $transactionDetails');
+                } catch (e) {
+                  print('Error: $e');
+                }
+              },
+            )
+          ]
+        ],
+      ),
+    );
   }
 
   /*Padding(
@@ -1292,7 +1490,7 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
             Colors.green,
             ToastGravity.BOTTOM,
           );
-          screenLoader = false;
+          // screenLoader = false;
           checkBalance(connectedAccountId);
           // });
         });
