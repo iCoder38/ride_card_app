@@ -1025,19 +1025,18 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
 
   String removeNegativeAmountAndDivide(String input) {
     // Check if the input contains a negative number (e.g., "-40")
-    RegExp negativeAmountRegExp =
+    /*RegExp negativeAmountRegExp =
         RegExp(r'^-'); // Only remove the negative sign at the beginning
 
     // Replace the negative sign with an empty string
-    String result = input.replaceAll(negativeAmountRegExp, '');
+    String result = input.replaceAll(negativeAmountRegExp, '');*/
 
     // Convert the result to a number, divide by 100, and convert it back to a string
-    double amount = double.parse(result);
+    double amount = double.parse(input);
     double dividedAmount = amount / 100;
 
     // Return the result as a string, formatted to two decimal places (optional)
-    return dividedAmount
-        .toStringAsFixed(2); // You can adjust the decimal places as needed
+    return dividedAmount.toStringAsFixed(2);
   }
 
   String convertTimestampToDate(int timestamp, {String format = 'yyyy-MM-dd'}) {
@@ -1072,20 +1071,26 @@ class _AllBanksScreenState extends State<AllBanksScreen> {
               // const SizedBox(height: 4.0),
               ListTile(
                 title: textFontPOOPINS(
-                  'Successfully Transferred',
+                  _payouts[i]['amount'] < 0
+                      ? 'Payout reversed success.'
+                      : 'Successfully Transferred',
                   Colors.black,
                   14.0,
                   fontWeight: FontWeight.w600,
                 ),
                 subtitle: textFontPOOPINS(
-                  '\$${_payouts[i]['amount'].toString()}',
-                  Colors.green,
+                  _payouts[i]['amount'] < 0
+                      ? '\$${removeNegativeAmountAndDivide(_payouts[i]['amount'].toString())}'
+                      : '\$${removeNegativeAmountAndDivide(_payouts[i]['amount'].toString())}',
+                  _payouts[i]['amount'] > 0 ? Colors.green : Colors.redAccent,
                   12.0,
                   fontWeight: FontWeight.w600,
                 ),
-                leading: const Icon(
+                leading: Icon(
                   Icons.check,
-                  color: Colors.green,
+                  color: _payouts[i]['amount'] > 0
+                      ? Colors.green
+                      : Colors.redAccent,
                 ),
                 onTap: () async {
                   String apiKey = dotenv.env["STRIPE_SK_KEY"]!;
