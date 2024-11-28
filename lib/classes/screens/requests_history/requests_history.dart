@@ -1,3 +1,5 @@
+//bennet5: 3.5 - 1.6 = 1.9
+// daniel: 3.1 + 1.5 = 4.6
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -135,6 +137,18 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
 
     // Return the result as a formatted string (e.g., with 2 decimal places)
     return total.toStringAsFixed(2);
+  }
+
+  String calculateTotalAmountMinus(String amount, String adminCharge) {
+    // Parse the strings to double and handle potential parsing issues
+    double amountValue = double.tryParse(amount) ?? 0.0;
+    double adminChargeValue = double.tryParse(adminCharge) ?? 0.0;
+
+    // Add the values together
+    double total = amountValue - adminChargeValue;
+
+    // Return the result as a formatted string (e.g., with 2 decimal places)
+    return '\$${total.toStringAsFixed(1)}';
   }
 
   String calculateAfterConvenienceFee(String amount, String adminCharge) {
@@ -368,7 +382,7 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                     ),
                     const Spacer(),
                     textFontPOOPINS(
-                      requestAmount,
+                      '\$$requestAmount',
                       // '\$${calculateTotalAmount(requestAmount, adminCharge)}',
                       Colors.black,
                       16.0,
@@ -398,8 +412,12 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                         fontWeight: FontWeight.bold),
                     const Spacer(),
                     textFontPOOPINS(
-                        requestAmount,
+                        // requestAmount,
                         // '\$${calculateAfterConvenienceFee(requestAmount, adminCharge)}',
+                        calculateTotalAmountMinus(
+                          requestAmount,
+                          adminCharge,
+                        ),
                         Colors.black,
                         20.0,
                         fontWeight: FontWeight.bold),
