@@ -38,13 +38,11 @@ String TESTING_TOKEN =
 String STRIPE_CHARGE_AMOUNT_URL =
     // 'https://demo4.evirtualservices.net/ridewallet/webroot/strip_master/strip_master/charge_test.php';
     'https://app.ridewallets.com/webroot/strip_master/strip_master/charge.php';
-// '$BASE_URL/webroot/strip_master/strip_master/charge_test.php';
 var OPEN_CARD_DETAILS_URL =
     'https://demo4.evirtualservices.net/ridewallet/displaycard.php?cardid=';
-// '$BASE_URL/displaycard.php?cardid=';
+
 var SET_PIN_URL =
     'https://demo4.evirtualservices.net/ridewallet/setpin.php?customerid=';
-// '$BASE_URL/setpin.php?customerid=';
 
 // STRIPE KEYS
 String? STRIPE_KEY = dotenv.env['STRIPE_KEY'];

@@ -420,7 +420,7 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
         }
       }
 
-      if (feesAndTaxesType == TAX_TYPE_PERCENTAGE) {
+      /*if (feesAndTaxesType == TAX_TYPE_PERCENTAGE) {
         String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
         showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
         // FEES CALCULATOR
@@ -443,30 +443,30 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
                 'Request',
                 showConvenienceFeesOnPopup.toString(),
               );
-      } else {
-        String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
-        showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
-        // logger.d(showConvenienceFeesOnPopup);
-        // return;
-        widget.title == '1'
-            ? // pushToPaymentTaxScreen(context)
-            _sendMoney(
-                context,
-                widget.data['userId'].toString(),
-                firstController.text.toString(),
-                '1',
-                'Sent',
-                showConvenienceFeesOnPopup.toString(),
-              )
-            : _sendMoney(
-                context,
-                widget.data['userId'].toString(),
-                firstController.text.toString(),
-                '1',
-                'Request',
-                showConvenienceFeesOnPopup.toString(),
-              );
-      }
+      } else {*/
+      String formattedValue = showConvenienceFeesOnPopup.toStringAsFixed(2);
+      showConvenienceFeesOnPopup = double.parse(formattedValue.toString());
+      // logger.d(showConvenienceFeesOnPopup);
+      // return;
+      widget.title == '1'
+          ? // pushToPaymentTaxScreen(context)
+          _sendMoney(
+              context,
+              widget.data['userId'].toString(),
+              firstController.text.toString(),
+              '1',
+              'Sent',
+              showConvenienceFeesOnPopup.toString(),
+            )
+          : _sendMoney(
+              context,
+              widget.data['userId'].toString(),
+              firstController.text.toString(),
+              '1',
+              'Request',
+              showConvenienceFeesOnPopup.toString(),
+            );
+      // }
     } else {
       if (kDebugMode) {
         print('Failed to retrieve fee data.');
@@ -507,17 +507,21 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
     double adminFee = double.parse(fees);
     // logger.d(currentBalance);
     // logger.d(enteredAmount);
-    if (currentBalance < enteredAmount) {
-      // logger.d('not procceed');
-      dismissKeyboard(context);
-      Navigator.pop(context);
-      customToast(
-        'Insufficient balance in your wallet. Add more money to send.',
-        Colors.red,
-        ToastGravity.BOTTOM,
-      );
-      return;
+
+    if (widget.title == '1') {
+      if (currentBalance < enteredAmount) {
+        // logger.d('not procceed');
+        dismissKeyboard(context);
+        Navigator.pop(context);
+        customToast(
+          'Insufficient balance in your wallet. Add more money to send.',
+          Colors.red,
+          ToastGravity.BOTTOM,
+        );
+        return;
+      }
     }
+
     if (adminFee > enteredAmount) {
       logger.d('Admin fee is greater than entered amount');
       dismissKeyboard(context);

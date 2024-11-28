@@ -10,6 +10,7 @@ import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/service/service.dart';
+import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,11 +31,23 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
   bool resultLoader = true;
   var strLoginUserId = '0';
   //
+  String storeUserWalletAmount = '';
+
   @override
   void initState() {
-    //
-    getLoginUserId(context);
+    checkUserData();
     super.initState();
+  }
+
+  Future<void> checkUserData() async {
+    await sendRequestToProfileDynamic().then((v) async {
+      // if (kDebugMode) {
+      logger.d(v);
+      storeUserWalletAmount = v['data']['wallet'].toString();
+      logger.d(storeUserWalletAmount);
+      // }
+      getLoginUserId(context);
+    });
   }
 
   getLoginUserId(context) async {
@@ -441,6 +454,7 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                   context,
                   user['transactionId'].toString(),
                   'decline',
+                  '',
                 );
               },
             ),
@@ -457,6 +471,11 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                   context,
                   user['transactionId'].toString(),
                   'approve',
+                  // '\$${calculateAfterConvenienceFee(user['amount'].toString(), user['admincharge'].toString())}',
+                  calculateTotalAmount(
+                    user['amount'].toString(),
+                    user['admincharge'].toString(),
+                  ),
                 );
               },
             ),
@@ -507,9 +526,33 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
     );
   }*/
 
-  _acceptDeclineAPI(context, transactionId, status) async {
+  _acceptDeclineAPI(
+    context,
+    transactionId,
+    status,
+    requestAmount,
+  ) async {
     debugPrint('API ==> REQUEST HISTORYE');
     // showLoadingUI(context, 'sending...');
+    // validate
+    // storeUserWalletAmount
+    //
+
+    // check before send requested money
+    double doubleWalletAmount = double.parse(storeUserWalletAmount.toString());
+    double doubleRequestAmount = double.parse(requestAmount.toString());
+    logger.d('Wallet balance:==> $doubleWalletAmount');
+    logger.d('Request amount:==> $doubleRequestAmount');
+    if (doubleWalletAmount < doubleRequestAmount) {
+      dismissKeyboard(context);
+      customToast(
+        'Not enough money in your wallet. Please recharge your wallet first.',
+        Colors.redAccent,
+        ToastGravity.BOTTOM,
+      );
+      return;
+    }
+
     customToast(
       'please wait...',
       Colors.green,
@@ -520,15 +563,17 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
     var userId = prefs.getString('Key_save_login_user_id').toString();
     var roleIs = '';
     roleIs = prefs.getString('key_save_user_role').toString();
+
     final parameters = {
       'action': 'requestmoneyaccept',
       'userId': userId,
       'transactionId': transactionId,
       'status': status,
     };
-    if (kDebugMode) {
-      print(parameters);
-    }
+    // if (kDebugMode) {
+    logger.d(parameters);
+    // }
+    // return;
 
     try {
       final response = await _apiService.postRequest(parameters, token);
@@ -561,7 +606,7 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
               print('TOKEN ==> $v');
             }
             // again click
-            _acceptDeclineAPI(context, transactionId, status);
+            _acceptDeclineAPI(context, transactionId, status, requestAmount);
           });
         } else {
           //

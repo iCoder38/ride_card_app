@@ -75,7 +75,81 @@ class _CardsScreenState extends State<CardsScreen> {
   @override
   void initState() {
     showCCPanelFunc(context);
+    //
+    // editWalletBalance(context);
     super.initState();
+  }
+
+  void editWalletBalance(
+    context,
+  ) async {
+    debugPrint('API ==> EDIT PROFILE');
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString(SHARED_PREFRENCE_LOCAL_KEY).toString();
+    var userId = prefs.getString('Key_save_login_user_id').toString();
+    var roleIs = '';
+    roleIs = prefs.getString('key_save_user_role').toString();
+    final parameters = {
+      'action': 'editProfile',
+      'userId': userId,
+      'wallet': '3.50'.toString(),
+    };
+    if (kDebugMode) {
+      print(parameters);
+    }
+    // return;
+
+    try {
+      final response = await _apiService.postRequest(parameters, token);
+      if (kDebugMode) {
+        print(response.body);
+      }
+      //
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successStatus = jsonResponse['status'];
+      String successMessage = jsonResponse['msg'];
+      if (kDebugMode) {
+        print('STATUS ==> $successStatus');
+        print(successMessage);
+      }
+
+      if (response.statusCode == 200) {
+        debugPrint('REGISTRATION: RESPONSE ==> SUCCESS');
+        //
+        if (successMessage == NOT_AUTHORIZED) {
+          //
+          _apiServiceGT
+              .generateToken(
+            userId,
+            loginUserEmail(),
+            roleIs.toString(),
+          )
+              .then((v) {
+            if (kDebugMode) {
+              print('TOKEN ==> $v');
+            }
+            // again click
+            editWalletBalance(context);
+          });
+        } else {
+          dismissKeyboard(context);
+
+          customToast(
+            'Successfully transferred.',
+            Colors.green,
+            ToastGravity.BOTTOM,
+          );
+
+          // fetchProfileData();
+        }
+      } else {
+        customToast(successStatus, Colors.redAccent, ToastGravity.TOP);
+        debugPrint('REGISTRATION: RESPONSE ==> FAILURE');
+      }
+    } catch (error) {
+      // print(error);
+    }
   }
 
   showCCPanelFunc(context) async {
