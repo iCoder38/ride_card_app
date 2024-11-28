@@ -206,10 +206,11 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                           const SizedBox(width: 4.0),
                           textFontORBITRON(
                             //
-                            calculateTotalAmount(
+                            arrAllUser[i]['amount'].toString(),
+                            /*calculateTotalAmount(
                               arrAllUser[i]['amount'].toString(),
                               arrAllUser[i]['admincharge'].toString(),
-                            ),
+                            ),*/
 
                             Colors.orangeAccent,
                             18.0,
@@ -284,9 +285,10 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                           const SizedBox(width: 4.0),
                           textFontORBITRON(
                             //
-                            calculateTotalAmount(
+                            arrAllUser[i]['amount'].toString(),
+                            /*calculateTotalAmount(
                                 arrAllUser[i]['amount'].toString(),
-                                arrAllUser[i]['admincharge'].toString()),
+                                arrAllUser[i]['admincharge'].toString()),*/
                             Colors.orangeAccent,
                             18.0,
                             fontWeight: FontWeight.w800,
@@ -366,7 +368,8 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                     ),
                     const Spacer(),
                     textFontPOOPINS(
-                      '\$${calculateTotalAmount(requestAmount, adminCharge)}',
+                      requestAmount,
+                      // '\$${calculateTotalAmount(requestAmount, adminCharge)}',
                       Colors.black,
                       16.0,
                     ),
@@ -395,7 +398,8 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                         fontWeight: FontWeight.bold),
                     const Spacer(),
                     textFontPOOPINS(
-                        '\$${calculateAfterConvenienceFee(requestAmount, adminCharge)}',
+                        requestAmount,
+                        // '\$${calculateAfterConvenienceFee(requestAmount, adminCharge)}',
                         Colors.black,
                         20.0,
                         fontWeight: FontWeight.bold),
@@ -422,7 +426,7 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
             fontWeight: FontWeight.w600,
           ),
           content: SizedBox(
-            height: 80,
+            height: 120,
             child: Column(
               children: [
                 const SizedBox(height: 20),
@@ -471,11 +475,12 @@ class _RequestsHistoryScreenState extends State<RequestsHistoryScreen> {
                   context,
                   user['transactionId'].toString(),
                   'approve',
+                  user['amount'].toString(),
                   // '\$${calculateAfterConvenienceFee(user['amount'].toString(), user['admincharge'].toString())}',
-                  calculateTotalAmount(
+                  /*calculateTotalAmount(
                     user['amount'].toString(),
                     user['admincharge'].toString(),
-                  ),
+                  ),*/
                 );
               },
             ),

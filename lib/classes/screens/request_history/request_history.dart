@@ -243,9 +243,10 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
                                 // const SizedBox(width: 4.0),
                                 textFontORBITRON(
                                   //
-                                  calculateTotalAmount(
+                                  arrAllUser[i]['amount'].toString(),
+                                  /*calculateTotalAmount(
                                       arrAllUser[i]['amount'].toString(),
-                                      arrAllUser[i]['admincharge'].toString()),
+                                      arrAllUser[i]['admincharge'].toString()),*/
 
                                   Colors.redAccent,
                                   18.0,

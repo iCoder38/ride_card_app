@@ -537,24 +537,30 @@ class _SendMoneyPortalScreenState extends State<SendMoneyPortalScreen> {
     String numberString = deductAmountWithCommision.toString();
     double number = double.parse(numberString);
     double roundedNumber = roundToTwoDecimalPlaces(number);
-    String roundedString = roundedNumber.toString(); // "123.46"
-    if (kDebugMode) {
+    String roundedString = roundedNumber.toString();
+    /*if (kDebugMode) {
       print(roundedString);
-    }
+    }*/
+    // round total amount
+    double number1 = double.parse(amount.toString());
+    double roundAmount = roundToTwoDecimalPlaces(number1);
+    String roundTotalAmount = roundAmount.toString();
     widget.title == '1'
         ? parameters = {
             'action': 'sendmoney',
             'senderId': userId,
-            'userId': receiverId, // receiverId
-            'amount': roundedString,
+            'userId': receiverId,
+            'amount': roundTotalAmount.toString(),
+            // roundedString,
             'type': type,
             'admincharge': fees,
           }
         : parameters = {
             'action': 'sendmoney',
-            'senderId': receiverId, // receiver id
-            'userId': userId, // login id
-            'amount': roundedString,
+            'senderId': receiverId,
+            'userId': userId,
+            'amount': roundTotalAmount.toString(),
+            // roundedString,
             'type': type,
             'admincharge': fees,
           };

@@ -400,9 +400,10 @@ class _WalletScreenState extends State<WalletScreen> {
                         const SizedBox(width: 4.0),
                         textFontORBITRON(
                           //
-                          calculateTotalAmount(
+                          arrAllUser[i]['amount'].toString(),
+                          /*calculateTotalAmount(
                               arrAllUser[i]['amount'].toString(),
-                              arrAllUser[i]['admincharge'].toString()),
+                              arrAllUser[i]['admincharge'].toString()),*/
                           // arrAllUser[i]['amount'].toString(),
                           Colors.redAccent,
                           18.0,
@@ -442,9 +443,10 @@ class _WalletScreenState extends State<WalletScreen> {
                     builder: (context) => SuccessScreen(
                       receiverData: arrAllUser[i],
                       responseData: arrAllUser[i],
-                      amount: calculateTotalAmount(
+                      amount: arrAllUser[i]['amount'].toString(),
+                      /*calculateTotalAmount(
                           arrAllUser[i]['amount'].toString(),
-                          arrAllUser[i]['admincharge'].toString()),
+                          arrAllUser[i]['admincharge'].toString()),*/
                       // arrAllUser[i]['amount'].toString(),
                       showButton: false,
                       status: '1',
