@@ -23,7 +23,6 @@ import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-import 'package:logger/logger.dart';
 
 class ConvenienceFeesChargesScreen extends StatefulWidget {
   const ConvenienceFeesChargesScreen(

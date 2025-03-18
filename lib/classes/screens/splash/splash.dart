@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/get_started_now/get_started_now.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
-import 'package:ride_card_app/classes/screens/welcome/welcome.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -10,8 +10,6 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
-import 'package:ride_card_app/classes/common/widget/widget.dart';
-import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
 import 'package:ride_card_app/classes/service/UNIT/CUSTOMER/get_customer_accounts_list/get_customer_account_list.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';

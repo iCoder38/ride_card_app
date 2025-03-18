@@ -7,7 +7,6 @@ import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class BusinessProfileShowScreen extends StatefulWidget {
   const BusinessProfileShowScreen({super.key});

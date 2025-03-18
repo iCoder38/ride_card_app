@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
-import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/wallet/send_money/service/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';

@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:ride_card_app/classes/common/methods/methods.dart';
-import 'package:ride_card_app/classes/common/utils/utils.dart';
 
 Future<dynamic> fetchCreditScore2({
   required String apiUrl,

@@ -3,7 +3,6 @@ import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/screens/register/register.dart';
 import 'package:ride_card_app/classes/screens/select_profile/widgets/widget.dart';
 import 'package:ride_card_app/classes/screens/welcome/welcome.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SelectProfileScreen extends StatefulWidget {
   const SelectProfileScreen({super.key, required this.strProfileSelect});

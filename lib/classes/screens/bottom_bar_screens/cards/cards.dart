@@ -8,10 +8,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hive/hive.dart';
 
 import 'package:flutter/material.dart';
-import 'package:ride_card_app/classes/StripeAPIs/create_bank_account.dart';
 import 'package:ride_card_app/classes/StripeAPIs/create_customer.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
@@ -20,7 +18,6 @@ import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/screens/bottom_bar_screens/cards/widgets/widgets.dart';
-import 'package:ride_card_app/classes/screens/notification_center/get_send_notification.dart';
 import 'package:ride_card_app/classes/service/UNIT/checkWalletStatus/check_wallet_status.dart';
 import 'package:ride_card_app/classes/service/UNIT/create_bank/create.dart';
 import 'package:ride_card_app/classes/service/check_cc_score/check_cc_score.dart';
@@ -30,8 +27,6 @@ import 'package:ride_card_app/classes/service/token_generate/token_service.dart'
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
-
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CardsScreen extends StatefulWidget {
   const CardsScreen({super.key});

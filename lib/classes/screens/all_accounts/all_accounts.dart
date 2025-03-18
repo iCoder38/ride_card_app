@@ -226,10 +226,6 @@ class _AllAccountsScreenState extends State<AllAccountsScreen> {
 
       //
       logger.d(newStripeToken);
-      if (newStripeToken == null) {
-        customToast('Null', Colors.redAccent, ToastGravity.BOTTOM);
-        return;
-      }
       showLoadingUI(context, 'please wait...');
       if (storeStripeCustomerId != '') {
         createStripeCustomerAccount(storeStripeCustomerId);

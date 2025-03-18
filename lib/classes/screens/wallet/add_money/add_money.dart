@@ -53,7 +53,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
   createPaymentToken() async {
     final paymentIntent = await Stripe.instance.confirmPlatformPayPaymentIntent(
         clientSecret: 'clientSecret',
-        confirmParams: PlatformPayConfirmParams.googlePay(
+        confirmParams: const PlatformPayConfirmParams.googlePay(
           googlePay: GooglePayParams(
             testEnv: true,
             merchantName: 'Example Merchant Name',

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:ride_card_app/classes/common/utils/utils.dart';
 
 Future<String?> checkDocumentStatus(String accountId, String apiKey) async {
   final url = Uri.parse('https://api.stripe.com/v1/accounts/$accountId');

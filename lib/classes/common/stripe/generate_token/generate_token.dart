@@ -85,11 +85,8 @@
 // }
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
 
 Future<Map<String, dynamic>> createStripeToken({

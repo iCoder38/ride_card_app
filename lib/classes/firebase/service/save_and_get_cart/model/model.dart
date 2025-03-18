@@ -1,5 +1,3 @@
-import 'package:uuid/uuid.dart';
-
 class CardModel {
   final String userId;
   final String cardHolderName;

@@ -10,7 +10,7 @@ Future<Map<String, String>> fetchCardDetails({
   };
 
   // Replace with the actual base URL
-  final baseUrl =
+  const baseUrl =
       'https://js.verygoodvault.com/vgs-show/1.5/ACh8JJTM42LYxwe2wfGQxwj5.js';
 
   try {

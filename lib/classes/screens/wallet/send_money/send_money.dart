@@ -1,8 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/drawer/drawer.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
@@ -11,8 +9,6 @@ import 'package:ride_card_app/classes/screens/wallet/send_money/send_money_porta
 import 'package:ride_card_app/classes/screens/wallet/send_money/service/service.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';
 import 'package:ride_card_app/classes/service/token_generate/token_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shimmer/shimmer.dart';
 
 class SendMoneyScreen extends StatefulWidget {
   const SendMoneyScreen({super.key, required this.menuBar});

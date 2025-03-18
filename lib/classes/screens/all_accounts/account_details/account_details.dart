@@ -594,8 +594,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       context: context,
       builder: (BuildContext context) {
         return Container(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
+          padding: const EdgeInsets.all(16.0),
+          child: const Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2599,11 +2599,11 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
           builder: (BuildContext context, StateSetter setModalState) {
             return Container(
               height: 400,
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Select Items',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
@@ -2631,7 +2631,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                     onPressed: () {
                       Navigator.pop(context, selectedData);
                     },
-                    child: Text("Submit"),
+                    child: const Text("Submit"),
                   ),
                 ],
               ),

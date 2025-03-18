@@ -62,8 +62,8 @@ Future<void> fetchConnectedBankBalance(String accountId, apiKey) async {
       }
 
       // Step 2: Wait for the balance to be updated
-      await Future.delayed(
-          Duration(seconds: 2)); // Allow Stripe some time to update the balance
+      await Future.delayed(const Duration(
+          seconds: 2)); // Allow Stripe some time to update the balance
 
       // Step 3: Fetch the updated account details
       final accountResponse = await http.get(

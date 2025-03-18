@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
-import 'package:ride_card_app/classes/common/methods/methods.dart';
 import 'package:ride_card_app/classes/common/utils/utils.dart';
 import 'package:ride_card_app/classes/common/widget/widget.dart';
 import 'package:ride_card_app/classes/headers/unit/unit_utils.dart';
