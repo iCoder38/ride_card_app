@@ -12,6 +12,8 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import 'package:flutter_idensic_mobile_sdk_plugin/flutter_idensic_mobile_sdk_plugin.dart';
+
 RemoteMessage? initialMessage;
 
 void main() async {

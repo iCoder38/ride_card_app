@@ -576,30 +576,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               });
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        /*Navigator.pop(context);
-        customToast(
-          'The password provided is too weak.',
-          Colors.redAccent,
-          ToastGravity.TOP,
-        );*/
       } else if (e.code == 'email-already-in-use') {
-        /*Navigator.pop(context);
-        FocusScope.of(context).unfocus();
-        customToast(
-          //
-          TEXT_ALREADY_BEEN_EXIST,
-          hexToColor(appREDcolorHexCode),
-          ToastGravity.TOP,
-        );*/
       } else {
         debugPrint('Error');
-        /*Navigator.pop(context);
-        customToast(
-          //
-          TEXT_F_ERROR,
-          Colors.redAccent,
-          ToastGravity.TOP,
-        );*/
       }
     } catch (e) {
       if (kDebugMode) {
