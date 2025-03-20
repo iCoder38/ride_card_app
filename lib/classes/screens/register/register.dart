@@ -456,9 +456,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'device': parseDevice,
       //
     };
-    if (kDebugMode) {
-      print(parameters);
-    }
+
+    logger.d(parameters);
+
     // return;
     try {
       final response = await _apiService.postRequest(parameters, '');

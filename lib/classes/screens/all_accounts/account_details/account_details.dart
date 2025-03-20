@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:ride_card_app/classes/common/alerts/alert.dart';
 import 'package:ride_card_app/classes/common/app_theme/app_theme.dart';
 import 'package:ride_card_app/classes/common/methods/methods.dart';
@@ -33,7 +32,6 @@ import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/freeze_account/freeze
 import 'package:ride_card_app/classes/service/UNIT/CARD/issue_card/issue_card.dart';
 import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/open_account/open_account.dart';
 import 'package:ride_card_app/classes/service/UNIT/ACCOUNT/un_freeze/unfreeze_account.dart';
-import 'package:ride_card_app/classes/service/UNIT/bank_statement/bank_statement.dart';
 import 'package:ride_card_app/classes/service/charge_money_from_stripe/charge_money_from_stripe.dart';
 import 'package:ride_card_app/classes/service/get_profile/get_profile.dart';
 import 'package:ride_card_app/classes/service/service/service.dart';

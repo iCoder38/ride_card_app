@@ -14,8 +14,6 @@ import 'package:ride_card_app/classes/screens/bottom_bar/bottom_bar.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:flutter_idensic_mobile_sdk_plugin/flutter_idensic_mobile_sdk_plugin.dart';
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
